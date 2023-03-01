@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Apps.Hubspot.Bearer\Apps.Hubspot.Bearer.csproj" />
+    <ProjectReference Include="..\Blackbird.Applications.SDK.Http\Blackbird.Applications.SDK.Http.csproj" />
+  </ItemGroup>
+
+</Project>
