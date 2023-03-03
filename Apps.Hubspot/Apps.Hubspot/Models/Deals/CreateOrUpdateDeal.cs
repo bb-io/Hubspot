@@ -9,6 +9,7 @@
 
     public class CreateOrUpdateDealProperties : BaseDealProperties
     {
+        public int Hubspot_owner_id { get; set; }
         public string? Closedate { get; set; }
     }
 }

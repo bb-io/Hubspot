@@ -16,5 +16,6 @@
         public DateTime Closedate { get; set; }
         public DateTime? Createdate { get; set; }
         public DateTime? Hs_lastmodifieddate { get; set; }
+        public long Hs_object_id { get; set; }
     }
 }
