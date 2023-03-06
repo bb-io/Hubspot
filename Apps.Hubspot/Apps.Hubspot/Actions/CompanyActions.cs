@@ -108,7 +108,12 @@ namespace Apps.Hubspot.Actions
                 Properties = new CreateOrUpdateCompanyProperties
                 {
                     Domain = dto.Domain,
-                    Name = dto.Name
+                    Name = dto.Name,
+                    Phone = dto.Phone,
+                    City = dto.City,
+                    State = dto.State,
+                    Industry  = dto.Industry,
+                    
                 }
             };
         }
