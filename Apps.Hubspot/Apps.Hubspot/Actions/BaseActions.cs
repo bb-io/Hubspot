@@ -17,7 +17,7 @@ namespace Apps.Hubspot.Actions
         {
         }
 
-        public IEnumerable<TEntity> GetAll(
+        protected IEnumerable<TEntity> GetAll(
             string url, 
             Dictionary<string, string>? queryParameters, 
             AuthenticationCredentialsProvider authenticationCredentialsProvider
@@ -27,7 +27,7 @@ namespace Apps.Hubspot.Actions
             return results ?? Enumerable.Empty<TEntity>();
         }
 
-        public TEntity? GetOne(
+        protected TEntity? GetOne(
             string url, 
             long id, 
             Dictionary<string, string>? queryParameters, 
@@ -38,7 +38,7 @@ namespace Apps.Hubspot.Actions
             return GetOne<TEntity>(requestUrl, queryParameters, RequestWithBodyHeaders, authenticationCredentialsProvider);
         }
 
-        public TEntity? Create(
+        protected TEntity? Create(
             string url,             
             Dictionary<string, string>? queryParameters,
             TCreateOrUpdateEntity entity,
@@ -47,7 +47,7 @@ namespace Apps.Hubspot.Actions
             return Create<TCreateOrUpdateEntity, TEntity>(url, queryParameters, RequestWithBodyHeaders, entity, authenticationCredentialsProvider);
         }
 
-        public TEntity? Update(
+        protected TEntity? Update(
             string url,
             long id,
             Dictionary<string, string>? queryParameters,
@@ -59,7 +59,7 @@ namespace Apps.Hubspot.Actions
             return Patch<TCreateOrUpdateEntity, TEntity>(requestUrl, queryParameters, RequestWithBodyHeaders, entity, authenticationCredentialsProvider);
         }
 
-        public void Delete(
+        protected void Delete(
             string url,
             long id,
             Dictionary<string, string>? queryParameters,

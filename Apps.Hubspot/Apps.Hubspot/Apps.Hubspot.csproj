@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Apps.Hubspot.Bearer\Apps.Hubspot.Bearer.csproj" />
     <ProjectReference Include="..\Blackbird.Applications.SDK.Http\Blackbird.Applications.SDK.Http.csproj" />
   </ItemGroup>
 

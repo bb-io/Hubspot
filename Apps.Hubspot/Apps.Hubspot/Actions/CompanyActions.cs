@@ -1,4 +1,5 @@
 ﻿using Apps.Common.Http;
+using Apps.Hubspot.Dtos.Companies;
 using Apps.Hubspot.Models.Companies;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication;
@@ -13,47 +14,58 @@ namespace Apps.Hubspot.Actions
         }
 
         [Action]
-        public IEnumerable<Company> GetCompanies(
+        public IEnumerable<CompanyDto> GetCompanies(
             string url,
             AuthenticationCredentialsProvider authenticationCredentialsProvider
             )
         {
             var requestUrl = GetRequestUrl(url);
-            return GetAll(requestUrl, null, authenticationCredentialsProvider);
+            return GetAll(requestUrl, null, authenticationCredentialsProvider).Select(CreateDtoByEntity).ToList();
         }
 
         [Action]
-        public Company? GetCompany(
+        public CompanyDto? GetCompany(
             string url,
             AuthenticationCredentialsProvider authenticationCredentialsProvider,
             [ActionParameter] long companyId
             )
         {
             var requestUrl = GetRequestUrl(url);
-            return GetOne(requestUrl, companyId, null, authenticationCredentialsProvider);
+            var company = GetOne(requestUrl, companyId, null, authenticationCredentialsProvider);
+            return company != null 
+                ? CreateDtoByEntity(company) 
+                : throw new InvalidOperationException($"Cannot get company: {companyId}");
         }
 
         [Action]
-        public Company? CreateCompany(
+        public CompanyDto? CreateCompany(
             string url,
             AuthenticationCredentialsProvider authenticationCredentialsProvider,
-            [ActionParameter] CreateOrUpdateCompany company
+            [ActionParameter] CreateOrUpdateCompanyDto dto
             )
         {
             var requestUrl = GetRequestUrl(url);
-            return Create(requestUrl, null, company, authenticationCredentialsProvider);
+            var company = CreateDtoByEntity(dto);
+            var createdCompany = Create(requestUrl, null, company, authenticationCredentialsProvider);
+            return createdCompany != null
+                ? CreateDtoByEntity(createdCompany)
+                : null;
         }
 
         [Action]
-        public Company? UpdateCompany(
+        public CompanyDto? UpdateCompany(
             string url,
             AuthenticationCredentialsProvider authenticationCredentialsProvider,
             [ActionParameter] long companyId,
-            [ActionParameter] CreateOrUpdateCompany company
+            [ActionParameter] CreateOrUpdateCompanyDto dto
             )
         {
             var requestUrl = GetRequestUrl(url);
-            return Update(requestUrl, companyId, null, company, authenticationCredentialsProvider);
+            var company = CreateDtoByEntity(dto);
+            var updatedCompany = Update(requestUrl, companyId, null, company, authenticationCredentialsProvider);
+            return updatedCompany != null 
+                ? CreateDtoByEntity(updatedCompany) 
+                : throw new InvalidOperationException($"Cannot update company: {companyId}");
         }
 
         [Action]
@@ -71,6 +83,34 @@ namespace Apps.Hubspot.Actions
         {
             const string requestUrlFormat = "{0}/crm/v3/objects/companies";
             return string.Format(requestUrlFormat, url);
+        }
+
+        private CompanyDto CreateDtoByEntity(Company company)
+        {
+            return new CompanyDto
+            {
+                Id = company.Id.ToString(),
+                CreatedAt = company.CreatedAt,
+                UpdatedAt = company.UpdatedAt,
+                Archived = company.Archived,
+                Domain = company.Properties.Domain,
+                Name = company.Properties.Name,
+                Createdate = company.Properties.Createdate,
+                Hs_lastmodifieddate = company.Properties.Hs_lastmodifieddate,
+                Hs_object_id = company.Properties.hs_object_id.ToString()
+            };
+        }
+
+        private CreateOrUpdateCompany CreateDtoByEntity(CreateOrUpdateCompanyDto dto)
+        {
+            return new CreateOrUpdateCompany
+            {
+                Properties = new CreateOrUpdateCompanyProperties
+                {
+                    Domain = dto.Domain,
+                    Name = dto.Name
+                }
+            };
         }
     }
 }
