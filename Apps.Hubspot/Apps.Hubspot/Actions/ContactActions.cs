@@ -9,29 +9,26 @@ namespace Apps.Hubspot.Actions
     [ActionList]
     public class ContactActions : BaseActions<Contact, CreateOrUpdateContact>
     {
+        private readonly string _requestUrl = "https://api.hubapi.com/crm/v3/objects/contacts";
         public ContactActions() : base(new HttpRequestProvider())
         {
         }
 
         [Action]
         public IEnumerable<ContactDto> GetContacts(
-            string url,
             AuthenticationCredentialsProvider authenticationCredentialsProvider
             )
         {
-            var requestUrl = GetRequestUrl(url);
-            return GetAll(requestUrl, null, authenticationCredentialsProvider).Select(CreateDtoByEntity).ToList();
+            return GetAll(_requestUrl, null, authenticationCredentialsProvider).Select(CreateDtoByEntity).ToList();
         }
 
         [Action]
         public ContactDto? GetContact(
-            string url,
             AuthenticationCredentialsProvider authenticationCredentialsProvider,
             [ActionParameter] int contactId
             )
         {
-            var requestUrl = GetRequestUrl(url);
-            var contact = GetOne(requestUrl, contactId, null, authenticationCredentialsProvider);
+            var contact = GetOne(_requestUrl, contactId, null, authenticationCredentialsProvider);
             return contact != null
                 ? CreateDtoByEntity(contact)
                 : throw new InvalidOperationException($"Cannot get company: {contactId}");
@@ -39,14 +36,12 @@ namespace Apps.Hubspot.Actions
 
         [Action]
         public ContactDto? CreateContact(
-            string url,
             AuthenticationCredentialsProvider authenticationCredentialsProvider,
             [ActionParameter] CreateOrUpdateContactDto dto
             )
         {
-            var requestUrl = GetRequestUrl(url);
             var contact = CreateDtoByEntity(dto);
-            var createdContact = Create(requestUrl, null, contact, authenticationCredentialsProvider);
+            var createdContact = Create(_requestUrl, null, contact, authenticationCredentialsProvider);
             return createdContact != null
                 ? CreateDtoByEntity(createdContact)
                 : null;
@@ -54,15 +49,13 @@ namespace Apps.Hubspot.Actions
 
         [Action]
         public ContactDto? UpdateContact(
-            string url,
             AuthenticationCredentialsProvider authenticationCredentialsProvider,
             [ActionParameter] int contactId,
             [ActionParameter] CreateOrUpdateContactDto dto
             )
         {
-            var requestUrl = GetRequestUrl(url);
             var contact = CreateDtoByEntity(dto);
-            var updatedContact = Update(requestUrl, contactId, null, contact, authenticationCredentialsProvider);
+            var updatedContact = Update(_requestUrl, contactId, null, contact, authenticationCredentialsProvider);
             return updatedContact != null
                 ? CreateDtoByEntity(updatedContact)
                 : throw new InvalidOperationException($"Cannot update company: {contactId}");
@@ -70,19 +63,11 @@ namespace Apps.Hubspot.Actions
 
         [Action]
         public void DeleteContact(
-            string url,
             AuthenticationCredentialsProvider authenticationCredentialsProvider,
             [ActionParameter] int contactId
             )
         {
-            var requestUrl = GetRequestUrl(url);
-            Delete(requestUrl, contactId, null, authenticationCredentialsProvider);
-        }
-
-        private string GetRequestUrl(string url)
-        {
-            const string requestUrlFormat = "{0}/crm/v3/objects/contacts";
-            return string.Format(requestUrlFormat, url);
+            Delete(_requestUrl, contactId, null, authenticationCredentialsProvider);
         }
 
         private ContactDto CreateDtoByEntity(Contact contact)

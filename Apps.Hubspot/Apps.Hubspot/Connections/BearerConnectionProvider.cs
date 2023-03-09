@@ -8,7 +8,7 @@ namespace Apps.Hubspot.Bearer
         const string AuthKeyName = "Authorization";
 
         public string ConnectionName => "OAuth";
-        public IEnumerable<string> ConnectionProperties => new[] { "url", "Authorization" };
+        public IEnumerable<string> ConnectionProperties => new[] { "Authorization" };
 
         public AuthenticationCredentialsProvider Create(IDictionary<string, string> connectionValues)
         {

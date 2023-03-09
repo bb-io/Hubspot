@@ -9,29 +9,27 @@ namespace Apps.Hubspot.Actions
     [ActionList]
     public class CompanyActions : BaseActions<Company, CreateOrUpdateCompany>
     {
+        private readonly string _requestUrl = "https://api.hubapi.com/crm/v3/objects/companies";
+
         public CompanyActions() : base(new HttpRequestProvider())
         {
         }
 
         [Action]
         public IEnumerable<CompanyDto> GetCompanies(
-            string url,
             AuthenticationCredentialsProvider authenticationCredentialsProvider
             )
         {
-            var requestUrl = GetRequestUrl(url);
-            return GetAll(requestUrl, null, authenticationCredentialsProvider).Select(CreateDtoByEntity).ToList();
+            return GetAll(_requestUrl, null, authenticationCredentialsProvider).Select(CreateDtoByEntity).ToList();
         }
 
         [Action]
         public CompanyDto? GetCompany(
-            string url,
             AuthenticationCredentialsProvider authenticationCredentialsProvider,
             [ActionParameter] long companyId
             )
         {
-            var requestUrl = GetRequestUrl(url);
-            var company = GetOne(requestUrl, companyId, null, authenticationCredentialsProvider);
+            var company = GetOne(_requestUrl, companyId, null, authenticationCredentialsProvider);
             return company != null 
                 ? CreateDtoByEntity(company) 
                 : throw new InvalidOperationException($"Cannot get company: {companyId}");
@@ -39,14 +37,12 @@ namespace Apps.Hubspot.Actions
 
         [Action]
         public CompanyDto? CreateCompany(
-            string url,
             AuthenticationCredentialsProvider authenticationCredentialsProvider,
             [ActionParameter] CreateOrUpdateCompanyDto dto
             )
         {
-            var requestUrl = GetRequestUrl(url);
             var company = CreateDtoByEntity(dto);
-            var createdCompany = Create(requestUrl, null, company, authenticationCredentialsProvider);
+            var createdCompany = Create(_requestUrl, null, company, authenticationCredentialsProvider);
             return createdCompany != null
                 ? CreateDtoByEntity(createdCompany)
                 : null;
@@ -54,15 +50,13 @@ namespace Apps.Hubspot.Actions
 
         [Action]
         public CompanyDto? UpdateCompany(
-            string url,
             AuthenticationCredentialsProvider authenticationCredentialsProvider,
             [ActionParameter] long companyId,
             [ActionParameter] CreateOrUpdateCompanyDto dto
             )
         {
-            var requestUrl = GetRequestUrl(url);
             var company = CreateDtoByEntity(dto);
-            var updatedCompany = Update(requestUrl, companyId, null, company, authenticationCredentialsProvider);
+            var updatedCompany = Update(_requestUrl, companyId, null, company, authenticationCredentialsProvider);
             return updatedCompany != null 
                 ? CreateDtoByEntity(updatedCompany) 
                 : throw new InvalidOperationException($"Cannot update company: {companyId}");
@@ -70,19 +64,11 @@ namespace Apps.Hubspot.Actions
 
         [Action]
         public void DeleteCompany(
-            string url,
             AuthenticationCredentialsProvider authenticationCredentialsProvider,
             [ActionParameter] long companyId
             )
         {
-            var requestUrl = GetRequestUrl(url);
-            Delete(requestUrl, companyId, null, authenticationCredentialsProvider);
-        }
-
-        private string GetRequestUrl(string url)
-        {
-            const string requestUrlFormat = "{0}/crm/v3/objects/companies";
-            return string.Format(requestUrlFormat, url);
+            Delete(_requestUrl, companyId, null, authenticationCredentialsProvider);
         }
 
         private CompanyDto CreateDtoByEntity(Company company)
