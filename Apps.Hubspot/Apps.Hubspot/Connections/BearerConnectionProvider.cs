@@ -1,7 +1,7 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication;
 
-namespace Apps.Hubspot.Bearer
+namespace Apps.Hubspot.Connections
 {
     public class BearerConnectionProvider : IConnectionProvider
     {
