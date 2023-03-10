@@ -14,7 +14,7 @@
         "Parameters": {
           "state": "{{state}}",
           "client_id": "faab567b-5ce9-46ff-a548-62f7037a1b57",
-          "scope": "cms.domains.write+crm.schemas.companies.write+crm.schemas.quotes.read+crm.schemas.contacts.write+crm.objects.line_items.read+crm.schemas.deals.read+crm.objects.line_items.write+crm.schemas.deals.write+crm.schemas.line_items.read+cms.knowledge_base.articles.publish++cms.knowledge_base.articles.write+cms.knowledge_base.articles.read+cms.knowledge_base.settings.read+cms.knowledge_base.settings.write+crm.objects.owners.read+settings.users.teams.write+settings.users.teams.read+settings.users.write+crm.objects.contacts.write+cms.performance.read+crm.objects.marketing_events.read+crm.objects.marketing_events.write+crm.schemas.custom.read+crm.objects.custom.read+crm.objects.feedback_submissions.read+crm.objects.custom.write+crm.objects.companies.write+crm.lists.write+crm.objects.goals.read+crm.objects.companies.read+crm.lists.read+settings.users.read+crm.objects.deals.read+crm.schemas.contacts.read+crm.objects.deals.write+crm.objects.quotes.write+crm.objects.contacts.read+cms.domains.read+crm.schemas.companies.read+crm.objects.quotes.read",
+          "scope": "crm.objects.contacts.read+crm.objects.companies.read+crm.lists.read+crm.lists.write+crm.objects.contacts.write+crm.objects.companies.write+crm.objects.deals.read+crm.objects.deals.write",
           "redirect_uri": "https://dev.blackbird.io/api-rest/connections/authorizationCode"
         }
       },
