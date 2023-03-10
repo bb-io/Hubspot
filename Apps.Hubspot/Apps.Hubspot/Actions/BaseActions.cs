@@ -1,4 +1,4 @@
-﻿using Apps.Common.Http;
+﻿using Apps.Hubspot.Http;
 using Apps.Hubspot.Models;
 using Blackbird.Applications.Sdk.Common.Authentication;
 

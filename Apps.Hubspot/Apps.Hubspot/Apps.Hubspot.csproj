@@ -7,7 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Blackbird.Applications.SDK.Http\Blackbird.Applications.SDK.Http.csproj" />
+    <Folder Include="Http\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Blackbird.Applications.Sdk.Common" Version="1.0.1" />
   </ItemGroup>
 
 </Project>

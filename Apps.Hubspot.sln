@@ -5,10 +5,6 @@ VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Apps.Hubspot", "Apps.Hubspot\Apps.Hubspot\Apps.Hubspot.csproj", "{483D78DA-0409-4D48-BE76-6933F2AC8793}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Apps.Hubspot.Bearer", "Apps.Hubspot\Apps.Hubspot.Bearer\Apps.Hubspot.Bearer.csproj", "{F91641AD-4E62-42B2-8A08-62E435F30637}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blackbird.Applications.SDK.Http", "Apps.Hubspot\Blackbird.Applications.SDK.Http\Blackbird.Applications.SDK.Http.csproj", "{7EF0935A-7AA8-4D52-9110-7325743C7275}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,14 +15,6 @@ Global
 		{483D78DA-0409-4D48-BE76-6933F2AC8793}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{483D78DA-0409-4D48-BE76-6933F2AC8793}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{483D78DA-0409-4D48-BE76-6933F2AC8793}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F91641AD-4E62-42B2-8A08-62E435F30637}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F91641AD-4E62-42B2-8A08-62E435F30637}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F91641AD-4E62-42B2-8A08-62E435F30637}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F91641AD-4E62-42B2-8A08-62E435F30637}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7EF0935A-7AA8-4D52-9110-7325743C7275}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7EF0935A-7AA8-4D52-9110-7325743C7275}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7EF0935A-7AA8-4D52-9110-7325743C7275}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7EF0935A-7AA8-4D52-9110-7325743C7275}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

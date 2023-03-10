@@ -1,7 +1,6 @@
-﻿using Apps.Common.Http;
-using Blackbird.Applications.Sdk.Common.Authentication;
+﻿using Blackbird.Applications.Sdk.Common.Authentication;
 
-namespace Apps.Hubspot.Actions
+namespace Apps.Hubspot.Http
 {
     public abstract class RestRequestProvider
     {

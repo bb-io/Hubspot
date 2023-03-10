@@ -1,7 +1,7 @@
 ﻿using Blackbird.Applications.Sdk.Common.Authentication;
 using RestSharp;
 
-namespace Apps.Common.Http
+namespace Apps.Hubspot.Http
 {
     public class HttpRequestProvider
     {

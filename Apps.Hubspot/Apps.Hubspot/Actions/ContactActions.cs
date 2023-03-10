@@ -1,4 +1,4 @@
-﻿using Apps.Common.Http;
+﻿using Apps.Hubspot.Http;
 using Apps.Hubspot.Dtos.Contacts;
 using Apps.Hubspot.Models.Contacts;
 using Blackbird.Applications.Sdk.Common;

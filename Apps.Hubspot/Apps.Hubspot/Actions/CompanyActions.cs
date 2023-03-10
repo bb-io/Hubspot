@@ -1,5 +1,5 @@
-﻿using Apps.Common.Http;
-using Apps.Hubspot.Dtos.Companies;
+﻿using Apps.Hubspot.Dtos.Companies;
+using Apps.Hubspot.Http;
 using Apps.Hubspot.Models.Companies;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication;
