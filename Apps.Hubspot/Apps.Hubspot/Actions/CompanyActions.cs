@@ -2,6 +2,7 @@
 using Apps.Hubspot.Http;
 using Apps.Hubspot.Models.Companies;
 using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
 
 namespace Apps.Hubspot.Actions
@@ -21,6 +22,15 @@ namespace Apps.Hubspot.Actions
             )
         {
             return GetAll(_requestUrl, null, authenticationCredentialsProvider).Select(CreateDtoByEntity).ToList();
+        }
+
+        [Action]
+        public async Task<IEnumerable<CompanyDto>> GetCompaniesAsync(
+            AuthenticationCredentialsProvider authenticationCredentialsProvider
+            )
+        {
+            var companies = await GetAllAsync(_requestUrl, null, authenticationCredentialsProvider);
+            return companies.Select(CreateDtoByEntity).ToList();
         }
 
         [Action]

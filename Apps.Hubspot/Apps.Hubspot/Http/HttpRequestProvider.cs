@@ -17,18 +17,45 @@ namespace Apps.Hubspot.Http
             return client.Get<TResponse>(request);
         }
 
+        public async Task<TResponse?> GetAsync<TResponse>(
+            string url,
+            Dictionary<string, string>? queryParameters,
+            Dictionary<string, string> headers,
+            AuthenticationCredentialsProvider authenticationCredentialsProvider
+            )
+        {
+            using var client = new RestClient(url);
+            var request = CreateRequest(queryParameters, headers, authenticationCredentialsProvider);
+            return await client.GetAsync<TResponse>(request);
+        }
+
         public TResponse? Post<TRequest, TResponse>(
             string url,
             Dictionary<string, string>? queryParameters,
             Dictionary<string, string> headers,
             TRequest body,
-            AuthenticationCredentialsProvider authenticationCredentialsProvider)
+            AuthenticationCredentialsProvider authenticationCredentialsProvider
+            )
             where TRequest : class
         {
             var client = new RestClient(url);
             var request = CreateRequest(queryParameters, headers, authenticationCredentialsProvider);
             request.AddBody(body, "application/json");
             return client.Post<TResponse>(request);
+        }
+
+        public async Task<TResponse?> PostAsync<TRequest, TResponse>(
+            string url,
+            Dictionary<string, string>? queryParameters,
+            Dictionary<string, string> headers,
+            TRequest body,
+            AuthenticationCredentialsProvider authenticationCredentialsProvider
+            )
+        {
+            var client = new RestClient(url);
+            var request = CreateRequest(queryParameters, headers, authenticationCredentialsProvider);
+            request.AddBody(body, "application/json");
+            return await client.PostAsync<TResponse>(request);
         }
 
         public TResponse? Patch<TRequest, TResponse>(
@@ -45,6 +72,34 @@ namespace Apps.Hubspot.Http
             return client.Patch<TResponse>(request);
         }
 
+        public TResponse? Put<TRequest, TResponse>(
+            string url,
+            Dictionary<string, string>? queryParameters,
+            Dictionary<string, string> headers,
+            TRequest body,
+            AuthenticationCredentialsProvider authenticationCredentialsProvider)
+            where TRequest : class
+        {
+            var client = new RestClient(url);
+            var request = CreateRequest(queryParameters, headers, authenticationCredentialsProvider);
+            request.AddBody(body, "application/json");
+            return client.Put<TResponse>(request);
+        }
+
+        public async Task<TResponse?> PutAsync<TRequest, TResponse>(
+            string url,
+            Dictionary<string, string>? queryParameters,
+            Dictionary<string, string> headers,
+            TRequest body,
+            AuthenticationCredentialsProvider authenticationCredentialsProvider)
+            where TRequest : class
+        {
+            var client = new RestClient(url);
+            var request = CreateRequest(queryParameters, headers, authenticationCredentialsProvider);
+            request.AddBody(body, "application/json");
+            return await client.PutAsync<TResponse>(request);
+        }
+
         public TResponse? Delete<TResponse>(
             string url,
             Dictionary<string, string>? queryParameters,
@@ -54,6 +109,17 @@ namespace Apps.Hubspot.Http
             var client = new RestClient(url);
             var request = CreateRequest(queryParameters, headers, authenticationCredentialsProvider);
             return client.Delete<TResponse>(request);
+        }
+
+        public async Task<TResponse?> DeleteAsync<TResponse>(
+            string url,
+            Dictionary<string, string>? queryParameters,
+            Dictionary<string, string> headers,
+            AuthenticationCredentialsProvider authenticationCredentialsProvider)
+        {
+            var client = new RestClient(url);
+            var request = CreateRequest(queryParameters, headers, authenticationCredentialsProvider);
+            return await client.DeleteAsync<TResponse>(request);
         }
 
         private RestRequest CreateRequest(

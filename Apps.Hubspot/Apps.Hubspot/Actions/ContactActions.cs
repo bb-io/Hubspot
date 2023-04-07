@@ -3,6 +3,7 @@ using Apps.Hubspot.Dtos.Contacts;
 using Apps.Hubspot.Models.Contacts;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication;
+using Blackbird.Applications.Sdk.Common.Actions;
 
 namespace Apps.Hubspot.Actions
 {

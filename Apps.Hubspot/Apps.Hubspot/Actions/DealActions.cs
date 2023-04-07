@@ -3,6 +3,7 @@ using Apps.Hubspot.Dtos.Deals;
 using Apps.Hubspot.Models.Deals;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication;
+using Blackbird.Applications.Sdk.Common.Actions;
 
 namespace Apps.Hubspot.Actions
 {

@@ -27,6 +27,16 @@ namespace Apps.Hubspot.Actions
             return results ?? Enumerable.Empty<TEntity>();
         }
 
+        protected async Task<IEnumerable<TEntity>> GetAllAsync(
+            string url,
+            Dictionary<string, string>? queryParameters,
+            AuthenticationCredentialsProvider authenticationCredentialsProvider
+            )
+        {
+            var response = await GetAllAsync<GetAllResponse<TEntity>>(url, queryParameters, RequestWithBodyHeaders, authenticationCredentialsProvider);
+            return response?.Results ?? Enumerable.Empty<TEntity>();
+        }
+
         protected TEntity? GetOne(
             string url, 
             long id, 
