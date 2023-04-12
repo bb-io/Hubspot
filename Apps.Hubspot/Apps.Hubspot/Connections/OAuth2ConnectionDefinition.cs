@@ -5,25 +5,50 @@ namespace Apps.Hubspot.Connections
 {
     public class OAuth2ConnectionDefinition : IConnectionDefinition
     {
+        private const string ApiKeyName = "hapikey";
+
         public string Name => "OAuth2";
 
-        public ConnectionAuthenticationType AuthenticationType => ConnectionAuthenticationType.OAuth2;
-
-        public IEnumerable<ConnectionProperty> ConnectionProperties => new List<ConnectionProperty>()
+        public IEnumerable<ConnectionPropertyGroup> ConnectionPropertyGroups => new List<ConnectionPropertyGroup>()
         {
-            new ConnectionProperty("client_id"),
-            new ConnectionProperty("client_secret"),
-            new ConnectionProperty("scope"),
-            new ConnectionProperty("appId")
+            new ConnectionPropertyGroup
+            {
+                Name = "OAuth2",
+                AuthenticationType = ConnectionAuthenticationType.OAuth2,
+                ConnectionUsage = ConnectionUsage.Actions,
+                ConnectionProperties = new List<ConnectionProperty>()
+                {
+                    new ConnectionProperty("client_id"),
+                    new ConnectionProperty("client_secret"),
+                    new ConnectionProperty("scope")                    
+                }
+            },
+            new ConnectionPropertyGroup
+            {
+                Name = "Developer API Token",
+                AuthenticationType = ConnectionAuthenticationType.Undefined,
+                ConnectionUsage = ConnectionUsage.Webhooks,
+                ConnectionProperties = new List<ConnectionProperty>()
+                {
+                    new ConnectionProperty("appId"),
+                    new ConnectionProperty(ApiKeyName)
+                }
+            }
         };
 
-        public AuthenticationCredentialsProvider CreateAuthorizationCredentialsProvider(Dictionary<string, string> values)
+        public IEnumerable<AuthenticationCredentialsProvider> CreateAuthorizationCredentialsProvider(Dictionary<string, string> values)
         {
             var token = values.First(v => v.Key == "access_token");
-            return new AuthenticationCredentialsProvider(
+            yield return new AuthenticationCredentialsProvider(
                 AuthenticationCredentialsRequestLocation.Header,
-                AuthKeyName,
+                "Authorization",
                 $"Bearer {token.Value}"
+            );
+            var apiKey = values.First(v => v.Key == ApiKeyName);
+            yield return new AuthenticationCredentialsProvider(
+                AuthenticationCredentialsRequestLocation.QueryString,
+                ApiKeyName,
+                token.Value
             );
         }
     }

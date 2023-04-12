@@ -9,12 +9,12 @@ namespace Apps.Hubspot.Webhooks
     public class WebhookList
     {
         [Webhook(typeof(ContactEmailChangesHandler))]
-        public ContactEmailChangedPayload? ContactEmailChanged(object payload)
+        public ContactEmailChangedPayload? ContactEmailChanged(WebhookRequest webhookRequest)
         {
-            var payloadString = payload.ToString();
+            var payloadString = webhookRequest.Body.ToString();
             if(string.IsNullOrEmpty(payloadString))
             {
-                throw new InvalidCastException(nameof(payload));
+                throw new InvalidCastException(nameof(webhookRequest.Body));
             }
             return JsonSerializer.Deserialize<IEnumerable<ContactEmailChangedPayload>>(payloadString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true})?.FirstOrDefault();
         }

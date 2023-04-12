@@ -17,19 +17,19 @@ namespace Apps.Hubspot.Actions
 
         [Action]
         public IEnumerable<DealDto> GetDeals(
-            AuthenticationCredentialsProvider authenticationCredentialsProvider
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders
             )
         {
-            return GetAll(_requestUrl, null, authenticationCredentialsProvider).Select(CreateDtoByEntity).ToList();
+            return GetAll(_requestUrl, null, authenticationCredentialsProviders).Select(CreateDtoByEntity).ToList();
         }
 
         [Action]
         public DealDto? GetDeal(
-            AuthenticationCredentialsProvider authenticationCredentialsProvider,
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] long dealId
             )
         {
-            var deal = GetOne(_requestUrl, dealId, null, authenticationCredentialsProvider);
+            var deal = GetOne(_requestUrl, dealId, null, authenticationCredentialsProviders);
             return deal != null
                 ? CreateDtoByEntity(deal)
                 : throw new InvalidOperationException($"Cannot get company: {dealId}");
@@ -37,12 +37,12 @@ namespace Apps.Hubspot.Actions
 
         [Action]
         public DealDto? CreateDeal(
-            AuthenticationCredentialsProvider authenticationCredentialsProvider,
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] CreateOrUpdateDealDto dto
             )
         {
             var deal = CreateDtoByEntity(dto);
-            var createdDeal = Create(_requestUrl, null, deal, authenticationCredentialsProvider);
+            var createdDeal = Create(_requestUrl, null, deal, authenticationCredentialsProviders);
             return createdDeal != null
                 ? CreateDtoByEntity(createdDeal)
                 : null;
@@ -50,13 +50,13 @@ namespace Apps.Hubspot.Actions
 
         [Action]
         public DealDto? UpdateDeal(
-            AuthenticationCredentialsProvider authenticationCredentialsProvider,
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] long dealId,
             [ActionParameter] CreateOrUpdateDealDto dto
             )
         {
             var deal = CreateDtoByEntity(dto);
-            var updatedDeal = Update(_requestUrl, dealId, null, deal, authenticationCredentialsProvider);
+            var updatedDeal = Update(_requestUrl, dealId, null, deal, authenticationCredentialsProviders);
             return updatedDeal != null
                 ? CreateDtoByEntity(updatedDeal)
                 : throw new InvalidOperationException($"Cannot update company: {dealId}");
@@ -64,11 +64,11 @@ namespace Apps.Hubspot.Actions
 
         [Action]
         public void DeleteDeal(
-            AuthenticationCredentialsProvider authenticationCredentialsProvider,
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] long dealId
             )
         {
-            Delete(_requestUrl, dealId, null, authenticationCredentialsProvider);
+            Delete(_requestUrl, dealId, null, authenticationCredentialsProviders);
         }
 
         private DealDto CreateDtoByEntity(Deal deal)

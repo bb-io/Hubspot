@@ -18,28 +18,28 @@ namespace Apps.Hubspot.Actions
 
         [Action]
         public IEnumerable<CompanyDto> GetCompanies(
-            AuthenticationCredentialsProvider authenticationCredentialsProvider
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders
             )
         {
-            return GetAll(_requestUrl, null, authenticationCredentialsProvider).Select(CreateDtoByEntity).ToList();
+            return GetAll(_requestUrl, null, authenticationCredentialsProviders).Select(CreateDtoByEntity).ToList();
         }
 
         [Action]
         public async Task<IEnumerable<CompanyDto>> GetCompaniesAsync(
-            AuthenticationCredentialsProvider authenticationCredentialsProvider
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders
             )
         {
-            var companies = await GetAllAsync(_requestUrl, null, authenticationCredentialsProvider);
+            var companies = await GetAllAsync(_requestUrl, null, authenticationCredentialsProviders);
             return companies.Select(CreateDtoByEntity).ToList();
         }
 
         [Action]
         public CompanyDto? GetCompany(
-            AuthenticationCredentialsProvider authenticationCredentialsProvider,
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] long companyId
             )
         {
-            var company = GetOne(_requestUrl, companyId, null, authenticationCredentialsProvider);
+            var company = GetOne(_requestUrl, companyId, null, authenticationCredentialsProviders);
             return company != null 
                 ? CreateDtoByEntity(company) 
                 : throw new InvalidOperationException($"Cannot get company: {companyId}");
@@ -47,12 +47,12 @@ namespace Apps.Hubspot.Actions
 
         [Action]
         public CompanyDto? CreateCompany(
-            AuthenticationCredentialsProvider authenticationCredentialsProvider,
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] CreateOrUpdateCompanyDto dto
             )
         {
             var company = CreateDtoByEntity(dto);
-            var createdCompany = Create(_requestUrl, null, company, authenticationCredentialsProvider);
+            var createdCompany = Create(_requestUrl, null, company, authenticationCredentialsProviders);
             return createdCompany != null
                 ? CreateDtoByEntity(createdCompany)
                 : null;
@@ -60,13 +60,13 @@ namespace Apps.Hubspot.Actions
 
         [Action]
         public CompanyDto? UpdateCompany(
-            AuthenticationCredentialsProvider authenticationCredentialsProvider,
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] long companyId,
             [ActionParameter] CreateOrUpdateCompanyDto dto
             )
         {
             var company = CreateDtoByEntity(dto);
-            var updatedCompany = Update(_requestUrl, companyId, null, company, authenticationCredentialsProvider);
+            var updatedCompany = Update(_requestUrl, companyId, null, company, authenticationCredentialsProviders);
             return updatedCompany != null 
                 ? CreateDtoByEntity(updatedCompany) 
                 : throw new InvalidOperationException($"Cannot update company: {companyId}");
@@ -74,11 +74,11 @@ namespace Apps.Hubspot.Actions
 
         [Action]
         public void DeleteCompany(
-            AuthenticationCredentialsProvider authenticationCredentialsProvider,
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] long companyId
             )
         {
-            Delete(_requestUrl, companyId, null, authenticationCredentialsProvider);
+            Delete(_requestUrl, companyId, null, authenticationCredentialsProviders);
         }
 
         private CompanyDto CreateDtoByEntity(Company company)
