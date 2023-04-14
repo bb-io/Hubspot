@@ -1,7 +1,6 @@
 ﻿using Apps.Hubspot.Authorization.OAuth2;
-using Blackbird.Applications.Sdk.Authorization.OAuth;
-using Blackbird.Applications.Sdk.Authorization.OAuth2;
 using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
 
 namespace Apps.Hubspot
 {

@@ -7,8 +7,6 @@ namespace Apps.Hubspot.Connections
     {
         private const string ApiKeyName = "hapikey";
 
-        public string Name => "OAuth2";
-
         public IEnumerable<ConnectionPropertyGroup> ConnectionPropertyGroups => new List<ConnectionPropertyGroup>()
         {
             new ConnectionPropertyGroup
@@ -20,7 +18,8 @@ namespace Apps.Hubspot.Connections
                 {
                     new ConnectionProperty("client_id"),
                     new ConnectionProperty("client_secret"),
-                    new ConnectionProperty("scope")                    
+                    new ConnectionProperty("scope"),
+                    new ConnectionProperty("redirect_uri")
                 }
             },
             new ConnectionPropertyGroup
@@ -36,7 +35,7 @@ namespace Apps.Hubspot.Connections
             }
         };
 
-        public IEnumerable<AuthenticationCredentialsProvider> CreateAuthorizationCredentialsProvider(Dictionary<string, string> values)
+        public IEnumerable<AuthenticationCredentialsProvider> CreateAuthorizationCredentialsProviders(Dictionary<string, string> values)
         {
             var token = values.First(v => v.Key == "access_token");
             yield return new AuthenticationCredentialsProvider(
@@ -48,7 +47,7 @@ namespace Apps.Hubspot.Connections
             yield return new AuthenticationCredentialsProvider(
                 AuthenticationCredentialsRequestLocation.QueryString,
                 ApiKeyName,
-                token.Value
+                apiKey.Value
             );
         }
     }

@@ -19,7 +19,7 @@ namespace Apps.Hubspot.Webhooks.Handlers
         {
         }
 
-        public async Task SubscribeAsync(AuthenticationCredentialsProvider authenticationCredentialsProvider, Dictionary<string, string> values)
+        public async Task SubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)
         {
             var appId = values["appId"];
             var subscribeRequuest = new WebhookSubscribeRequest
@@ -29,13 +29,15 @@ namespace Apps.Hubspot.Webhooks.Handlers
                 PropertyName = PropertyName
             };
             string url = $"https://api.hubapi.com/webhooks/v3/{appId}/subscriptions";
+            var authenticationCredentialsProvider = GetAuthenticationCredentialsProvider(authenticationCredentialsProviders);
             await CreateAsync<WebhookSubscribeRequest, object>(url, null, RequestWithBodyHeaders, subscribeRequuest, authenticationCredentialsProvider);           
         }
 
-        public async Task UnsubscribeAsync(AuthenticationCredentialsProvider authenticationCredentialsProvider, Dictionary<string, string> values)
+        public async Task UnsubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)
         {
             var appId = values["appId"];
             var url = $"https://api.hubapi.com/webhooks/v3/{appId}/subscriptions";
+            var authenticationCredentialsProvider = GetAuthenticationCredentialsProvider(authenticationCredentialsProviders);
             var subsriptions = await GetAllAsync<WebhookSubscribeResponse>(url, null, RequestWithBodyHeaders, authenticationCredentialsProvider);
             if(subsriptions == null)
             {
@@ -46,8 +48,13 @@ namespace Apps.Hubspot.Webhooks.Handlers
             {
                 return;
             }
-            url += $"/{subscription.Id}";
+            url += $"/{subscription.Id}";            
             await DeleteAsync<object>(url, null, RequestWithBodyHeaders, authenticationCredentialsProvider);
+        }
+
+        private AuthenticationCredentialsProvider GetAuthenticationCredentialsProvider(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders)
+        {
+            return authenticationCredentialsProviders.First(p => p.KeyName == "hapikey");
         }
     }
 }

@@ -5,10 +5,6 @@ VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Apps.Hubspot", "Apps.Hubspot\Apps.Hubspot\Apps.Hubspot.csproj", "{483D78DA-0409-4D48-BE76-6933F2AC8793}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blackbird.Applications.Sdk.Common", "..\Applications_SDK\Applications_SDK\Blackbird.Applications.Sdk.Common\Blackbird.Applications.Sdk.Common.csproj", "{8EAA3BBC-E888-42F5-9723-2F0F19F79C2E}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blackbird.Applications.Sdk.Authorization.OAuth", "..\..\..\..\Plug\Blackbird.Applications.Sdk.Authorization.OAuth\Blackbird.Applications.Sdk.Authorization.OAuth\Blackbird.Applications.Sdk.Authorization.OAuth\Blackbird.Applications.Sdk.Authorization.OAuth.csproj", "{A1FB76C4-3ABC-4C17-9C22-FBC74D85EEB9}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,14 +15,6 @@ Global
 		{483D78DA-0409-4D48-BE76-6933F2AC8793}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{483D78DA-0409-4D48-BE76-6933F2AC8793}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{483D78DA-0409-4D48-BE76-6933F2AC8793}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8EAA3BBC-E888-42F5-9723-2F0F19F79C2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8EAA3BBC-E888-42F5-9723-2F0F19F79C2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8EAA3BBC-E888-42F5-9723-2F0F19F79C2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8EAA3BBC-E888-42F5-9723-2F0F19F79C2E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A1FB76C4-3ABC-4C17-9C22-FBC74D85EEB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A1FB76C4-3ABC-4C17-9C22-FBC74D85EEB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A1FB76C4-3ABC-4C17-9C22-FBC74D85EEB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A1FB76C4-3ABC-4C17-9C22-FBC74D85EEB9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

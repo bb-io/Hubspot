@@ -1,4 +1,4 @@
-﻿using Blackbird.Applications.Sdk.Authorization.OAuth;
+﻿using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
 using Microsoft.AspNetCore.WebUtilities;
 
 namespace Apps.Hubspot.Authorization.OAuth2
