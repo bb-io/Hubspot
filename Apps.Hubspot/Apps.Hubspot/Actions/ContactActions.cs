@@ -3,6 +3,7 @@ using Apps.Hubspot.Dtos.Contacts;
 using Apps.Hubspot.Models.Contacts;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication;
+using Blackbird.Applications.Sdk.Common.Actions;
 
 namespace Apps.Hubspot.Actions
 {
@@ -16,19 +17,19 @@ namespace Apps.Hubspot.Actions
 
         [Action("Get all contacts", Description = "Get all contacts on this Hubspot account")]
         public IEnumerable<ContactDto> GetContacts(
-            AuthenticationCredentialsProvider authenticationCredentialsProvider
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders
             )
         {
-            return GetAll(_requestUrl, null, authenticationCredentialsProvider).Select(CreateDtoByEntity).ToList();
+            return GetAll(_requestUrl, null, authenticationCredentialsProviders).Select(CreateDtoByEntity).ToList();
         }
 
         [Action("Get contact details", Description = "Retrieve contact details")]
         public ContactDto? GetContact(
-            AuthenticationCredentialsProvider authenticationCredentialsProvider,
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] int contactId
             )
         {
-            var contact = GetOne(_requestUrl, contactId, null, authenticationCredentialsProvider);
+            var contact = GetOne(_requestUrl, contactId, null, authenticationCredentialsProviders);
             return contact != null
                 ? CreateDtoByEntity(contact)
                 : throw new InvalidOperationException($"Cannot get company: {contactId}");
@@ -36,12 +37,12 @@ namespace Apps.Hubspot.Actions
 
         [Action("Create contact", Description = "Create a new contact")]
         public ContactDto? CreateContact(
-            AuthenticationCredentialsProvider authenticationCredentialsProvider,
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] CreateOrUpdateContactDto dto
             )
         {
             var contact = CreateDtoByEntity(dto);
-            var createdContact = Create(_requestUrl, null, contact, authenticationCredentialsProvider);
+            var createdContact = Create(_requestUrl, null, contact, authenticationCredentialsProviders);
             return createdContact != null
                 ? CreateDtoByEntity(createdContact)
                 : null;
@@ -49,13 +50,13 @@ namespace Apps.Hubspot.Actions
 
         [Action("Update contact", Description = "Update the details for a contact")]
         public ContactDto? UpdateContact(
-            AuthenticationCredentialsProvider authenticationCredentialsProvider,
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] int contactId,
             [ActionParameter] CreateOrUpdateContactDto dto
             )
         {
             var contact = CreateDtoByEntity(dto);
-            var updatedContact = Update(_requestUrl, contactId, null, contact, authenticationCredentialsProvider);
+            var updatedContact = Update(_requestUrl, contactId, null, contact, authenticationCredentialsProviders);
             return updatedContact != null
                 ? CreateDtoByEntity(updatedContact)
                 : throw new InvalidOperationException($"Cannot update company: {contactId}");
@@ -63,11 +64,11 @@ namespace Apps.Hubspot.Actions
 
         [Action("Delete contact", Description = "Remove the contact from your Hubspot account")]
         public void DeleteContact(
-            AuthenticationCredentialsProvider authenticationCredentialsProvider,
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] int contactId
             )
         {
-            Delete(_requestUrl, contactId, null, authenticationCredentialsProvider);
+            Delete(_requestUrl, contactId, null, authenticationCredentialsProviders);
         }
 
         private ContactDto CreateDtoByEntity(Contact contact)

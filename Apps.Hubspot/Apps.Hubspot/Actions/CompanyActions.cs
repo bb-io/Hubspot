@@ -2,6 +2,7 @@
 using Apps.Hubspot.Http;
 using Apps.Hubspot.Models.Companies;
 using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
 
 namespace Apps.Hubspot.Actions
@@ -17,19 +18,28 @@ namespace Apps.Hubspot.Actions
 
         [Action("Get all companies", Description = "Get all companies on this Hubspot account")]
         public IEnumerable<CompanyDto> GetCompanies(
-            AuthenticationCredentialsProvider authenticationCredentialsProvider
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders
             )
         {
-            return GetAll(_requestUrl, null, authenticationCredentialsProvider).Select(CreateDtoByEntity).ToList();
+            return GetAll(_requestUrl, null, authenticationCredentialsProviders).Select(CreateDtoByEntity).ToList();
+        }
+
+        [Action]
+        public async Task<IEnumerable<CompanyDto>> GetCompaniesAsync(
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders
+            )
+        {
+            var companies = await GetAllAsync(_requestUrl, null, authenticationCredentialsProviders);
+            return companies.Select(CreateDtoByEntity).ToList();
         }
 
         [Action("Get company details", Description = "Retrieve company details")]
         public CompanyDto? GetCompany(
-            AuthenticationCredentialsProvider authenticationCredentialsProvider,
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] long companyId
             )
         {
-            var company = GetOne(_requestUrl, companyId, null, authenticationCredentialsProvider);
+            var company = GetOne(_requestUrl, companyId, null, authenticationCredentialsProviders);
             return company != null 
                 ? CreateDtoByEntity(company) 
                 : throw new InvalidOperationException($"Cannot get company: {companyId}");
@@ -37,12 +47,12 @@ namespace Apps.Hubspot.Actions
 
         [Action("Create company", Description = "Create a new company")]
         public CompanyDto? CreateCompany(
-            AuthenticationCredentialsProvider authenticationCredentialsProvider,
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] CreateOrUpdateCompanyDto dto
             )
         {
             var company = CreateDtoByEntity(dto);
-            var createdCompany = Create(_requestUrl, null, company, authenticationCredentialsProvider);
+            var createdCompany = Create(_requestUrl, null, company, authenticationCredentialsProviders);
             return createdCompany != null
                 ? CreateDtoByEntity(createdCompany)
                 : null;
@@ -50,13 +60,13 @@ namespace Apps.Hubspot.Actions
 
         [Action("Update company", Description = "Update the details for a company")]
         public CompanyDto? UpdateCompany(
-            AuthenticationCredentialsProvider authenticationCredentialsProvider,
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] long companyId,
             [ActionParameter] CreateOrUpdateCompanyDto dto
             )
         {
             var company = CreateDtoByEntity(dto);
-            var updatedCompany = Update(_requestUrl, companyId, null, company, authenticationCredentialsProvider);
+            var updatedCompany = Update(_requestUrl, companyId, null, company, authenticationCredentialsProviders);
             return updatedCompany != null 
                 ? CreateDtoByEntity(updatedCompany) 
                 : throw new InvalidOperationException($"Cannot update company: {companyId}");
@@ -64,11 +74,11 @@ namespace Apps.Hubspot.Actions
 
         [Action("Delete company", Description = "Remove the company from your Hubspot account")]
         public void DeleteCompany(
-            AuthenticationCredentialsProvider authenticationCredentialsProvider,
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] long companyId
             )
         {
-            Delete(_requestUrl, companyId, null, authenticationCredentialsProvider);
+            Delete(_requestUrl, companyId, null, authenticationCredentialsProviders);
         }
 
         private CompanyDto CreateDtoByEntity(Company company)

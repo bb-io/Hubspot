@@ -20,20 +20,33 @@ namespace Apps.Hubspot.Actions
         protected IEnumerable<TEntity> GetAll(
             string url, 
             Dictionary<string, string>? queryParameters, 
-            AuthenticationCredentialsProvider authenticationCredentialsProvider
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders
             )
         {
+            var authenticationCredentialsProvider = GetAuthenticationCredentialsProvider(authenticationCredentialsProviders);
             var results = GetAll<GetAllResponse<TEntity>>(url, queryParameters, RequestWithBodyHeaders, authenticationCredentialsProvider)?.Results;
             return results ?? Enumerable.Empty<TEntity>();
+        }
+
+        protected async Task<IEnumerable<TEntity>> GetAllAsync(
+            string url,
+            Dictionary<string, string>? queryParameters,
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders
+            )
+        {
+            var authenticationCredentialsProvider = GetAuthenticationCredentialsProvider(authenticationCredentialsProviders);
+            var response = await GetAllAsync<GetAllResponse<TEntity>>(url, queryParameters, RequestWithBodyHeaders, authenticationCredentialsProvider);
+            return response?.Results ?? Enumerable.Empty<TEntity>();
         }
 
         protected TEntity? GetOne(
             string url, 
             long id, 
             Dictionary<string, string>? queryParameters, 
-            AuthenticationCredentialsProvider authenticationCredentialsProvider
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders
             )
         {
+            var authenticationCredentialsProvider = GetAuthenticationCredentialsProvider(authenticationCredentialsProviders);
             var requestUrl = $"{url}/{id}";
             return GetOne<TEntity>(requestUrl, queryParameters, RequestWithBodyHeaders, authenticationCredentialsProvider);
         }
@@ -42,8 +55,9 @@ namespace Apps.Hubspot.Actions
             string url,             
             Dictionary<string, string>? queryParameters,
             TCreateOrUpdateEntity entity,
-            AuthenticationCredentialsProvider authenticationCredentialsProvider)
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders)
         {
+            var authenticationCredentialsProvider = GetAuthenticationCredentialsProvider(authenticationCredentialsProviders);
             return Create<TCreateOrUpdateEntity, TEntity>(url, queryParameters, RequestWithBodyHeaders, entity, authenticationCredentialsProvider);
         }
 
@@ -52,9 +66,10 @@ namespace Apps.Hubspot.Actions
             long id,
             Dictionary<string, string>? queryParameters,
             TCreateOrUpdateEntity entity,
-            AuthenticationCredentialsProvider authenticationCredentialsProvider
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders
             )
         {
+            var authenticationCredentialsProvider = GetAuthenticationCredentialsProvider(authenticationCredentialsProviders);
             var requestUrl = $"{url}/{id}";
             return Patch<TCreateOrUpdateEntity, TEntity>(requestUrl, queryParameters, RequestWithBodyHeaders, entity, authenticationCredentialsProvider);
         }
@@ -63,11 +78,17 @@ namespace Apps.Hubspot.Actions
             string url,
             long id,
             Dictionary<string, string>? queryParameters,
-            AuthenticationCredentialsProvider authenticationCredentialsProvider
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders
             )
         {
+            var authenticationCredentialsProvider = GetAuthenticationCredentialsProvider(authenticationCredentialsProviders);
             var requestUrl = $"{url}/{id}";
             Delete<object>(requestUrl, queryParameters, RequestWithBodyHeaders, authenticationCredentialsProvider);
+        }
+
+        private AuthenticationCredentialsProvider GetAuthenticationCredentialsProvider(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders)
+        {
+            return authenticationCredentialsProviders.First(p => p.KeyName == "Authorization");
         }
     }
 }

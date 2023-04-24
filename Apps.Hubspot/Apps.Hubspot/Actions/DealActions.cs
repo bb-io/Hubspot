@@ -3,6 +3,7 @@ using Apps.Hubspot.Dtos.Deals;
 using Apps.Hubspot.Models.Deals;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication;
+using Blackbird.Applications.Sdk.Common.Actions;
 
 namespace Apps.Hubspot.Actions
 {
@@ -16,19 +17,19 @@ namespace Apps.Hubspot.Actions
 
         [Action("Get all deals", Description = "Get all deals on this Hubspot account")]
         public IEnumerable<DealDto> GetDeals(
-            AuthenticationCredentialsProvider authenticationCredentialsProvider
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders
             )
         {
-            return GetAll(_requestUrl, null, authenticationCredentialsProvider).Select(CreateDtoByEntity).ToList();
+            return GetAll(_requestUrl, null, authenticationCredentialsProviders).Select(CreateDtoByEntity).ToList();
         }
 
         [Action("Get deal details", Description = "Retrieve deal details")]
         public DealDto? GetDeal(
-            AuthenticationCredentialsProvider authenticationCredentialsProvider,
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] long dealId
             )
         {
-            var deal = GetOne(_requestUrl, dealId, null, authenticationCredentialsProvider);
+            var deal = GetOne(_requestUrl, dealId, null, authenticationCredentialsProviders);
             return deal != null
                 ? CreateDtoByEntity(deal)
                 : throw new InvalidOperationException($"Cannot get company: {dealId}");
@@ -36,12 +37,12 @@ namespace Apps.Hubspot.Actions
 
         [Action("Create deal", Description = "Create a new deal")]
         public DealDto? CreateDeal(
-            AuthenticationCredentialsProvider authenticationCredentialsProvider,
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] CreateOrUpdateDealDto dto
             )
         {
             var deal = CreateDtoByEntity(dto);
-            var createdDeal = Create(_requestUrl, null, deal, authenticationCredentialsProvider);
+            var createdDeal = Create(_requestUrl, null, deal, authenticationCredentialsProviders);
             return createdDeal != null
                 ? CreateDtoByEntity(createdDeal)
                 : null;
@@ -49,13 +50,13 @@ namespace Apps.Hubspot.Actions
 
         [Action("Update deal", Description = "Update the details for a deal")]
         public DealDto? UpdateDeal(
-            AuthenticationCredentialsProvider authenticationCredentialsProvider,
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] long dealId,
             [ActionParameter] CreateOrUpdateDealDto dto
             )
         {
             var deal = CreateDtoByEntity(dto);
-            var updatedDeal = Update(_requestUrl, dealId, null, deal, authenticationCredentialsProvider);
+            var updatedDeal = Update(_requestUrl, dealId, null, deal, authenticationCredentialsProviders);
             return updatedDeal != null
                 ? CreateDtoByEntity(updatedDeal)
                 : throw new InvalidOperationException($"Cannot update company: {dealId}");
@@ -63,11 +64,11 @@ namespace Apps.Hubspot.Actions
 
         [Action("Delete deal", Description = "Remove the deal from your Hubspot account")]
         public void DeleteDeal(
-            AuthenticationCredentialsProvider authenticationCredentialsProvider,
+            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] long dealId
             )
         {
-            Delete(_requestUrl, dealId, null, authenticationCredentialsProvider);
+            Delete(_requestUrl, dealId, null, authenticationCredentialsProviders);
         }
 
         private DealDto CreateDtoByEntity(Deal deal)
