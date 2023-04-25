@@ -16,7 +16,7 @@ namespace Apps.Hubspot.Actions
         {
         }
 
-        [Action("Get all companies", Description = "Get all companies on this Hubspot account")]
+        [Action]
         public IEnumerable<CompanyDto> GetCompanies(
             IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders
             )
@@ -33,7 +33,7 @@ namespace Apps.Hubspot.Actions
             return companies.Select(CreateDtoByEntity).ToList();
         }
 
-        [Action("Get company details", Description = "Retrieve company details")]
+        [Action]
         public CompanyDto? GetCompany(
             IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] long companyId
@@ -45,7 +45,7 @@ namespace Apps.Hubspot.Actions
                 : throw new InvalidOperationException($"Cannot get company: {companyId}");
         }
 
-        [Action("Create company", Description = "Create a new company")]
+        [Action]
         public CompanyDto? CreateCompany(
             IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] CreateOrUpdateCompanyDto dto
@@ -58,7 +58,7 @@ namespace Apps.Hubspot.Actions
                 : null;
         }
 
-        [Action("Update company", Description = "Update the details for a company")]
+        [Action]
         public CompanyDto? UpdateCompany(
             IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] long companyId,
@@ -72,7 +72,7 @@ namespace Apps.Hubspot.Actions
                 : throw new InvalidOperationException($"Cannot update company: {companyId}");
         }
 
-        [Action("Delete company", Description = "Remove the company from your Hubspot account")]
+        [Action]
         public void DeleteCompany(
             IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] long companyId

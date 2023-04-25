@@ -15,7 +15,7 @@ namespace Apps.Hubspot.Actions
         {
         }
 
-        [Action("Get all contacts", Description = "Get all contacts on this Hubspot account")]
+        [Action]
         public IEnumerable<ContactDto> GetContacts(
             IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders
             )
@@ -23,7 +23,7 @@ namespace Apps.Hubspot.Actions
             return GetAll(_requestUrl, null, authenticationCredentialsProviders).Select(CreateDtoByEntity).ToList();
         }
 
-        [Action("Get contact details", Description = "Retrieve contact details")]
+        [Action]
         public ContactDto? GetContact(
             IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] int contactId
@@ -35,7 +35,7 @@ namespace Apps.Hubspot.Actions
                 : throw new InvalidOperationException($"Cannot get company: {contactId}");
         }
 
-        [Action("Create contact", Description = "Create a new contact")]
+        [Action]
         public ContactDto? CreateContact(
             IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] CreateOrUpdateContactDto dto
@@ -48,7 +48,7 @@ namespace Apps.Hubspot.Actions
                 : null;
         }
 
-        [Action("Update contact", Description = "Update the details for a contact")]
+        [Action]
         public ContactDto? UpdateContact(
             IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] int contactId,
@@ -62,7 +62,7 @@ namespace Apps.Hubspot.Actions
                 : throw new InvalidOperationException($"Cannot update company: {contactId}");
         }
 
-        [Action("Delete contact", Description = "Remove the contact from your Hubspot account")]
+        [Action]
         public void DeleteContact(
             IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] int contactId
