@@ -15,7 +15,7 @@ namespace Apps.Hubspot.Actions
         {
         }
 
-        [Action]
+        [Action("Get all contacts", Description = "Get a list of all contacts")]
         public IEnumerable<ContactDto> GetContacts(
             IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders
             )
@@ -23,7 +23,7 @@ namespace Apps.Hubspot.Actions
             return GetAll(_requestUrl, null, authenticationCredentialsProviders).Select(CreateDtoByEntity).ToList();
         }
 
-        [Action]
+        [Action("Get contact", Description = "Get information of specific contact")]
         public ContactDto? GetContact(
             IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] int contactId
@@ -35,7 +35,7 @@ namespace Apps.Hubspot.Actions
                 : throw new InvalidOperationException($"Cannot get company: {contactId}");
         }
 
-        [Action]
+        [Action("Create contact", Description = "Create a new contact")]
         public ContactDto? CreateContact(
             IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] CreateOrUpdateContactDto dto
@@ -48,7 +48,7 @@ namespace Apps.Hubspot.Actions
                 : null;
         }
 
-        [Action]
+        [Action("Update contact", Description = "Update a contact's information")]
         public ContactDto? UpdateContact(
             IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] int contactId,
@@ -62,7 +62,7 @@ namespace Apps.Hubspot.Actions
                 : throw new InvalidOperationException($"Cannot update company: {contactId}");
         }
 
-        [Action]
+        [Action("Delete contact", Description = "Delete a contact")]
         public void DeleteContact(
             IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] int contactId

@@ -15,7 +15,7 @@ namespace Apps.Hubspot.Actions
         {
         }
 
-        [Action]
+        [Action("Get all deals", Description = "Get a list of all the deals")]
         public IEnumerable<DealDto> GetDeals(
             IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders
             )
@@ -23,7 +23,7 @@ namespace Apps.Hubspot.Actions
             return GetAll(_requestUrl, null, authenticationCredentialsProviders).Select(CreateDtoByEntity).ToList();
         }
 
-        [Action]
+        [Action("Get deal", Description = "Get information of a specific deal")]
         public DealDto? GetDeal(
             IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] long dealId
@@ -35,7 +35,7 @@ namespace Apps.Hubspot.Actions
                 : throw new InvalidOperationException($"Cannot get company: {dealId}");
         }
 
-        [Action]
+        [Action("Create deal", Description = "Create a new deal")]
         public DealDto? CreateDeal(
             IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] CreateOrUpdateDealDto dto
@@ -48,7 +48,7 @@ namespace Apps.Hubspot.Actions
                 : null;
         }
 
-        [Action]
+        [Action("Update deal", Description = "Update a deal's information")]
         public DealDto? UpdateDeal(
             IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] long dealId,
@@ -62,7 +62,7 @@ namespace Apps.Hubspot.Actions
                 : throw new InvalidOperationException($"Cannot update company: {dealId}");
         }
 
-        [Action]
+        [Action("Delete deal", Description = "Delete a deal")]
         public void DeleteDeal(
             IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] long dealId

@@ -16,15 +16,7 @@ namespace Apps.Hubspot.Actions
         {
         }
 
-        [Action]
-        public IEnumerable<CompanyDto> GetCompanies(
-            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders
-            )
-        {
-            return GetAll(_requestUrl, null, authenticationCredentialsProviders).Select(CreateDtoByEntity).ToList();
-        }
-
-        [Action]
+        [Action("Get all companies", Description = "Get a list of all companies")]
         public async Task<IEnumerable<CompanyDto>> GetCompaniesAsync(
             IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders
             )
@@ -33,7 +25,7 @@ namespace Apps.Hubspot.Actions
             return companies.Select(CreateDtoByEntity).ToList();
         }
 
-        [Action]
+        [Action("Get company", Description = "Get information of a specific company")]
         public CompanyDto? GetCompany(
             IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] long companyId
@@ -45,7 +37,7 @@ namespace Apps.Hubspot.Actions
                 : throw new InvalidOperationException($"Cannot get company: {companyId}");
         }
 
-        [Action]
+        [Action("Create company", Description = "Create a new company")]
         public CompanyDto? CreateCompany(
             IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] CreateOrUpdateCompanyDto dto
@@ -58,7 +50,7 @@ namespace Apps.Hubspot.Actions
                 : null;
         }
 
-        [Action]
+        [Action("Update company", Description = "Update a company's information")]
         public CompanyDto? UpdateCompany(
             IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] long companyId,
@@ -72,7 +64,7 @@ namespace Apps.Hubspot.Actions
                 : throw new InvalidOperationException($"Cannot update company: {companyId}");
         }
 
-        [Action]
+        [Action("Delete company", Description = "Delete a company")]
         public void DeleteCompany(
             IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] long companyId

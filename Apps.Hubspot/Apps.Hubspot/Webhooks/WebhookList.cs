@@ -8,7 +8,7 @@ namespace Apps.Hubspot.Webhooks
     [WebhookList]
     public class WebhookList
     {
-        [Webhook(typeof(ContactEmailChangesHandler))]
+        [Webhook("On contact email changed", typeof(ContactEmailChangesHandler), Description = "Triggered when the email address of a contact has changed")]
         public ContactEmailChangedPayload? ContactEmailChanged(WebhookRequest webhookRequest)
         {
             var payloadString = webhookRequest.Body.ToString();
