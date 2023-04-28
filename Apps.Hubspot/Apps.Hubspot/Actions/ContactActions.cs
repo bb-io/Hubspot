@@ -1,74 +1,64 @@
-﻿using Apps.Hubspot.Http;
-using Apps.Hubspot.Dtos.Contacts;
+﻿using Apps.Hubspot.Dtos.Contacts;
 using Apps.Hubspot.Models.Contacts;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Apps.Hubspot.Models.Companies;
+using Apps.Hubspot.Models;
+using RestSharp;
+using System.ComponentModel.Design;
 
 namespace Apps.Hubspot.Actions
 {
     [ActionList]
-    public class ContactActions : BaseActions<Contact, CreateOrUpdateContact>
+    public class ContactActions
     {
-        private readonly string _requestUrl = "https://api.hubapi.com/crm/v3/objects/contacts";
-        public ContactActions() : base(new HttpRequestProvider())
-        {
-        }
-
         [Action("Get all contacts", Description = "Get a list of all contacts")]
-        public IEnumerable<ContactDto> GetContacts(
-            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders
-            )
+        public IEnumerable<ContactDto> GetContacts(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders)
         {
-            return GetAll(_requestUrl, null, authenticationCredentialsProviders).Select(CreateDtoByEntity).ToList();
+            var client = new HubspotClient(authenticationCredentialsProviders);
+            var request = new HubspotRequest("/crm/v3/objects/contacts", Method.Get, authenticationCredentialsProviders);
+            return client.Get<GetAllResponse<Contact>>(request).Results.Select(c => CreateDtoByEntity(c)).ToList();
         }
 
         [Action("Get contact", Description = "Get information of specific contact")]
-        public ContactDto? GetContact(
-            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] int contactId
-            )
+        public ContactDto? GetContact(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
+            [ActionParameter] int contactId)
         {
-            var contact = GetOne(_requestUrl, contactId, null, authenticationCredentialsProviders);
-            return contact != null
-                ? CreateDtoByEntity(contact)
-                : throw new InvalidOperationException($"Cannot get company: {contactId}");
+            var client = new HubspotClient(authenticationCredentialsProviders);
+            var request = new HubspotRequest($"/crm/v3/objects/contacts/{contactId}", Method.Get, authenticationCredentialsProviders);
+            return CreateDtoByEntity(client.Get<Contact>(request));
         }
 
         [Action("Create contact", Description = "Create a new contact")]
-        public ContactDto? CreateContact(
-            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] CreateOrUpdateContactDto dto
-            )
+        public ContactDto? CreateContact(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
+            [ActionParameter] CreateOrUpdateContactDto dto)
         {
+            var client = new HubspotClient(authenticationCredentialsProviders);
+            var request = new HubspotRequest($"/crm/v3/objects/contacts", Method.Post, authenticationCredentialsProviders);
             var contact = CreateDtoByEntity(dto);
-            var createdContact = Create(_requestUrl, null, contact, authenticationCredentialsProviders);
-            return createdContact != null
-                ? CreateDtoByEntity(createdContact)
-                : null;
+            request.AddJsonBody(contact);
+            return CreateDtoByEntity(client.Post<Contact>(request));
         }
 
         [Action("Update contact", Description = "Update a contact's information")]
-        public ContactDto? UpdateContact(
-            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] int contactId,
-            [ActionParameter] CreateOrUpdateContactDto dto
-            )
+        public ContactDto? UpdateContact(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
+            [ActionParameter] int contactId, [ActionParameter] CreateOrUpdateContactDto dto)
         {
+            var client = new HubspotClient(authenticationCredentialsProviders);
+            var request = new HubspotRequest($"/crm/v3/objects/contacts", Method.Patch, authenticationCredentialsProviders);
             var contact = CreateDtoByEntity(dto);
-            var updatedContact = Update(_requestUrl, contactId, null, contact, authenticationCredentialsProviders);
-            return updatedContact != null
-                ? CreateDtoByEntity(updatedContact)
-                : throw new InvalidOperationException($"Cannot update company: {contactId}");
+            request.AddJsonBody(contact);
+            return CreateDtoByEntity(client.Patch<Contact>(request));
         }
 
         [Action("Delete contact", Description = "Delete a contact")]
-        public void DeleteContact(
-            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] int contactId
-            )
+        public void DeleteContact(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
+            [ActionParameter] int contactId)
         {
-            Delete(_requestUrl, contactId, null, authenticationCredentialsProviders);
+            var client = new HubspotClient(authenticationCredentialsProviders);
+            var request = new HubspotRequest($"/crm/v3/objects/contacts/{contactId}", Method.Delete, authenticationCredentialsProviders);
+            client.Execute(request);
         }
 
         private ContactDto CreateDtoByEntity(Contact contact)

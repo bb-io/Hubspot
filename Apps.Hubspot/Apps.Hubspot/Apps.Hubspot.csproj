@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Http\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Blackbird.Applications.Sdk.Common" Version="2.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
     <PackageReference Include="RestSharp" Version="110.2.0" />

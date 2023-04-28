@@ -1,74 +1,64 @@
-﻿using Apps.Hubspot.Http;
-using Apps.Hubspot.Dtos.Deals;
+﻿using Apps.Hubspot.Dtos.Deals;
 using Apps.Hubspot.Models.Deals;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Apps.Hubspot.Models.Contacts;
+using Apps.Hubspot.Models;
+using RestSharp;
 
 namespace Apps.Hubspot.Actions
 {
     [ActionList]
-    public class DealActions : BaseActions<Deal, CreateOrUpdateDeal>
+    public class DealActions
     {
-        private readonly string _requestUrl = "https://api.hubapi.com/crm/v3/objects/deals";
-        public DealActions() : base(new HttpRequestProvider())
-        {
-        }
 
         [Action("Get all deals", Description = "Get a list of all the deals")]
-        public IEnumerable<DealDto> GetDeals(
-            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders
-            )
+        public IEnumerable<DealDto> GetDeals(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders)
         {
-            return GetAll(_requestUrl, null, authenticationCredentialsProviders).Select(CreateDtoByEntity).ToList();
+            var client = new HubspotClient(authenticationCredentialsProviders);
+            var request = new HubspotRequest("/crm/v3/objects/deals", Method.Get, authenticationCredentialsProviders);
+            return client.Get<GetAllResponse<Deal>>(request).Results.Select(c => CreateDtoByEntity(c)).ToList();
         }
 
         [Action("Get deal", Description = "Get information of a specific deal")]
-        public DealDto? GetDeal(
-            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] long dealId
-            )
+        public DealDto? GetDeal(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
+            [ActionParameter] long dealId)
         {
-            var deal = GetOne(_requestUrl, dealId, null, authenticationCredentialsProviders);
-            return deal != null
-                ? CreateDtoByEntity(deal)
-                : throw new InvalidOperationException($"Cannot get company: {dealId}");
+            var client = new HubspotClient(authenticationCredentialsProviders);
+            var request = new HubspotRequest($"/crm/v3/objects/deals/{dealId}", Method.Get, authenticationCredentialsProviders);
+            return CreateDtoByEntity(client.Get<Deal>(request));
         }
 
         [Action("Create deal", Description = "Create a new deal")]
-        public DealDto? CreateDeal(
-            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] CreateOrUpdateDealDto dto
-            )
+        public DealDto? CreateDeal(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
+            [ActionParameter] CreateOrUpdateDealDto dto)
         {
+            var client = new HubspotClient(authenticationCredentialsProviders);
+            var request = new HubspotRequest($"/crm/v3/objects/deals", Method.Post, authenticationCredentialsProviders);
             var deal = CreateDtoByEntity(dto);
-            var createdDeal = Create(_requestUrl, null, deal, authenticationCredentialsProviders);
-            return createdDeal != null
-                ? CreateDtoByEntity(createdDeal)
-                : null;
+            request.AddJsonBody(deal);
+            return CreateDtoByEntity(client.Post<Deal>(request));
         }
 
         [Action("Update deal", Description = "Update a deal's information")]
-        public DealDto? UpdateDeal(
-            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] long dealId,
-            [ActionParameter] CreateOrUpdateDealDto dto
-            )
+        public DealDto? UpdateDeal(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
+            [ActionParameter] long dealId,[ActionParameter] CreateOrUpdateDealDto dto)
         {
+            var client = new HubspotClient(authenticationCredentialsProviders);
+            var request = new HubspotRequest($"/crm/v3/objects/deals", Method.Patch, authenticationCredentialsProviders);
             var deal = CreateDtoByEntity(dto);
-            var updatedDeal = Update(_requestUrl, dealId, null, deal, authenticationCredentialsProviders);
-            return updatedDeal != null
-                ? CreateDtoByEntity(updatedDeal)
-                : throw new InvalidOperationException($"Cannot update company: {dealId}");
+            request.AddJsonBody(deal);
+            return CreateDtoByEntity(client.Patch<Deal>(request));
         }
 
         [Action("Delete deal", Description = "Delete a deal")]
-        public void DeleteDeal(
-            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] long dealId
-            )
+        public void DeleteDeal(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
+            [ActionParameter] long dealId)
         {
-            Delete(_requestUrl, dealId, null, authenticationCredentialsProviders);
+            var client = new HubspotClient(authenticationCredentialsProviders);
+            var request = new HubspotRequest($"/crm/v3/objects/deals/{dealId}", Method.Delete, authenticationCredentialsProviders);
+            client.Execute(request);
         }
 
         private DealDto CreateDtoByEntity(Deal deal)

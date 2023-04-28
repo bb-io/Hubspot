@@ -1,76 +1,64 @@
 ﻿using Apps.Hubspot.Dtos.Companies;
-using Apps.Hubspot.Http;
+using Apps.Hubspot.Models;
 using Apps.Hubspot.Models.Companies;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
+using RestSharp;
+using System.ComponentModel.Design;
 
 namespace Apps.Hubspot.Actions
 {
     [ActionList]
-    public class CompanyActions : BaseActions<Company, CreateOrUpdateCompany>
+    public class CompanyActions
     {
-        private readonly string _requestUrl = "https://api.hubapi.com/crm/v3/objects/companies";
-
-        public CompanyActions() : base(new HttpRequestProvider())
-        {
-        }
 
         [Action("Get all companies", Description = "Get a list of all companies")]
-        public async Task<IEnumerable<CompanyDto>> GetCompaniesAsync(
-            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders
-            )
+        public async Task<IEnumerable<CompanyDto>> GetCompaniesAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders)
         {
-            var companies = await GetAllAsync(_requestUrl, null, authenticationCredentialsProviders);
-            return companies.Select(CreateDtoByEntity).ToList();
+            var client = new HubspotClient(authenticationCredentialsProviders);
+            var request = new HubspotRequest("/crm/v3/objects/companies", Method.Get, authenticationCredentialsProviders);
+            return client.Get<GetAllResponse<Company>>(request).Results.Select(c => CreateDtoByEntity(c)).ToList();
         }
 
         [Action("Get company", Description = "Get information of a specific company")]
-        public CompanyDto? GetCompany(
-            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] long companyId
-            )
+        public CompanyDto? GetCompany(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
+            [ActionParameter] long companyId)
         {
-            var company = GetOne(_requestUrl, companyId, null, authenticationCredentialsProviders);
-            return company != null 
-                ? CreateDtoByEntity(company) 
-                : throw new InvalidOperationException($"Cannot get company: {companyId}");
+            var client = new HubspotClient(authenticationCredentialsProviders);
+            var request = new HubspotRequest($"/crm/v3/objects/companies/{companyId}", Method.Get, authenticationCredentialsProviders);
+            return CreateDtoByEntity(client.Get<Company>(request));
         }
 
         [Action("Create company", Description = "Create a new company")]
-        public CompanyDto? CreateCompany(
-            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] CreateOrUpdateCompanyDto dto
-            )
+        public CompanyDto? CreateCompany(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, 
+            [ActionParameter] CreateOrUpdateCompanyDto dto)
         {
+            var client = new HubspotClient(authenticationCredentialsProviders);
+            var request = new HubspotRequest($"/crm/v3/objects/companies", Method.Post, authenticationCredentialsProviders);
             var company = CreateDtoByEntity(dto);
-            var createdCompany = Create(_requestUrl, null, company, authenticationCredentialsProviders);
-            return createdCompany != null
-                ? CreateDtoByEntity(createdCompany)
-                : null;
+            request.AddJsonBody(company);
+            return CreateDtoByEntity(client.Post<Company>(request));
         }
 
         [Action("Update company", Description = "Update a company's information")]
-        public CompanyDto? UpdateCompany(
-            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] long companyId,
-            [ActionParameter] CreateOrUpdateCompanyDto dto
-            )
+        public CompanyDto? UpdateCompany(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
+            [ActionParameter] long companyId, [ActionParameter] CreateOrUpdateCompanyDto dto)
         {
+            var client = new HubspotClient(authenticationCredentialsProviders);
+            var request = new HubspotRequest($"/crm/v3/objects/companies", Method.Patch, authenticationCredentialsProviders);
             var company = CreateDtoByEntity(dto);
-            var updatedCompany = Update(_requestUrl, companyId, null, company, authenticationCredentialsProviders);
-            return updatedCompany != null 
-                ? CreateDtoByEntity(updatedCompany) 
-                : throw new InvalidOperationException($"Cannot update company: {companyId}");
+            request.AddJsonBody(company);
+            return CreateDtoByEntity(client.Patch<Company>(request));
         }
 
         [Action("Delete company", Description = "Delete a company")]
-        public void DeleteCompany(
-            IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] long companyId
-            )
+        public void DeleteCompany(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
+            [ActionParameter] long companyId)
         {
-            Delete(_requestUrl, companyId, null, authenticationCredentialsProviders);
+            var client = new HubspotClient(authenticationCredentialsProviders);
+            var request = new HubspotRequest($"/crm/v3/objects/companies/{companyId}", Method.Delete, authenticationCredentialsProviders);
+            client.Execute(request);
         }
 
         private CompanyDto CreateDtoByEntity(Company company)

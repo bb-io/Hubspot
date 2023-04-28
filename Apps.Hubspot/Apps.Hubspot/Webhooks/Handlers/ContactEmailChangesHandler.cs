@@ -1,23 +1,15 @@
-﻿using Apps.Hubspot.Http;
-using Apps.Hubspot.Webhooks.Handlers.Models;
+﻿using Apps.Hubspot.Webhooks.Handlers.Models;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Webhooks;
+using RestSharp;
 
 namespace Apps.Hubspot.Webhooks.Handlers
 {
-    public class ContactEmailChangesHandler : RestRequestProvider, IWebhookEventHandler
+    public class ContactEmailChangesHandler : IWebhookEventHandler
     {
-        protected Dictionary<string, string> RequestWithBodyHeaders = new Dictionary<string, string>
-            {
-                { "content-type", "application/json" }
-            };
 
         const string SubscriptionEvent = "contact.propertyChange";
         const string PropertyName = "email";
-
-        public ContactEmailChangesHandler() : base(new HttpRequestProvider())
-        {
-        }
 
         public async Task SubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)
         {
@@ -28,28 +20,29 @@ namespace Apps.Hubspot.Webhooks.Handlers
                 EventType = SubscriptionEvent,
                 PropertyName = PropertyName
             };
-            string url = $"https://api.hubapi.com/webhooks/v3/{appId}/subscriptions";
-            var authenticationCredentialsProvider = GetAuthenticationCredentialsProvider(authenticationCredentialsProviders);
-            await CreateAsync<WebhookSubscribeRequest, object>(url, null, RequestWithBodyHeaders, subscribeRequuest, authenticationCredentialsProvider);           
+            string url = $"https://api.hubapi.com";
+            var client = new HubspotClient(authenticationCredentialsProviders);
+            var request = new HubspotRequest($"/webhooks/v3/{appId}/subscriptions", Method.Post, authenticationCredentialsProviders);     
+            request.AddHeader("content-type", "application/json");
+            request.AddJsonBody(subscribeRequuest);
+            await client.ExecuteAsync(request);    
         }
 
         public async Task UnsubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)
         {
             var appId = values["appId"];
-            var url = $"https://api.hubapi.com/webhooks/v3/{appId}/subscriptions";
-            var authenticationCredentialsProvider = GetAuthenticationCredentialsProvider(authenticationCredentialsProviders);
-            var subsriptions = await GetAllAsync<WebhookSubscribeResponse>(url, null, RequestWithBodyHeaders, authenticationCredentialsProvider);
-            if(subsriptions == null)
-            {
-                return;
-            }
-            var subscription = subsriptions.Results.FirstOrDefault(s => s.PropertyName == PropertyName && s.EventType == SubscriptionEvent);
+            var client = new HubspotClient(authenticationCredentialsProviders);
+            var request = new HubspotRequest($"/webhooks/v3/{appId}/subscriptions", Method.Get, authenticationCredentialsProviders);
+            request.AddHeader("content-type", "application/json");
+            var webhooks = client.Get<WebhookSubscribeResponse>(request);
+            
+            var subscription = webhooks.Results.FirstOrDefault(s => s.PropertyName == PropertyName && s.EventType == SubscriptionEvent);
             if (subscription == null) 
             {
                 return;
             }
-            url += $"/{subscription.Id}";            
-            await DeleteAsync<object>(url, null, RequestWithBodyHeaders, authenticationCredentialsProvider);
+            var requestDelete = new HubspotRequest($"/webhooks/v3/{appId}/subscriptions/{subscription.Id}", Method.Delete, authenticationCredentialsProviders);
+            await client.ExecuteAsync(requestDelete);
         }
 
         private AuthenticationCredentialsProvider GetAuthenticationCredentialsProvider(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders)
