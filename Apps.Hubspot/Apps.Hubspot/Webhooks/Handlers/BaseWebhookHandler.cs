@@ -5,11 +5,21 @@ using RestSharp;
 
 namespace Apps.Hubspot.Webhooks.Handlers
 {
-    public class ContactEmailChangesHandler : IWebhookEventHandler
+    public class BaseWebhookHandler : IWebhookEventHandler
     {
 
-        const string SubscriptionEvent = "contact.propertyChange";
-        const string PropertyName = "email";
+        //const string SubscriptionEvent = "contact.propertyChange";
+        //const string PropertyName = "email";
+
+        private string SubscriptionEvent;
+
+        //private string PropertyName;
+
+        public BaseWebhookHandler(string subEvent)
+        {
+            SubscriptionEvent = subEvent;
+            //PropertyName = propertyName;
+        }
 
         public async Task SubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)
         {
@@ -18,7 +28,7 @@ namespace Apps.Hubspot.Webhooks.Handlers
             {
                 Active = true,
                 EventType = SubscriptionEvent,
-                PropertyName = PropertyName
+                //PropertyName = PropertyName
             };
             string url = $"https://api.hubapi.com";
             var client = new HubspotClient(authenticationCredentialsProviders);
@@ -36,18 +46,13 @@ namespace Apps.Hubspot.Webhooks.Handlers
             request.AddHeader("content-type", "application/json");
             var webhooks = client.Get<WebhookSubscribeResponse>(request);
             
-            var subscription = webhooks.Results.FirstOrDefault(s => s.PropertyName == PropertyName && s.EventType == SubscriptionEvent);
+            var subscription = webhooks.Results.FirstOrDefault(s => s.EventType == SubscriptionEvent);
             if (subscription == null) 
             {
                 return;
             }
             var requestDelete = new HubspotRequest($"/webhooks/v3/{appId}/subscriptions/{subscription.Id}", Method.Delete, authenticationCredentialsProviders);
             await client.ExecuteAsync(requestDelete);
-        }
-
-        private AuthenticationCredentialsProvider GetAuthenticationCredentialsProvider(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders)
-        {
-            return authenticationCredentialsProviders.First(p => p.KeyName == "hapikey");
         }
     }
 }

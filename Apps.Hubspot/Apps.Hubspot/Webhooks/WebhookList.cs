@@ -1,6 +1,8 @@
 ﻿using Apps.Hubspot.Webhooks.Handlers;
 using Apps.Hubspot.Webhooks.Payloads;
 using Blackbird.Applications.Sdk.Common.Webhooks;
+using Newtonsoft.Json;
+using System.Net;
 using System.Text.Json;
 
 namespace Apps.Hubspot.Webhooks
@@ -8,15 +10,16 @@ namespace Apps.Hubspot.Webhooks
     [WebhookList]
     public class WebhookList
     {
-        [Webhook("On contact email changed", typeof(ContactEmailChangesHandler), Description = "Triggered when the email address of a contact has changed")]
-        public ContactEmailChangedPayload? ContactEmailChanged(WebhookRequest webhookRequest)
+        [Webhook("On company created", typeof(CompanyCreationHandler), Description = "On company created")]
+        public async Task<WebhookResponse<CompanyCreatedPayload>> ProjectCreatedHandler(WebhookRequest webhookRequest)
         {
-            var payloadString = webhookRequest.Body.ToString();
-            if(string.IsNullOrEmpty(payloadString))
+            var data = JsonConvert.DeserializeObject<CompanyCreatedPayload>(webhookRequest.Body.ToString());
+            if (data is null) { throw new InvalidCastException(nameof(webhookRequest.Body)); }
+            return new WebhookResponse<CompanyCreatedPayload>
             {
-                throw new InvalidCastException(nameof(webhookRequest.Body));
-            }
-            return JsonSerializer.Deserialize<IEnumerable<ContactEmailChangedPayload>>(payloadString, new JsonSerializerOptions { PropertyNameCaseInsensitive = true})?.FirstOrDefault();
+                HttpResponseMessage = null,
+                Result = data
+            };
         }
     }
 }
