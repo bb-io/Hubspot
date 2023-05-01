@@ -11,7 +11,7 @@ namespace Apps.Hubspot.Webhooks
     public class WebhookList
     {
         [Webhook("On company created", typeof(CompanyCreationHandler), Description = "On company created")]
-        public async Task<WebhookResponse<CompanyCreatedPayload>> ProjectCreatedHandler(WebhookRequest webhookRequest)
+        public async Task<WebhookResponse<CompanyCreatedPayload>> CompanyCreatedHandler(WebhookRequest webhookRequest)
         {
             var data = JsonConvert.DeserializeObject<CompanyCreatedPayload>(webhookRequest.Body.ToString());
             if (data is null) { throw new InvalidCastException(nameof(webhookRequest.Body)); }
