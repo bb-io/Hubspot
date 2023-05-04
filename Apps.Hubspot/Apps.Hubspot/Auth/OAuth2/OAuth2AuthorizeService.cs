@@ -10,9 +10,9 @@ namespace Apps.Hubspot.Authorization.OAuth2
             const string oauthUrl = "https://app.hubspot.com/oauth/authorize";
             var parameters = new Dictionary<string, string>
             {
-                { "client_id", values["client_id"] },
-                { "redirect_uri", values["redirect_uri"] },
-                { "scope", values["scope"] },
+                { "client_id", ApplicationConstants.ClientId },
+                { "redirect_uri", ApplicationConstants.RedirectUri },
+                { "scope", ApplicationConstants.Scope },
                 { "state", values["state"] }
             };
             return QueryHelpers.AddQueryString(oauthUrl, parameters);

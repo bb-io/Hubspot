@@ -22,8 +22,8 @@ namespace Apps.Hubspot.Authorization.OAuth2
             var bodyParameters = new Dictionary<string, string>
             {
                 { "grant_type", grant_type },
-                { "client_id", values["client_id"] },
-                { "client_secret", values["client_secret"] },
+                { "client_id", ApplicationConstants.ClientId },
+                { "client_secret", ApplicationConstants.ClientSecret },
                 { "refresh_token", values["refresh_token"] },
             };
             return await RequestToken(bodyParameters, cancellationToken);
@@ -40,9 +40,9 @@ namespace Apps.Hubspot.Authorization.OAuth2
             var bodyParameters = new Dictionary<string, string>
             {
                 { "grant_type", grant_type },
-                { "client_id", values["client_id"] },
-                { "client_secret", values["client_secret"] },
-                { "redirect_uri", values["redirect_uri"] },
+                { "client_id", ApplicationConstants.ClientId },
+                { "client_secret", ApplicationConstants.ClientSecret },
+                { "redirect_uri", ApplicationConstants.RedirectUri },
                 { "code", code }
             };
             return await RequestToken(bodyParameters, cancellationToken);

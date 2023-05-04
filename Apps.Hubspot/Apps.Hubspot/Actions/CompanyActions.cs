@@ -23,7 +23,7 @@ namespace Apps.Hubspot.Actions
 
         [Action("Get company", Description = "Get information of a specific company")]
         public CompanyDto? GetCompany(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] long companyId)
+            [ActionParameter]long companyId)
         {
             var client = new HubspotClient(authenticationCredentialsProviders);
             var request = new HubspotRequest($"/crm/v3/objects/companies/{companyId}", Method.Get, authenticationCredentialsProviders);

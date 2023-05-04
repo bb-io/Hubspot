@@ -16,11 +16,7 @@ namespace Apps.Hubspot.Connections
                 ConnectionUsage = ConnectionUsage.Actions,
                 ConnectionProperties = new List<ConnectionProperty>()
                 {
-                    new ConnectionProperty("client_id"),
-                    new ConnectionProperty("client_secret"),
-                    new ConnectionProperty("scope"),
-                    new ConnectionProperty("redirect_uri")
-                }
+                },
             },
             new ConnectionPropertyGroup
             {
