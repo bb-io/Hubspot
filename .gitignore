@@ -383,3 +383,4 @@ FodyWeavers.xsd
 # JetBrains Rider
 .idea/
 *.sln.iml
+/Apps.Hubspot/Apps.Hubspot/ApplicationConstants.cs
