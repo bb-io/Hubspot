@@ -11,6 +11,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Apps.Hubspot.Dtos.Blogs.Posts;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Apps.Hubspot.Actions
 {
@@ -44,12 +46,26 @@ namespace Apps.Hubspot.Actions
             return client.Post<BlogPostDto>(request);
         }
 
+        [Action("Create blog language variation", Description = "Create new blog language variation")]
+        public BlogPostDto? CreateBlogLanguageVariation(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
+            [ActionParameter] CreateNewBlogLanguageRequest input)
+        {
+            var client = new HubspotClient(authenticationCredentialsProviders);
+            var request = new HubspotRequest($"/cms/v3/blogs/posts/multi-language/create-language-variation", Method.Post, authenticationCredentialsProviders);
+            request.AddJsonBody(new
+            {
+                id = input.PostId,
+                language = input.Language
+            });
+            return client.Post<BlogPostDto>(request);
+        }
+
         [Action("Update blog post", Description = "Update a blog post information")]
         public BlogPostDto? UpdateCompany(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] long blogPostId, [ActionParameter] CreateOrUpdateBlogPostDto dto)
         {
             var client = new HubspotClient(authenticationCredentialsProviders);
-            var request = new HubspotRequest($"/cms/v3/blogs/posts{blogPostId}", Method.Patch, authenticationCredentialsProviders);
+            var request = new HubspotRequest($"/cms/v3/blogs/posts/{blogPostId}", Method.Patch, authenticationCredentialsProviders);
             request.AddJsonBody(dto);
             return client.Patch<BlogPostDto>(request);
         }
@@ -61,6 +77,36 @@ namespace Apps.Hubspot.Actions
             var client = new HubspotClient(authenticationCredentialsProviders);
             var request = new HubspotRequest($"/cms/v3/blogs/posts/{blogPostId}", Method.Delete, authenticationCredentialsProviders);
             client.Execute(request);
+        }
+
+        [Action("Get blog post translation", Description = "Get blog post translation by language")]
+        public TranslationInfoDto? GetBlogPostTranslation(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
+            [ActionParameter] string blogPostId, [ActionParameter] string locale)
+        {
+            var client = new HubspotClient(authenticationCredentialsProviders);
+            var request = new HubspotRequest($"/cms/v3/blogs/posts/{blogPostId}", Method.Get, authenticationCredentialsProviders);
+
+            var translationInfo = new TranslationInfoDto();
+            JObject translationsObj = JObject.Parse(client.Get(request).Content)["translations"].ToObject<JObject>();
+            if (translationsObj.ContainsKey(locale))
+            {
+                translationInfo = translationsObj[locale].ToObject<TranslationInfoDto>();
+            }
+            return translationInfo;
+        }
+
+        [Action("Update name and body of blog post", Description = "Update name and body of blog post")]
+        public BlogPostDto? UpdateBlogPostNameAndBody(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
+            [ActionParameter] long blogPostId, [ActionParameter] string name, [ActionParameter] string body)
+        {
+            var client = new HubspotClient(authenticationCredentialsProviders);
+            var request = new HubspotRequest($"/cms/v3/blogs/posts/{blogPostId}", Method.Patch, authenticationCredentialsProviders);
+            request.AddJsonBody(new
+            {
+                name = name,
+                postBody = body
+            });
+            return client.Patch<BlogPostDto>(request);
         }
     }
 }
