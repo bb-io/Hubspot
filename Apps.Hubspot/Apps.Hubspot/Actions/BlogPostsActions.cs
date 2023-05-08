@@ -108,5 +108,19 @@ namespace Apps.Hubspot.Actions
             });
             return client.Patch<BlogPostDto>(request);
         }
+
+        [Action("Get blog post as HTML file", Description = "Get blog post as HTML file")]
+        public FileResponse GetBlogPostAsHtml(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
+            [ActionParameter] long blogPostId)
+        {
+            var client = new HubspotClient(authenticationCredentialsProviders);
+            var request = new HubspotRequest($"/cms/v3/blogs/posts/{blogPostId}", Method.Get, authenticationCredentialsProviders);
+            var blogPost = client.Get<BlogPostDto>(request);
+            string htmlFile = $"<html><head><title>{blogPost.Name}</title></head><body>{blogPost.PostBody}</body></html>";
+            return new FileResponse()
+            {
+                File = Encoding.ASCII.GetBytes(htmlFile)
+            };
+        }
     }
 }
