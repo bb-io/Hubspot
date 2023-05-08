@@ -146,5 +146,28 @@ namespace Apps.Hubspot.Actions
             }
             return UpdateBlogPostNameAndBody(authenticationCredentialsProviders, existingTranslation.Id.ToString(), title, body);
         }
+
+        [Action("Get blog posts without translations", Description = "Get blog posts without translations to specific language")]
+        public async Task<GetAllResponse<BlogPostDto>> GetBlogPostsWithoutTranslations(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
+            [ActionParameter] string locale)
+        {
+            var posts = await GetBlogPosts(authenticationCredentialsProviders);
+            var missingTranslationsPosts = new List<BlogPostDto>();
+            foreach (var post in posts.Results)
+            {
+                if(post.TranslatedFromId == null)
+                {
+                    var translation = GetBlogPostTranslation(authenticationCredentialsProviders, post.Id, locale);
+                    if(translation.Id == 0)
+                    {
+                        missingTranslationsPosts.Add(post);
+                    }
+                }
+            }
+            return new GetAllResponse<BlogPostDto>()
+            {
+                Results = missingTranslationsPosts
+            };
+        }
     }
 }
