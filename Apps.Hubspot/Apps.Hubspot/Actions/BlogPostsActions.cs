@@ -112,7 +112,7 @@ namespace Apps.Hubspot.Actions
 
         [Action("Get blog post as HTML file", Description = "Get blog post as HTML file")]
         public FileResponse GetBlogPostAsHtml(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] long blogPostId)
+            [ActionParameter] string blogPostId)
         {
             var client = new HubspotClient(authenticationCredentialsProviders);
             var request = new HubspotRequest($"/cms/v3/blogs/posts/{blogPostId}", Method.Get, authenticationCredentialsProviders);
