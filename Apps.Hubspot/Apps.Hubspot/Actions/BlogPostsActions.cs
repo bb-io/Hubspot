@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Apps.Hubspot.Dtos.Blogs.Posts;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using HtmlAgilityPack;
 
 namespace Apps.Hubspot.Actions
 {
@@ -97,7 +98,7 @@ namespace Apps.Hubspot.Actions
 
         [Action("Update name and body of blog post", Description = "Update name and body of blog post")]
         public BlogPostDto? UpdateBlogPostNameAndBody(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] long blogPostId, [ActionParameter] string name, [ActionParameter] string body)
+            [ActionParameter] string blogPostId, [ActionParameter] string name, [ActionParameter] string body)
         {
             var client = new HubspotClient(authenticationCredentialsProviders);
             var request = new HubspotRequest($"/cms/v3/blogs/posts/{blogPostId}", Method.Patch, authenticationCredentialsProviders);
@@ -121,6 +122,29 @@ namespace Apps.Hubspot.Actions
             {
                 File = Encoding.ASCII.GetBytes(htmlFile)
             };
+        }
+
+        [Action("Translate blog post from HTML file", Description = "Translate blog post from HTML file")]
+        public BlogPostDto? TranslateBlogPostFromHtml(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
+            [ActionParameter] TranslateBlogPostFromHtmlRequest input)
+        {
+            var fileString = Encoding.ASCII.GetString(input.File);
+            var doc = new HtmlDocument();
+            doc.LoadHtml(fileString);
+            var title = doc.DocumentNode.SelectSingleNode("html/head/title").InnerText;
+            var body = doc.DocumentNode.SelectSingleNode("/html/body").InnerHtml;
+
+            var existingTranslation = GetBlogPostTranslation(authenticationCredentialsProviders, input.BlogPostId, input.Locale);
+            if(existingTranslation.Id == 0)
+            {
+                var createdPost = CreateBlogLanguageVariation(authenticationCredentialsProviders, new CreateNewBlogLanguageRequest()
+                {
+                    PostId = input.BlogPostId,
+                    Language = input.Locale
+                });
+                return UpdateBlogPostNameAndBody(authenticationCredentialsProviders, createdPost.Id, title, body);
+            }
+            return UpdateBlogPostNameAndBody(authenticationCredentialsProviders, existingTranslation.Id.ToString(), title, body);
         }
     }
 }
