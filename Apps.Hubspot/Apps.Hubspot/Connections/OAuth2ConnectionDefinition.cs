@@ -5,8 +5,6 @@ namespace Apps.Hubspot.Connections
 {
     public class OAuth2ConnectionDefinition : IConnectionDefinition
     {
-        private const string ApiKeyName = "hapikey";
-
         public IEnumerable<ConnectionPropertyGroup> ConnectionPropertyGroups => new List<ConnectionPropertyGroup>()
         {
             new ConnectionPropertyGroup
@@ -17,17 +15,6 @@ namespace Apps.Hubspot.Connections
                 ConnectionProperties = new List<ConnectionProperty>()
                 {
                 },
-            },
-            new ConnectionPropertyGroup
-            {
-                Name = "Developer API Token",
-                AuthenticationType = ConnectionAuthenticationType.Undefined,
-                ConnectionUsage = ConnectionUsage.Webhooks,
-                ConnectionProperties = new List<ConnectionProperty>()
-                {
-                    new ConnectionProperty("appId"),
-                    new ConnectionProperty(ApiKeyName)
-                }
             }
         };
 
@@ -38,12 +25,6 @@ namespace Apps.Hubspot.Connections
                 AuthenticationCredentialsRequestLocation.Header,
                 "Authorization",
                 $"Bearer {token.Value}"
-            );
-            var apiKey = values.First(v => v.Key == ApiKeyName);
-            yield return new AuthenticationCredentialsProvider(
-                AuthenticationCredentialsRequestLocation.QueryString,
-                ApiKeyName,
-                apiKey.Value
             );
         }
     }
