@@ -1,0 +1,146 @@
+{
+  "format": 1,
+  "restore": {
+    "/Users/innayatullah/vscode/black-bird/Hubspot/Apps.Hubspot.Test/Apps.Hubspot.Test.csproj": {}
+  },
+  "projects": {
+    "/Users/innayatullah/vscode/black-bird/Hubspot/Apps.Hubspot.Test/Apps.Hubspot.Test.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/innayatullah/vscode/black-bird/Hubspot/Apps.Hubspot.Test/Apps.Hubspot.Test.csproj",
+        "projectName": "Apps.Hubspot.Test",
+        "projectPath": "/Users/innayatullah/vscode/black-bird/Hubspot/Apps.Hubspot.Test/Apps.Hubspot.Test.csproj",
+        "packagesPath": "/Users/innayatullah/.nuget/packages/",
+        "outputPath": "/Users/innayatullah/vscode/black-bird/Hubspot/Apps.Hubspot.Test/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/innayatullah/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {
+              "/Users/innayatullah/vscode/black-bird/Hubspot/Apps.Hubspot/Apps.Hubspot/Apps.Hubspot.csproj": {
+                "projectPath": "/Users/innayatullah/vscode/black-bird/Hubspot/Apps.Hubspot/Apps.Hubspot/Apps.Hubspot.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "dependencies": {
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.3, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.302/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/innayatullah/vscode/black-bird/Hubspot/Apps.Hubspot/Apps.Hubspot/Apps.Hubspot.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/innayatullah/vscode/black-bird/Hubspot/Apps.Hubspot/Apps.Hubspot/Apps.Hubspot.csproj",
+        "projectName": "Apps.Hubspot",
+        "projectPath": "/Users/innayatullah/vscode/black-bird/Hubspot/Apps.Hubspot/Apps.Hubspot/Apps.Hubspot.csproj",
+        "packagesPath": "/Users/innayatullah/.nuget/packages/",
+        "outputPath": "/Users/innayatullah/vscode/black-bird/Hubspot/Apps.Hubspot/Apps.Hubspot/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/innayatullah/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "dependencies": {
+            "Blackbird.Applications.Sdk.Common": {
+              "target": "Package",
+              "version": "[2.0.6, )"
+            },
+            "HtmlAgilityPack": {
+              "target": "Package",
+              "version": "[1.11.46, )"
+            },
+            "Microsoft.AspNetCore.WebUtilities": {
+              "target": "Package",
+              "version": "[2.2.0, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.3, )"
+            },
+            "RestSharp": {
+              "target": "Package",
+              "version": "[110.2.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.302/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

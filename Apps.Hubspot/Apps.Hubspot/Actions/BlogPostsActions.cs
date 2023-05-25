@@ -25,7 +25,7 @@ namespace Apps.Hubspot.Actions
         {
             var client = new HubspotClient(authenticationCredentialsProviders);
             var request = new HubspotRequest("/cms/v3/blogs/posts", Method.Get, authenticationCredentialsProviders);
-            return client.Get<GetAllResponse<BlogPostDto>>(request);
+            return await client.GetAsync<GetAllResponse<BlogPostDto>>(request);
         }
 
         [Action("Get blog post", Description = "Get information of a specific blog post")]
@@ -89,7 +89,7 @@ namespace Apps.Hubspot.Actions
 
             var translationInfo = new TranslationInfoDto();
             JObject translationsObj = JObject.Parse(client.Get(request).Content)["translations"].ToObject<JObject>();
-            if (translationsObj.ContainsKey(locale))
+            if (translationsObj != null && translationsObj.ContainsKey(locale))
             {
                 translationInfo = translationsObj[locale].ToObject<TranslationInfoDto>();
             }

@@ -384,3 +384,5 @@ FodyWeavers.xsd
 .idea/
 *.sln.iml
 /Apps.Hubspot/Apps.Hubspot/ApplicationConstants.cs
+.DS_Store
+.editorconfig
