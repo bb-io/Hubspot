@@ -28,7 +28,4 @@
     <Folder Include="Models\Requests\" />
     <Folder Include="Models\Responses\" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\.editorconfig" />
-  </ItemGroup>
 </Project>

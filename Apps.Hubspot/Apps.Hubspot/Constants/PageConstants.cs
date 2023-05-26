@@ -10,8 +10,14 @@ namespace Apps.Hubspot.Constants
 
 		public static Func<string, string> ALandingPage = (string landingPageId) => $"{LandingPages}/{landingPageId}";
 
+        public static string CreateLandingPageTranslation = $"{LandingPages}/multi-language/create-language-variation";
 
-		public static string SitePages = $"{BaseAddress}/site-pages";
+        public static Func<string, string> UpdateLandingPage = (string sitePageId) => $"{LandingPages}/{sitePageId}";
+
+        public static string PublishLandingPage = $"{LandingPages}/schedule";
+
+
+        public static string SitePages = $"{BaseAddress}/site-pages";
 
         public static Func<string, string> ASitePage = (string sitePageId) => $"{SitePages}/{sitePageId}";
 

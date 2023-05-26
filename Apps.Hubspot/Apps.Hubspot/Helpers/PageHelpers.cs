@@ -48,12 +48,12 @@ namespace Apps.Hubspot.Helpers
             var fileString = Encoding.ASCII.GetString(File);
             var doc = new HtmlDocument();
             doc.LoadHtml(fileString);
-			var pageId = doc.DocumentNode.SelectNodes("//div/@data-pageid").FirstOrDefault();
+			var pageId = doc.DocumentNode.SelectNodes("//div/@lang").FirstOrDefault();
             var title = doc.DocumentNode.SelectSingleNode("//title");
 			var pageInfo = new PageInfo()
 			{
 				Html = doc,
-				PageId = pageId?.Attributes["data-pageid"]?.Value,
+				//PageId = pageId?.Attributes["data-pageid"]?.Value,
 				Title = title?.InnerHtml,
 				Language =  pageId?.Attributes["lang"]?.Value
 

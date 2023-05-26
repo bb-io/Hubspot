@@ -21,42 +21,31 @@ using Newtonsoft.Json.Serialization;
 
 namespace Apps.Hubspot.Actions
 {
-    [ActionList]
     public partial class PageActions
     {
-        private JsonSerializerSettings? serializationSettings = null;
 
-        public PageActions()
-        {
-            serializationSettings = new JsonSerializerSettings()
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                ContractResolver = new CamelCasePropertyNamesContractResolver()
-            };
-        }
-
-        [Action("Get all site pagess", Description = "Get a list of all pagess")]
-        public async Task<GetAllResponse<PageDto>> GetAllSitePages(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders)
+        [Action("Get all landing pages", Description = "Get a list of all landing pagess")]
+        public async Task<GetAllResponse<PageDto>> GetAllLandingPages(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders)
         {
             var client = new HubspotClient(authenticationCredentialsProviders);
-            var request = new HubspotRequest(PageConstants.SitePages, Method.Get, authenticationCredentialsProviders);
+            var request = new HubspotRequest(PageConstants.LandingPages, Method.Get, authenticationCredentialsProviders);
             GetAllResponse<PageDto>? getAllResponse = await client.GetAsync<GetAllResponse<PageDto>>(request);
             return getAllResponse;
         }
 
-        [Action("Get a site page", Description = "Get information of a specific page")]
-        public async Task<PageDto?> GetSitePage(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
+        [Action("Get a landing page", Description = "Get information of a specific landing page")]
+        public async Task<PageDto?> GetLandingPage(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] string pageId)
         {
-            var result = await GetPage(authenticationCredentialsProviders, pageId);
+            var result = await GetLPage(authenticationCredentialsProviders, pageId);
             return result;
         }
 
         [Action("Get a site page as HTML file", Description = "Get information of a specific page and return an HTML file of its content")]
-        public async Task<FileResponse> GetSitePageAsHtml(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
+        public async Task<FileResponse> GetLandingPageAsHtml(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] string pageId)
         {
-            var result = await GetPage(authenticationCredentialsProviders, pageId);
+            var result = await GetLPage(authenticationCredentialsProviders, pageId);
             var htmlStringBuilder = PageHelpers.ObjectToHtml(JsonConvert.DeserializeObject(result.LayoutSections.ToString()));
             string htmlFile = $"<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\" />\n<title>{result.HtmlTitle}</title>\n</head>\n<body><div lang=\"{result.Language}\"></div>\n{htmlStringBuilder.ToString()}</body></html>";
 
@@ -70,14 +59,14 @@ namespace Apps.Hubspot.Actions
         }
 
         [Action("Translate a site page from HTML file", Description = "Create a new translation for a site page based on a file input")]
-        public async Task<BaseResponse> TranslateSitePageFromFile(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
+        public async Task<BaseResponse> TranslateLandingPageFromFile(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] TranslateFromFileRequest request)
         {
             try
             {
                 var pageInfo = PageHelpers.ExtractParentInfo(request.File);
                 // Create a Translation of the parent page
-                var translationResponse = await CreateTranslation(authenticationCredentialsProviders, request.SourcePageId, pageInfo.Language, request.TargetLanguage);
+                var translationResponse = await CreateLandingPageTranslation(authenticationCredentialsProviders, request.SourcePageId, pageInfo.Language, request.TargetLanguage);
 
                 // Update the layout section of translated page
                 var updateDto = new PageBaseDto()
@@ -87,7 +76,7 @@ namespace Apps.Hubspot.Actions
                     LayoutSections = PageHelpers.HtmlToObject(pageInfo.Html, JsonConvert.DeserializeObject(translationResponse.LayoutSections.ToString()))
                 };
                 // Update the translated page
-                var updateResponse = await UpdateTranslatedPage(authenticationCredentialsProviders, updateDto);
+                var updateResponse = await UpdateTranslatedLandingPage(authenticationCredentialsProviders, updateDto);
 
                 return new BaseResponse()
                 {
@@ -104,11 +93,11 @@ namespace Apps.Hubspot.Actions
         }
 
         [Action("Schedule a site-page for publishing", Description = "Schedules a site page for publishing on the given time")]
-        public async Task<BaseResponse> ScheduleASitePageForPublish(IEnumerable<AuthenticationCredentialsProvider> providers,
+        public async Task<BaseResponse> ScheduleALandingPageForPublish(IEnumerable<AuthenticationCredentialsProvider> providers,
             [ActionParameter] PublishPageReqeuest request)
         {
             // Publish the translaged page
-            var publishResponse = await PublishPage(providers, request.Id, request.DateTime == null ? request.DateTime.Value : DateTime.Now.AddSeconds(30));
+            var publishResponse = await PublishLandingPage(providers, request.Id, request.DateTime == null ? request.DateTime.Value : DateTime.Now.AddSeconds(30));
             return new BaseResponse()
             {
                 StatusCode = ((int)publishResponse.StatusCode),
@@ -119,20 +108,20 @@ namespace Apps.Hubspot.Actions
 
         #region PRIVATE METHODS
 
-        private async Task<PageDto?> GetPage(IEnumerable<AuthenticationCredentialsProvider> providers, string pageId)
+        private async Task<PageDto?> GetLPage(IEnumerable<AuthenticationCredentialsProvider> providers, string pageId)
         {
             var client = new HubspotClient(providers);
-            var request = new HubspotRequest(PageConstants.ASitePage(pageId), Method.Get, providers);
+            var request = new HubspotRequest(PageConstants.ALandingPage(pageId), Method.Get, providers);
             var page = await client.GetAsync<PageDto>(request);
             return page;
         }
 
-        private async Task<PageDto?> CreateTranslation(IEnumerable<AuthenticationCredentialsProvider> providers, string pageId, string primaryLanguage, string targetLanguage)
+        private async Task<PageDto?> CreateLandingPageTranslation(IEnumerable<AuthenticationCredentialsProvider> providers, string pageId, string primaryLanguage, string targetLanguage)
         {
             try
             {
                 var client = new HubspotClient(providers);
-                var request = new HubspotRequest(PageConstants.CreateTranslation, Method.Post, providers);
+                var request = new HubspotRequest(PageConstants.CreateLandingPageTranslation, Method.Post, providers);
 
                 var translationRequestBody = new CreateTranslationRequest
                 {
@@ -151,12 +140,12 @@ namespace Apps.Hubspot.Actions
             }
         }
 
-        private async Task<RestResponse> UpdateTranslatedPage(IEnumerable<AuthenticationCredentialsProvider> providers, PageBaseDto page)
+        private async Task<RestResponse> UpdateTranslatedLandingPage(IEnumerable<AuthenticationCredentialsProvider> providers, PageBaseDto page)
         {
             try
             {
                 var client = new HubspotClient(providers);
-                var request = new HubspotRequest(PageConstants.UpdatePage(page.Id), Method.Patch, providers);
+                var request = new HubspotRequest(PageConstants.UpdateLandingPage(page.Id), Method.Patch, providers);
 
                 var jsonString = JsonConvert.SerializeObject(page, serializationSettings);
 
@@ -171,12 +160,12 @@ namespace Apps.Hubspot.Actions
             }
         }
 
-        private async Task<RestResponse> PublishPage(IEnumerable<AuthenticationCredentialsProvider> providers, string pageId, DateTime dateTime)
+        private async Task<RestResponse> PublishLandingPage(IEnumerable<AuthenticationCredentialsProvider> providers, string pageId, DateTime dateTime)
         {
             try
             {
                 var client = new HubspotClient(providers);
-                var request = new HubspotRequest(PageConstants.PublishPage, Method.Post, providers);
+                var request = new HubspotRequest(PageConstants.PublishLandingPage, Method.Post, providers);
 
                 var jsonString = JsonConvert.SerializeObject(new {id = pageId, publishDate = dateTime}, serializationSettings);
 

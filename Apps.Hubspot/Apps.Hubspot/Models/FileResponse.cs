@@ -5,5 +5,6 @@
         public byte[] File { get; set; }
         public string FileName { get; set; }
         public string FileLanguage { get; set; }
+        public string Id { get; set; }
     }
 }
