@@ -28,7 +28,16 @@ namespace Apps.Hubspot.Actions
         public async Task<GetAllResponse<PageDto>> GetAllLandingPages(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders)
         {
             var client = new HubspotClient(authenticationCredentialsProviders);
-            var request = new HubspotRequest(PageConstants.LandingPages, Method.Get, authenticationCredentialsProviders);
+            var request = new HubspotRequest(PageConstants.LandingPages(), Method.Get, authenticationCredentialsProviders);
+            GetAllResponse<PageDto>? getAllResponse = await client.GetAsync<GetAllResponse<PageDto>>(request);
+            return getAllResponse;
+        }
+
+        [Action("Get all landing pages udated after datetime", Description = "Get a list of all landing pagess that were updated after the given date time. Date time is exclusive")]
+        public async Task<GetAllResponse<PageDto>> GetAllLandingPagesAfter(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, DateTime updatedAfter)
+        {
+            var client = new HubspotClient(authenticationCredentialsProviders);
+            var request = new HubspotRequest(PageConstants.LandingPages(updatedAfter), Method.Get, authenticationCredentialsProviders);
             GetAllResponse<PageDto>? getAllResponse = await client.GetAsync<GetAllResponse<PageDto>>(request);
             return getAllResponse;
         }
@@ -179,6 +188,7 @@ namespace Apps.Hubspot.Actions
                 throw;
             }
         }
+
         #endregion
     }
 }

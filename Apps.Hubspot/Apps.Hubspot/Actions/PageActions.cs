@@ -39,7 +39,17 @@ namespace Apps.Hubspot.Actions
         public async Task<GetAllResponse<PageDto>> GetAllSitePages(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders)
         {
             var client = new HubspotClient(authenticationCredentialsProviders);
-            var request = new HubspotRequest(PageConstants.SitePages, Method.Get, authenticationCredentialsProviders);
+            var request = new HubspotRequest(PageConstants.SitePages(), Method.Get, authenticationCredentialsProviders);
+            GetAllResponse<PageDto>? getAllResponse = await client.GetAsync<GetAllResponse<PageDto>>(request);
+            return getAllResponse;
+        }
+
+
+        [Action("Get all site pages udated after datetime", Description = "Get a list of all site pagess that were updated after the given date time. Date time is exclusive")]
+        public async Task<GetAllResponse<PageDto>> GetAllPagesAfter(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, DateTime updatedAfter)
+        {
+            var client = new HubspotClient(authenticationCredentialsProviders);
+            var request = new HubspotRequest(PageConstants.SitePages(updatedAfter), Method.Get, authenticationCredentialsProviders);
             GetAllResponse<PageDto>? getAllResponse = await client.GetAsync<GetAllResponse<PageDto>>(request);
             return getAllResponse;
         }
