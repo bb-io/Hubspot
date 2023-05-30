@@ -68,11 +68,15 @@ namespace Apps.Hubspot.Dtos.Pages
         /// <summary>
         /// Language of Translation
         /// </summary>
-        public string Language { get; set; }
+        public string? Language { get; set; }
         /// <summary>
         /// Parent page Id
         /// </summary>
-        public string TranslatedFromId { get; set; }
+        public string? TranslatedFromId { get; set; }
+        /// <summary>
+        /// List of Translations
+        /// </summary>
+        public dynamic Translations { get; set; }
     }
 }
 

@@ -17,6 +17,7 @@ using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Apps.Hubspot.Models.Requests;
 using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json.Linq;
 #endregion
 
 namespace Apps.Hubspot.Actions
@@ -31,6 +32,32 @@ namespace Apps.Hubspot.Actions
             var request = new HubspotRequest(PageConstants.LandingPages(), Method.Get, authenticationCredentialsProviders);
             GetAllResponse<PageDto>? getAllResponse = await client.GetAsync<GetAllResponse<PageDto>>(request);
             return getAllResponse;
+        }
+
+
+        [Action("Get all landing pages with language X", Description = "Get a list of all pages in a specified language")]
+        public async Task<GetAllResponse<PageDto>> GetAllLandingPagesInLanguage(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
+            [ActionParameter] string language)
+        {
+            var client = new HubspotClient(authenticationCredentialsProviders);
+            var request = new HubspotRequest($"{PageConstants.LandingPages()}?language={language}", Method.Get, authenticationCredentialsProviders);
+            GetAllResponse<PageDto>? getAllResponse = await client.GetAsync<GetAllResponse<PageDto>>(request);
+            return getAllResponse;
+        }
+
+
+        [Action("Get all landing pages not translated in language X", Description = "Get a list of all pages not translated in specified language")]
+        public async Task<List<PageDto>> GetAllLandingPagesNotInLanguage(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
+            [ActionParameter] string primaryLanguage, [ActionParameter] string language)
+        {
+            var client = new HubspotClient(authenticationCredentialsProviders);
+            var request = new HubspotRequest($"{PageConstants.LandingPages()}?property=language,id,translations", Method.Get, authenticationCredentialsProviders);
+            GetAllResponse<PageDto>? getAllResponse = await client.GetAsync<GetAllResponse<PageDto>>(request);
+            // filter all the pages that are in primary language or they are never translated
+            var result = getAllResponse.Results.Where(p => p.Language is null || p.Language == primaryLanguage).ToList();
+            // filter the pages that do not have the specified language in the translations
+            result = result.Where(p => p.Language is null || !((JObject)JsonConvert.DeserializeObject(p.Translations.ToString())).Properties().Any(t => t.Name == language.ToLower())).ToList();
+            return result;
         }
 
         [Action("Get all landing pages udated after datetime", Description = "Get a list of all landing pagess that were updated after the given date time. Date time is exclusive")]

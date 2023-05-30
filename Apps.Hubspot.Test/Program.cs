@@ -6,26 +6,27 @@ using Newtonsoft.Json;
 using System.Text;
 
 PageActions actions = new PageActions();
-var pageId = "68920460724";
+var pageId = "115935034531";
 var credentials = new List<AuthenticationCredentialsProvider>()
     {
         new AuthenticationCredentialsProvider(
             AuthenticationCredentialsRequestLocation.None,
             "Authorization",
-            "Bearer CKeBjsWFMRIQAgEAQAAAAQIAAAA4AAAAYBi63Z8KIIW7yBgowPlnMhSdcSSmQnsvT71gYiYvd5XgUwp-sTo9ACAAQf8HAAAAAIAAAGB4wCCAAAAAAAAABAAAOAAAAM7D_wEBAAAAgAb8BwAAAPADAACAPwAAAAAAAAIACEIUoV_YM68dFRDF54rzbn3flP9qN19KA25hMVIAWgA")
+            "Bearer CPKikPWGMRIQAgEAQAAAAQIAAAA4AAAAYBi63Z8KIIW7yBgowPlnMhRXlc7i1Mb3m64qdphuVJu2k7vlujo9ACAAQf8HAAAAAIAAAGB4wCCAAAAAAAAABAAAOAAAAM7D_wEBAAAAgAb8BwAAAPADAACAPwAAAAAAAAIACEIUNiwNZk3Wqkg3qMhlwon5yC39MitKA25hMVIAWgA")
     };
 
-var response = await actions.GetAllLandingPages(credentials);
-Console.WriteLine("response");
+//var response = await actions.GetAllLandingPages(credentials);
+//Console.WriteLine("response");
 
 //var sitePageResponse = await actions.GetSitePageAsHtml(credentials, pageId);
+var sitePageResponse = await actions.GetAllSitePagesNotInLanguage(credentials, "en", "nl-NL");
 //var response = await actions.TranslateSitePageFromFile(credentials, new Apps.Hubspot.Models.Requests.TranslateFromFileRequest()
 //{
 //    File = sitePageResponse.File,
 //    TargetLanguage = "nl-NL"
 //});
 
-//Console.WriteLine(response.Id);
+Console.WriteLine(sitePageResponse);
 
 //var result = await actions.GetSitePage(
 //      credentials,

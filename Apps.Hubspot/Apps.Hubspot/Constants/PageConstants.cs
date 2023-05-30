@@ -18,26 +18,26 @@ namespace Apps.Hubspot.Constants
 			return BaseWithQueryString(LANDING_PAGES, dateTime);
 		}
 
-		public static Func<string, string> ALandingPage = (string landingPageId) => $"{LandingPages}/{landingPageId}";
+		public static Func<string, string> ALandingPage = (string landingPageId) => $"{LandingPages()}/{landingPageId}";
 
-        public static string CreateLandingPageTranslation = $"{LandingPages}/multi-language/create-language-variation";
+        public static string CreateLandingPageTranslation = $"{LandingPages()}/multi-language/create-language-variation";
 
-        public static Func<string, string> UpdateLandingPage = (string sitePageId) => $"{LandingPages}/{sitePageId}";
+        public static Func<string, string> UpdateLandingPage = (string sitePageId) => $"{LandingPages()}/{sitePageId}";
 
-        public static string PublishLandingPage = $"{LandingPages}/schedule";
+        public static string PublishLandingPage = $"{LandingPages()}/schedule";
 
 
         public static string SitePages (DateTime? dateTime = null){
 			return BaseWithQueryString(SITE_PAGES, dateTime);
 		}
 
-        public static Func<string, string> ASitePage = (string sitePageId) => $"{SitePages}/{sitePageId}";
+        public static Func<string, string> ASitePage = (string sitePageId) => $"{SitePages()}/{sitePageId}";
 
-		public static string CreateTranslation = $"{SitePages}/multi-language/create-language-variation";
+		public static string CreateTranslation = $"{SitePages()}/multi-language/create-language-variation";
 
-		public static Func<string, string> UpdatePage = (string sitePageId) => $"{SitePages}/{sitePageId}";
+		public static Func<string, string> UpdatePage = (string sitePageId) => $"{SitePages()}/{sitePageId}";
 
-		public static string PublishPage = $"{SitePages}/schedule";
+		public static string PublishPage = $"{SitePages()}/schedule";
 
     }
 }

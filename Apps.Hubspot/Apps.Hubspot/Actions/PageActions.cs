@@ -17,6 +17,7 @@ using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Apps.Hubspot.Models.Requests;
 using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json.Linq;
 #endregion
 
 namespace Apps.Hubspot.Actions
@@ -44,8 +45,33 @@ namespace Apps.Hubspot.Actions
             return getAllResponse;
         }
 
+        [Action("Get all site pages with language X", Description = "Get a list of all pages in a specified language")]
+        public async Task<GetAllResponse<PageDto>> GetAllSitePagesInLanguage(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
+            [ActionParameter] string language)
+        {
+            var client = new HubspotClient(authenticationCredentialsProviders);
+            var request = new HubspotRequest($"{PageConstants.SitePages()}?language={language}", Method.Get, authenticationCredentialsProviders);
+            GetAllResponse<PageDto>? getAllResponse = await client.GetAsync<GetAllResponse<PageDto>>(request);
+            return getAllResponse;
+        }
 
-        [Action("Get all site pages udated after datetime", Description = "Get a list of all site pagess that were updated after the given date time. Date time is exclusive")]
+
+        [Action("Get all site pages not translated in language X", Description = "Get a list of all pages not translated in specified language")]
+        public async Task<List<PageDto>> GetAllSitePagesNotInLanguage(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
+            [ActionParameter] string primaryLanguage, [ActionParameter] string language)
+        {
+            var client = new HubspotClient(authenticationCredentialsProviders);
+            var request = new HubspotRequest($"{PageConstants.SitePages()}?property=language,id,translations", Method.Get, authenticationCredentialsProviders);
+            GetAllResponse<PageDto>? getAllResponse = await client.GetAsync<GetAllResponse<PageDto>>(request);
+            // filter all the pages that are in primary language or they are never translated
+            var result = getAllResponse.Results.Where(p => p.Language is null || p.Language == primaryLanguage).ToList();
+            // filter the pages that do not have the specified language in the translations
+            result = result.Where(p => p.Language is null || !((JObject)JsonConvert.DeserializeObject(p.Translations.ToString())).Properties().Any(t => t.Name == language.ToLower())).ToList();
+            return result;
+        }
+
+
+        [Action("Get all site pages updated after datetime", Description = "Get a list of all site pagess that were updated after the given date time. Date time is exclusive")]
         public async Task<GetAllResponse<PageDto>> GetAllPagesAfter(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, DateTime updatedAfter)
         {
             var client = new HubspotClient(authenticationCredentialsProviders);
