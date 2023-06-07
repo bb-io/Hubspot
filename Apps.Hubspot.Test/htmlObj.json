@@ -1,0 +1,1249 @@
+﻿{
+  "archivedAt": "1970-01-01T00:00:00Z",
+  "archivedInDashboard": false,
+  "attachedStylesheets": [],
+  "authorName": "Innayat Ullah",
+  "categoryId": 1,
+  "contentTypeCategory": 4,
+  "createdAt": "2023-05-18T14:50:26.556Z",
+  "createdById": "51518853",
+  "currentState": "PUBLISHED",
+  "domain": "",
+  "featuredImage": "",
+  "featuredImageAltText": "",
+  "htmlTitle": "the first cup",
+  "id": "116082856262",
+  "language": "sv-se",
+  "layoutSections": {
+    "dnd_area": {
+      "cells": [],
+      "cssClass": "",
+      "cssId": "",
+      "cssStyle": "",
+      "label": "Main section",
+      "name": "dnd_area",
+      "params": {},
+      "rowMetaData": [
+        {
+          "cssClass": "dnd-section",
+          "styles": {
+            "backgroundImage": {
+              "backgroundPosition": "TOP_CENTER",
+              "backgroundSize": "cover",
+              "imageUrl": "//7528304.fs1.hubspotusercontent-na1.net/hubfs/7528304/raw_assets/public/mV0_d-cms-growth-theme_hubspot/growth/images/industry-images/about-banner.jpg"
+            },
+            "forceFullWidthSection": false,
+            "maxWidthSectionCentering": 750
+          }
+        },
+        {
+          "cssClass": "dnd-section",
+          "styles": {
+            "forceFullWidthSection": false
+          }
+        },
+        {
+          "cssClass": "dnd-section",
+          "styles": {
+            "backgroundColor": {
+              "a": 1,
+              "b": 250,
+              "g": 248,
+              "r": 245
+            },
+            "forceFullWidthSection": false
+          }
+        },
+        {
+          "cssClass": "dnd-section",
+          "styles": {
+            "forceFullWidthSection": false
+          }
+        },
+        {
+          "cssClass": "dnd-section",
+          "styles": {
+            "backgroundColor": {
+              "a": 1,
+              "b": 250,
+              "g": 248,
+              "r": 245
+            },
+            "forceFullWidthSection": false
+          }
+        }
+      ],
+      "rows": [
+        {
+          "0": {
+            "cells": [],
+            "cssClass": "",
+            "cssId": "",
+            "cssStyle": "",
+            "name": "dnd_area-module-1",
+            "params": {
+              "css_class": "dnd-module",
+              "extra_classes": "widget-type-rich_text",
+              "html": "<div style=\"text-align: center;\"><h1 style=\"color: #fff;\">About us</h1><p style=\"color: #fff;\">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p></div>",
+              "path": "@hubspot/rich_text",
+              "schema_version": 2,
+              "smart_objects": [],
+              "smart_type": "NOT_SMART",
+              "wrap_field_tag": "div"
+            },
+            "rowMetaData": [],
+            "rows": [],
+            "type": "custom_widget",
+            "w": 12,
+            "x": 0
+          }
+        },
+        {
+          "0": {
+            "cells": [],
+            "cssClass": "",
+            "cssId": "",
+            "cssStyle": "",
+            "name": "dnd_area-column-2",
+            "params": {
+              "css_class": "dnd-column"
+            },
+            "rowMetaData": [
+              {
+                "cssClass": "dnd-row",
+                "styles": {}
+              },
+              {
+                "cssClass": "dnd-row",
+                "styles": {}
+              },
+              {
+                "cssClass": "dnd-row"
+              }
+            ],
+            "rows": [
+              {
+                "0": {
+                  "cells": [],
+                  "cssClass": "",
+                  "cssId": "",
+                  "cssStyle": "",
+                  "name": "dnd_area-column-3",
+                  "params": {
+                    "css_class": "dnd-column"
+                  },
+                  "rowMetaData": [
+                    {
+                      "cssClass": "dnd-row"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "0": {
+                        "cells": [],
+                        "cssClass": "",
+                        "cssId": "",
+                        "cssStyle": "",
+                        "name": "dnd_area-module-4",
+                        "params": {
+                          "css_class": "dnd-module",
+                          "extra_classes": "widget-type-linked_image",
+                          "img": {
+                            "alt": "Our story",
+                            "loading": "lazy",
+                            "max_height": 300,
+                            "max_width": 500,
+                            "size_type": "auto_custom_max",
+                            "src": "//7528304.fs1.hubspotusercontent-na1.net/hubfs/7528304/raw_assets/public/mV0_d-cms-growth-theme_hubspot/growth/images/industry-images/company-one.jpg"
+                          },
+                          "path": "@hubspot/linked_image",
+                          "schema_version": 2,
+                          "smart_objects": [],
+                          "smart_type": "NOT_SMART",
+                          "wrap_field_tag": "div"
+                        },
+                        "rowMetaData": [],
+                        "rows": [],
+                        "type": "custom_widget",
+                        "w": 12,
+                        "x": 0
+                      }
+                    }
+                  ],
+                  "styles": {},
+                  "type": "cell",
+                  "w": 5,
+                  "x": 0
+                },
+                "5": {
+                  "cells": [],
+                  "cssClass": "",
+                  "cssId": "",
+                  "cssStyle": "",
+                  "name": "dnd_area-column-5",
+                  "params": {
+                    "css_class": "dnd-column"
+                  },
+                  "rowMetaData": [
+                    {
+                      "cssClass": "dnd-row"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "0": {
+                        "cells": [],
+                        "cssClass": "",
+                        "cssId": "",
+                        "cssStyle": "",
+                        "name": "dnd_area-module-6",
+                        "params": {
+                          "css_class": "dnd-module",
+                          "extra_classes": "widget-type-space",
+                          "path": "@hubspot/horizontal_spacer",
+                          "schema_version": 2,
+                          "smart_objects": [],
+                          "smart_type": "NOT_SMART",
+                          "wrap_field_tag": "div"
+                        },
+                        "rowMetaData": [],
+                        "rows": [],
+                        "type": "custom_widget",
+                        "w": 12,
+                        "x": 0
+                      }
+                    }
+                  ],
+                  "type": "cell",
+                  "w": 1,
+                  "x": 5
+                },
+                "6": {
+                  "cells": [],
+                  "cssClass": "",
+                  "cssId": "",
+                  "cssStyle": "",
+                  "name": "dnd_area-column-7",
+                  "params": {
+                    "css_class": "dnd-column"
+                  },
+                  "rowMetaData": [
+                    {
+                      "cssClass": "dnd-row"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "0": {
+                        "cells": [],
+                        "cssClass": "",
+                        "cssId": "",
+                        "cssStyle": "",
+                        "name": "dnd_area-module-8",
+                        "params": {
+                          "css_class": "dnd-module",
+                          "extra_classes": "widget-type-rich_text",
+                          "html": "<h2 id=\"tw-target-text\" dir=\"ltr\" data-placeholder=\"Translation\"><span lang=\"sv\">Vår berättelse</span></h2>\n<p id=\"tw-target-text\" dir=\"ltr\" data-placeholder=\"Translation\"><span lang=\"sv\">Detta är historien om fågelflockar som ville erövra himlen.</span></p>",
+                          "path": "@hubspot/rich_text",
+                          "schema_version": 2,
+                          "smart_objects": [],
+                          "smart_type": "NOT_SMART",
+                          "wrap_field_tag": "div"
+                        },
+                        "rowMetaData": [],
+                        "rows": [],
+                        "type": "custom_widget",
+                        "w": 12,
+                        "x": 0
+                      }
+                    }
+                  ],
+                  "type": "cell",
+                  "w": 6,
+                  "x": 6
+                }
+              },
+              {
+                "0": {
+                  "cells": [],
+                  "cssClass": "",
+                  "cssId": "",
+                  "cssStyle": "",
+                  "name": "dnd_area-column-9",
+                  "params": {
+                    "css_class": "dnd-column"
+                  },
+                  "rowMetaData": [
+                    {
+                      "cssClass": "dnd-row"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "0": {
+                        "cells": [],
+                        "cssClass": "",
+                        "cssId": "",
+                        "cssStyle": "",
+                        "name": "dnd_area-module-10",
+                        "params": {
+                          "css_class": "dnd-module",
+                          "extra_classes": "widget-type-rich_text",
+                          "html": "<h2>Our values</h2>\n<p>We value our customers and their ambitions</p>",
+                          "path": "@hubspot/rich_text",
+                          "schema_version": 2,
+                          "smart_objects": [],
+                          "smart_type": "NOT_SMART",
+                          "wrap_field_tag": "div"
+                        },
+                        "rowMetaData": [],
+                        "rows": [],
+                        "type": "custom_widget",
+                        "w": 12,
+                        "x": 0
+                      }
+                    }
+                  ],
+                  "type": "cell",
+                  "w": 6,
+                  "x": 0
+                },
+                "6": {
+                  "cells": [],
+                  "cssClass": "",
+                  "cssId": "",
+                  "cssStyle": "",
+                  "name": "dnd_area-column-11",
+                  "params": {
+                    "css_class": "dnd-column"
+                  },
+                  "rowMetaData": [
+                    {
+                      "cssClass": "dnd-row"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "0": {
+                        "cells": [],
+                        "cssClass": "",
+                        "cssId": "",
+                        "cssStyle": "",
+                        "name": "dnd_area-module-12",
+                        "params": {
+                          "css_class": "dnd-module",
+                          "extra_classes": "widget-type-space",
+                          "path": "@hubspot/horizontal_spacer",
+                          "schema_version": 2,
+                          "smart_objects": [],
+                          "smart_type": "NOT_SMART",
+                          "wrap_field_tag": "div"
+                        },
+                        "rowMetaData": [],
+                        "rows": [],
+                        "type": "custom_widget",
+                        "w": 12,
+                        "x": 0
+                      }
+                    }
+                  ],
+                  "type": "cell",
+                  "w": 1,
+                  "x": 6
+                },
+                "7": {
+                  "cells": [],
+                  "cssClass": "",
+                  "cssId": "",
+                  "cssStyle": "",
+                  "name": "dnd_area-column-13",
+                  "params": {
+                    "css_class": "dnd-column"
+                  },
+                  "rowMetaData": [
+                    {
+                      "cssClass": "dnd-row"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "0": {
+                        "cells": [],
+                        "cssClass": "",
+                        "cssId": "",
+                        "cssStyle": "",
+                        "name": "dnd_area-module-14",
+                        "params": {
+                          "css_class": "dnd-module",
+                          "extra_classes": "widget-type-linked_image",
+                          "horizontal_alignment": "RIGHT",
+                          "img": {
+                            "alt": "Our values",
+                            "loading": "lazy",
+                            "max_height": 300,
+                            "max_width": 500,
+                            "size_type": "auto_custom_max",
+                            "src": "//7528315.fs1.hubspotusercontent-na1.net/hubfs/7528315/raw_assets/public/mV0_d-cms-growth-theme_hubspot/growth/images/industry-images/company-two.jpg"
+                          },
+                          "path": "@hubspot/linked_image",
+                          "schema_version": 2,
+                          "smart_objects": [],
+                          "smart_type": "NOT_SMART",
+                          "wrap_field_tag": "div"
+                        },
+                        "rowMetaData": [],
+                        "rows": [],
+                        "styles": {
+                          "flexboxPositioning": "TOP_RIGHT"
+                        },
+                        "type": "custom_widget",
+                        "w": 12,
+                        "x": 0
+                      }
+                    }
+                  ],
+                  "type": "cell",
+                  "w": 5,
+                  "x": 7
+                }
+              },
+              {
+                "0": {
+                  "cells": [],
+                  "cssClass": "",
+                  "cssId": "",
+                  "cssStyle": "",
+                  "name": "dnd_area-column-15",
+                  "params": {
+                    "css_class": "dnd-column"
+                  },
+                  "rowMetaData": [
+                    {
+                      "cssClass": "dnd-row"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "0": {
+                        "cells": [],
+                        "cssClass": "",
+                        "cssId": "",
+                        "cssStyle": "",
+                        "name": "dnd_area-module-16",
+                        "params": {
+                          "css_class": "dnd-module",
+                          "extra_classes": "widget-type-linked_image",
+                          "img": {
+                            "alt": "Our history",
+                            "loading": "lazy",
+                            "max_height": 300,
+                            "max_width": 500,
+                            "size_type": "auto_custom_max",
+                            "src": "//7528304.fs1.hubspotusercontent-na1.net/hubfs/7528304/raw_assets/public/mV0_d-cms-growth-theme_hubspot/growth/images/industry-images/company-three.jpg"
+                          },
+                          "path": "@hubspot/linked_image",
+                          "schema_version": 2,
+                          "smart_objects": [],
+                          "smart_type": "NOT_SMART",
+                          "wrap_field_tag": "div"
+                        },
+                        "rowMetaData": [],
+                        "rows": [],
+                        "type": "custom_widget",
+                        "w": 12,
+                        "x": 0
+                      }
+                    }
+                  ],
+                  "styles": {},
+                  "type": "cell",
+                  "w": 5,
+                  "x": 0
+                },
+                "5": {
+                  "cells": [],
+                  "cssClass": "",
+                  "cssId": "",
+                  "cssStyle": "",
+                  "name": "dnd_area-column-17",
+                  "params": {
+                    "css_class": "dnd-column"
+                  },
+                  "rowMetaData": [
+                    {
+                      "cssClass": "dnd-row"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "0": {
+                        "cells": [],
+                        "cssClass": "",
+                        "cssId": "",
+                        "cssStyle": "",
+                        "name": "dnd_area-module-18",
+                        "params": {
+                          "css_class": "dnd-module",
+                          "extra_classes": "widget-type-space",
+                          "path": "@hubspot/horizontal_spacer",
+                          "schema_version": 2,
+                          "smart_objects": [],
+                          "smart_type": "NOT_SMART",
+                          "wrap_field_tag": "div"
+                        },
+                        "rowMetaData": [],
+                        "rows": [],
+                        "type": "custom_widget",
+                        "w": 12,
+                        "x": 0
+                      }
+                    }
+                  ],
+                  "type": "cell",
+                  "w": 1,
+                  "x": 5
+                },
+                "6": {
+                  "cells": [],
+                  "cssClass": "",
+                  "cssId": "",
+                  "cssStyle": "",
+                  "name": "dnd_area-column-19",
+                  "params": {
+                    "css_class": "dnd-column"
+                  },
+                  "rowMetaData": [
+                    {
+                      "cssClass": "dnd-row"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "0": {
+                        "cells": [],
+                        "cssClass": "",
+                        "cssId": "",
+                        "cssStyle": "",
+                        "name": "dnd_area-module-20",
+                        "params": {
+                          "css_class": "dnd-module",
+                          "extra_classes": "widget-type-rich_text",
+                          "html": "<h2>Our history</h2>\n<p>We have a rich history dating back to 2018</p>",
+                          "path": "@hubspot/rich_text",
+                          "schema_version": 2,
+                          "smart_objects": [],
+                          "smart_type": "NOT_SMART",
+                          "wrap_field_tag": "div"
+                        },
+                        "rowMetaData": [],
+                        "rows": [],
+                        "type": "custom_widget",
+                        "w": 12,
+                        "x": 0
+                      }
+                    }
+                  ],
+                  "type": "cell",
+                  "w": 6,
+                  "x": 6
+                }
+              }
+            ],
+            "type": "cell",
+            "w": 12,
+            "x": 0
+          }
+        },
+        {
+          "0": {
+            "cells": [],
+            "cssClass": "",
+            "cssId": "",
+            "cssStyle": "",
+            "name": "dnd_area-module-21",
+            "params": {
+              "css_class": "dnd-module",
+              "enable_lightbox": "false",
+              "images": [
+                {
+                  "image": {
+                    "alt": "Our company",
+                    "src": "//7528309.fs1.hubspotusercontent-na1.net/hubfs/7528309/raw_assets/public/mV0_d-cms-growth-theme_hubspot/growth/images/industry-images/about-gallery-one.jpg"
+                  }
+                },
+                {
+                  "image": {
+                    "alt": "Our company",
+                    "src": "//7528304.fs1.hubspotusercontent-na1.net/hubfs/7528304/raw_assets/public/mV0_d-cms-growth-theme_hubspot/growth/images/industry-images/about-gallery-two.jpg"
+                  }
+                },
+                {
+                  "image": {
+                    "alt": "Our company",
+                    "src": "//7528311.fs1.hubspotusercontent-na1.net/hubfs/7528311/raw_assets/public/mV0_d-cms-growth-theme_hubspot/growth/images/industry-images/about-gallery-three.jpg"
+                  }
+                },
+                {
+                  "image": {
+                    "alt": "Our company",
+                    "src": "//7528309.fs1.hubspotusercontent-na1.net/hubfs/7528309/raw_assets/public/mV0_d-cms-growth-theme_hubspot/growth/images/industry-images/about-gallery-four.jpg"
+                  }
+                }
+              ],
+              "path": "../modules/image-gallery",
+              "schema_version": 2,
+              "smart_objects": [],
+              "smart_type": "NOT_SMART",
+              "wrap_field_tag": "div"
+            },
+            "rowMetaData": [],
+            "rows": [],
+            "type": "custom_widget",
+            "w": 12,
+            "x": 0
+          }
+        },
+        {
+          "0": {
+            "cells": [],
+            "cssClass": "",
+            "cssId": "",
+            "cssStyle": "",
+            "name": "dnd_area-column-22",
+            "params": {
+              "css_class": "dnd-column"
+            },
+            "rowMetaData": [
+              {
+                "cssClass": "dnd-row",
+                "styles": {}
+              },
+              {
+                "cssClass": "dnd-row",
+                "styles": {}
+              },
+              {
+                "cssClass": "dnd-row"
+              }
+            ],
+            "rows": [
+              {
+                "0": {
+                  "cells": [],
+                  "cssClass": "",
+                  "cssId": "",
+                  "cssStyle": "",
+                  "name": "dnd_area-module-23",
+                  "params": {
+                    "css_class": "dnd-module",
+                    "extra_classes": "widget-type-rich_text",
+                    "html": "<div style=\"text-align: center;\">\n<h2>Our team</h2>\n<p>Meet out talented team.</p>\n</div>",
+                    "path": "@hubspot/rich_text",
+                    "schema_version": 2,
+                    "smart_objects": [],
+                    "smart_type": "NOT_SMART",
+                    "wrap_field_tag": "div"
+                  },
+                  "rowMetaData": [],
+                  "rows": [],
+                  "type": "custom_widget",
+                  "w": 12,
+                  "x": 0
+                }
+              },
+              {
+                "0": {
+                  "cells": [],
+                  "cssClass": "",
+                  "cssId": "",
+                  "cssStyle": "",
+                  "name": "dnd_area-column-24",
+                  "params": {
+                    "css_class": "dnd-column"
+                  },
+                  "rowMetaData": [
+                    {
+                      "cssClass": "dnd-row",
+                      "styles": {}
+                    },
+                    {
+                      "cssClass": "dnd-row"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "0": {
+                        "cells": [],
+                        "cssClass": "",
+                        "cssId": "",
+                        "cssStyle": "",
+                        "name": "dnd_area-module-25",
+                        "params": {
+                          "css_class": "dnd-module",
+                          "extra_classes": "widget-type-linked_image",
+                          "img": {
+                            "alt": "Louise Patton",
+                            "loading": "lazy",
+                            "max_height": 300,
+                            "max_width": 300,
+                            "size_type": "auto_custom_max",
+                            "src": "//7528315.fs1.hubspotusercontent-na1.net/hubfs/7528315/raw_assets/public/mV0_d-cms-growth-theme_hubspot/growth/images/industry-images/employee-one.jpg"
+                          },
+                          "path": "@hubspot/linked_image",
+                          "schema_version": 2,
+                          "smart_objects": [],
+                          "smart_type": "NOT_SMART",
+                          "wrap_field_tag": "div"
+                        },
+                        "rowMetaData": [],
+                        "rows": [],
+                        "type": "custom_widget",
+                        "w": 12,
+                        "x": 0
+                      }
+                    },
+                    {
+                      "0": {
+                        "cells": [],
+                        "cssClass": "",
+                        "cssId": "",
+                        "cssStyle": "",
+                        "name": "dnd_area-module-26",
+                        "params": {
+                          "css_class": "dnd-module",
+                          "extra_classes": "widget-type-rich_text",
+                          "html": "<h3>Louise Patton</h3>\n<h4>CEO and Founder</h4>\n<p>The CEO Text</p>",
+                          "path": "@hubspot/rich_text",
+                          "schema_version": 2,
+                          "smart_objects": [],
+                          "smart_type": "NOT_SMART",
+                          "wrap_field_tag": "div"
+                        },
+                        "rowMetaData": [],
+                        "rows": [],
+                        "type": "custom_widget",
+                        "w": 12,
+                        "x": 0
+                      }
+                    }
+                  ],
+                  "type": "cell",
+                  "w": 4,
+                  "x": 0
+                },
+                "4": {
+                  "cells": [],
+                  "cssClass": "",
+                  "cssId": "",
+                  "cssStyle": "",
+                  "name": "dnd_area-column-27",
+                  "params": {
+                    "css_class": "dnd-column"
+                  },
+                  "rowMetaData": [
+                    {
+                      "cssClass": "dnd-row",
+                      "styles": {}
+                    },
+                    {
+                      "cssClass": "dnd-row"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "0": {
+                        "cells": [],
+                        "cssClass": "",
+                        "cssId": "",
+                        "cssStyle": "",
+                        "name": "dnd_area-module-28",
+                        "params": {
+                          "css_class": "dnd-module",
+                          "extra_classes": "widget-type-linked_image",
+                          "img": {
+                            "alt": "Micheal Barton",
+                            "loading": "lazy",
+                            "max_height": 300,
+                            "max_width": 300,
+                            "size_type": "auto_custom_max",
+                            "src": "//7528309.fs1.hubspotusercontent-na1.net/hubfs/7528309/raw_assets/public/mV0_d-cms-growth-theme_hubspot/growth/images/industry-images/employee-two.jpg"
+                          },
+                          "path": "@hubspot/linked_image",
+                          "schema_version": 2,
+                          "smart_objects": [],
+                          "smart_type": "NOT_SMART",
+                          "wrap_field_tag": "div"
+                        },
+                        "rowMetaData": [],
+                        "rows": [],
+                        "type": "custom_widget",
+                        "w": 12,
+                        "x": 0
+                      }
+                    },
+                    {
+                      "0": {
+                        "cells": [],
+                        "cssClass": "",
+                        "cssId": "",
+                        "cssStyle": "",
+                        "name": "dnd_area-module-29",
+                        "params": {
+                          "css_class": "dnd-module",
+                          "extra_classes": "widget-type-rich_text",
+                          "html": "<h3>Micheal Barton</h3>\n<h4>Chief Operating Officer</h4>\n<p>The COO text</p>",
+                          "path": "@hubspot/rich_text",
+                          "schema_version": 2,
+                          "smart_objects": [],
+                          "smart_type": "NOT_SMART",
+                          "wrap_field_tag": "div"
+                        },
+                        "rowMetaData": [],
+                        "rows": [],
+                        "type": "custom_widget",
+                        "w": 12,
+                        "x": 0
+                      }
+                    }
+                  ],
+                  "type": "cell",
+                  "w": 4,
+                  "x": 4
+                },
+                "8": {
+                  "cells": [],
+                  "cssClass": "",
+                  "cssId": "",
+                  "cssStyle": "",
+                  "name": "dnd_area-column-30",
+                  "params": {
+                    "css_class": "dnd-column"
+                  },
+                  "rowMetaData": [
+                    {
+                      "cssClass": "dnd-row",
+                      "styles": {}
+                    },
+                    {
+                      "cssClass": "dnd-row"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "0": {
+                        "cells": [],
+                        "cssClass": "",
+                        "cssId": "",
+                        "cssStyle": "",
+                        "name": "dnd_area-module-31",
+                        "params": {
+                          "css_class": "dnd-module",
+                          "extra_classes": "widget-type-linked_image",
+                          "img": {
+                            "alt": "Angela Brooks",
+                            "loading": "lazy",
+                            "max_height": 300,
+                            "max_width": 300,
+                            "size_type": "auto_custom_max",
+                            "src": "//7528315.fs1.hubspotusercontent-na1.net/hubfs/7528315/raw_assets/public/mV0_d-cms-growth-theme_hubspot/growth/images/industry-images/employee-three.jpg"
+                          },
+                          "path": "@hubspot/linked_image",
+                          "schema_version": 2,
+                          "smart_objects": [],
+                          "smart_type": "NOT_SMART",
+                          "wrap_field_tag": "div"
+                        },
+                        "rowMetaData": [],
+                        "rows": [],
+                        "type": "custom_widget",
+                        "w": 12,
+                        "x": 0
+                      }
+                    },
+                    {
+                      "0": {
+                        "cells": [],
+                        "cssClass": "",
+                        "cssId": "",
+                        "cssStyle": "",
+                        "name": "dnd_area-module-32",
+                        "params": {
+                          "css_class": "dnd-module",
+                          "extra_classes": "widget-type-rich_text",
+                          "html": "<h3>Angela Brooks</h3>\n<h4>Chief Technology Officer</h4>\n<p>The CTO Text</p>",
+                          "path": "@hubspot/rich_text",
+                          "schema_version": 2,
+                          "smart_objects": [],
+                          "smart_type": "NOT_SMART",
+                          "wrap_field_tag": "div"
+                        },
+                        "rowMetaData": [],
+                        "rows": [],
+                        "type": "custom_widget",
+                        "w": 12,
+                        "x": 0
+                      }
+                    }
+                  ],
+                  "type": "cell",
+                  "w": 4,
+                  "x": 8
+                }
+              },
+              {
+                "0": {
+                  "cells": [],
+                  "cssClass": "",
+                  "cssId": "",
+                  "cssStyle": "",
+                  "name": "dnd_area-column-33",
+                  "params": {
+                    "css_class": "dnd-column"
+                  },
+                  "rowMetaData": [
+                    {
+                      "cssClass": "dnd-row",
+                      "styles": {}
+                    },
+                    {
+                      "cssClass": "dnd-row"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "0": {
+                        "cells": [],
+                        "cssClass": "",
+                        "cssId": "",
+                        "cssStyle": "",
+                        "name": "dnd_area-module-34",
+                        "params": {
+                          "css_class": "dnd-module",
+                          "extra_classes": "widget-type-linked_image",
+                          "img": {
+                            "alt": "Brian Lee",
+                            "loading": "lazy",
+                            "max_height": 300,
+                            "max_width": 300,
+                            "size_type": "auto_custom_max",
+                            "src": "//7528304.fs1.hubspotusercontent-na1.net/hubfs/7528304/raw_assets/public/mV0_d-cms-growth-theme_hubspot/growth/images/industry-images/employee-four.jpg"
+                          },
+                          "path": "@hubspot/linked_image",
+                          "schema_version": 2,
+                          "smart_objects": [],
+                          "smart_type": "NOT_SMART",
+                          "wrap_field_tag": "div"
+                        },
+                        "rowMetaData": [],
+                        "rows": [],
+                        "type": "custom_widget",
+                        "w": 12,
+                        "x": 0
+                      }
+                    },
+                    {
+                      "0": {
+                        "cells": [],
+                        "cssClass": "",
+                        "cssId": "",
+                        "cssStyle": "",
+                        "name": "dnd_area-module-35",
+                        "params": {
+                          "css_class": "dnd-module",
+                          "extra_classes": "widget-type-rich_text",
+                          "html": "<h3>Brian Lee</h3>\n<h4>Chief Financial Officer</h4>\n<p>Another C member the CFO</p>",
+                          "path": "@hubspot/rich_text",
+                          "schema_version": 2,
+                          "smart_objects": [],
+                          "smart_type": "NOT_SMART",
+                          "wrap_field_tag": "div"
+                        },
+                        "rowMetaData": [],
+                        "rows": [],
+                        "type": "custom_widget",
+                        "w": 12,
+                        "x": 0
+                      }
+                    }
+                  ],
+                  "type": "cell",
+                  "w": 4,
+                  "x": 0
+                },
+                "4": {
+                  "cells": [],
+                  "cssClass": "",
+                  "cssId": "",
+                  "cssStyle": "",
+                  "name": "dnd_area-column-36",
+                  "params": {
+                    "css_class": "dnd-column"
+                  },
+                  "rowMetaData": [
+                    {
+                      "cssClass": "dnd-row",
+                      "styles": {}
+                    },
+                    {
+                      "cssClass": "dnd-row"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "0": {
+                        "cells": [],
+                        "cssClass": "",
+                        "cssId": "",
+                        "cssStyle": "",
+                        "name": "dnd_area-module-37",
+                        "params": {
+                          "css_class": "dnd-module",
+                          "extra_classes": "widget-type-linked_image",
+                          "img": {
+                            "alt": "Anne Kim",
+                            "loading": "lazy",
+                            "max_height": 300,
+                            "max_width": 300,
+                            "size_type": "auto_custom_max",
+                            "src": "//7528311.fs1.hubspotusercontent-na1.net/hubfs/7528311/raw_assets/public/mV0_d-cms-growth-theme_hubspot/growth/images/industry-images/employee-five.jpg"
+                          },
+                          "path": "@hubspot/linked_image",
+                          "schema_version": 2,
+                          "smart_objects": [],
+                          "smart_type": "NOT_SMART",
+                          "wrap_field_tag": "div"
+                        },
+                        "rowMetaData": [],
+                        "rows": [],
+                        "type": "custom_widget",
+                        "w": 12,
+                        "x": 0
+                      }
+                    },
+                    {
+                      "0": {
+                        "cells": [],
+                        "cssClass": "",
+                        "cssId": "",
+                        "cssStyle": "",
+                        "name": "dnd_area-module-38",
+                        "params": {
+                          "css_class": "dnd-module",
+                          "extra_classes": "widget-type-rich_text",
+                          "html": "<h3>Anne Kim</h3>\n<h4>Chief Design Officer</h4>\n<p>Here comes our CDO</p>",
+                          "path": "@hubspot/rich_text",
+                          "schema_version": 2,
+                          "smart_objects": [],
+                          "smart_type": "NOT_SMART",
+                          "wrap_field_tag": "div"
+                        },
+                        "rowMetaData": [],
+                        "rows": [],
+                        "type": "custom_widget",
+                        "w": 12,
+                        "x": 0
+                      }
+                    }
+                  ],
+                  "type": "cell",
+                  "w": 4,
+                  "x": 4
+                },
+                "8": {
+                  "cells": [],
+                  "cssClass": "",
+                  "cssId": "",
+                  "cssStyle": "",
+                  "name": "dnd_area-column-39",
+                  "params": {
+                    "css_class": "dnd-column"
+                  },
+                  "rowMetaData": [
+                    {
+                      "cssClass": "dnd-row",
+                      "styles": {}
+                    },
+                    {
+                      "cssClass": "dnd-row"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "0": {
+                        "cells": [],
+                        "cssClass": "",
+                        "cssId": "",
+                        "cssStyle": "",
+                        "name": "dnd_area-module-40",
+                        "params": {
+                          "css_class": "dnd-module",
+                          "extra_classes": "widget-type-linked_image",
+                          "img": {
+                            "alt": "Sara Ortiz",
+                            "loading": "lazy",
+                            "max_height": 300,
+                            "max_width": 300,
+                            "size_type": "auto_custom_max",
+                            "src": "//7528302.fs1.hubspotusercontent-na1.net/hubfs/7528302/raw_assets/public/mV0_d-cms-growth-theme_hubspot/growth/images/industry-images/employee-six.jpg"
+                          },
+                          "path": "@hubspot/linked_image",
+                          "schema_version": 2,
+                          "smart_objects": [],
+                          "smart_type": "NOT_SMART",
+                          "wrap_field_tag": "div"
+                        },
+                        "rowMetaData": [],
+                        "rows": [],
+                        "type": "custom_widget",
+                        "w": 12,
+                        "x": 0
+                      }
+                    },
+                    {
+                      "0": {
+                        "cells": [],
+                        "cssClass": "",
+                        "cssId": "",
+                        "cssStyle": "",
+                        "name": "dnd_area-module-41",
+                        "params": {
+                          "css_class": "dnd-module",
+                          "extra_classes": "widget-type-rich_text",
+                          "html": "<h3>Sara Ortiz</h3>\n<h4>Chief People Officer</h4>\n<p>And last but not the least CPO</p>",
+                          "path": "@hubspot/rich_text",
+                          "schema_version": 2,
+                          "smart_objects": [],
+                          "smart_type": "NOT_SMART",
+                          "wrap_field_tag": "div"
+                        },
+                        "rowMetaData": [],
+                        "rows": [],
+                        "type": "custom_widget",
+                        "w": 12,
+                        "x": 0
+                      }
+                    }
+                  ],
+                  "type": "cell",
+                  "w": 4,
+                  "x": 8
+                }
+              }
+            ],
+            "type": "cell",
+            "w": 12,
+            "x": 0
+          }
+        },
+        {
+          "0": {
+            "cells": [],
+            "cssClass": "",
+            "cssId": "",
+            "cssStyle": "",
+            "name": "dnd_area-column-42",
+            "params": {
+              "css_class": "dnd-column"
+            },
+            "rowMetaData": [
+              {
+                "cssClass": "dnd-row",
+                "styles": {}
+              },
+              {
+                "cssClass": "dnd-row"
+              }
+            ],
+            "rows": [
+              {
+                "0": {
+                  "cells": [],
+                  "cssClass": "",
+                  "cssId": "",
+                  "cssStyle": "",
+                  "name": "dnd_area-module-43",
+                  "params": {
+                    "css_class": "dnd-module",
+                    "extra_classes": "widget-type-rich_text",
+                    "html": "<div style=\"text-align: center;\">\n<h2>Our culture</h2>\n<p>We value different cultures and their cultural values</p>\n</div>",
+                    "path": "@hubspot/rich_text",
+                    "schema_version": 2,
+                    "smart_objects": [],
+                    "smart_type": "NOT_SMART",
+                    "wrap_field_tag": "div"
+                  },
+                  "rowMetaData": [],
+                  "rows": [],
+                  "type": "custom_widget",
+                  "w": 12,
+                  "x": 0
+                }
+              },
+              {
+                "0": {
+                  "cells": [],
+                  "cssClass": "",
+                  "cssId": "",
+                  "cssStyle": "",
+                  "name": "dnd_area-module-44",
+                  "params": {
+                    "css_class": "dnd-module",
+                    "path": "@hubspot/video",
+                    "schema_version": 2,
+                    "smart_objects": [],
+                    "smart_type": "NOT_SMART",
+                    "wrap_field_tag": "div"
+                  },
+                  "rowMetaData": [],
+                  "rows": [],
+                  "type": "custom_widget",
+                  "w": 12,
+                  "x": 0
+                }
+              }
+            ],
+            "type": "cell",
+            "w": 12,
+            "x": 0
+          }
+        }
+      ],
+      "type": "cell",
+      "w": 12,
+      "x": 0
+    }
+  },
+  "name": "the second cup",
+  "pageExpiryEnabled": false,
+  "pageRedirected": false,
+  "publicAccessRules": [],
+  "publicAccessRulesEnabled": false,
+  "publishDate": "2023-05-18T14:52:22.882Z",
+  "publishImmediately": true,
+  "published": true,
+  "slug": "sv-se/the-first-cup",
+  "state": "PUBLISHED_OR_SCHEDULED",
+  "subcategory": "site_page",
+  "templatePath": "@hubspot/growth/templates/about.html",
+  "translatedFromId": "116079994124",
+  "translations": {
+    "en": {
+      "archivedInDashboard": false,
+      "createdAt": "2023-05-18T14:33:41.281Z",
+      "id": 116079994124,
+      "name": "the second cup",
+      "publicAccessRules": [],
+      "publicAccessRulesEnabled": false,
+      "publishDate": "2023-05-18T14:37:12.275Z",
+      "slug": "the-first-cup",
+      "state": "PUBLISHED_OR_SCHEDULED",
+      "updatedAt": "2023-05-18T14:50:26.318Z"
+    }
+  },
+  "updatedAt": "2023-05-18T14:52:22.913Z",
+  "updatedById": "51518853",
+  "url": "http://blackbird-21491386.hubspotpagebuilder.com/sv-se/the-first-cup",
+  "useFeaturedImage": false,
+  "widgetContainers": {},
+  "widgets": {}
+}
