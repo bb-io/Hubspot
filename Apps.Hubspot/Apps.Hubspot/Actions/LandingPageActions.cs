@@ -60,7 +60,7 @@ namespace Apps.Hubspot.Actions
             return result;
         }
 
-        [Action("Get all landing pages udated after datetime", Description = "Get a list of all landing pagess that were updated after the given date time. Date time is exclusive")]
+        [Action("Get all landing pages updated after datetime", Description = "Get a list of all landing pagess that were updated after the given date time. Date time is exclusive")]
         public async Task<GetAllResponse<PageDto>> GetAllLandingPagesAfter(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, DateTime updatedAfter)
         {
             var client = new HubspotClient(authenticationCredentialsProviders);
@@ -77,7 +77,7 @@ namespace Apps.Hubspot.Actions
             return result;
         }
 
-        [Action("Get a site page as HTML file", Description = "Get information of a specific page and return an HTML file of its content")]
+        [Action("Get a landing page as HTML file", Description = "Get information of a specific landing page and return an HTML file of its content")]
         public async Task<FileResponse> GetLandingPageAsHtml(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] string pageId)
         {
@@ -94,7 +94,7 @@ namespace Apps.Hubspot.Actions
             };
         }
 
-        [Action("Translate a site page from HTML file", Description = "Create a new translation for a site page based on a file input")]
+        [Action("Translate a landing page from HTML file", Description = "Create a new translation for a site page based on a file input")]
         public async Task<BaseResponse> TranslateLandingPageFromFile(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] TranslateFromFileRequest request)
         {
@@ -128,7 +128,7 @@ namespace Apps.Hubspot.Actions
             }
         }
 
-        [Action("Schedule a site-page for publishing", Description = "Schedules a site page for publishing on the given time")]
+        [Action("Schedule a landing page for publishing", Description = "Schedules a landing page for publishing on the given time")]
         public async Task<BaseResponse> ScheduleALandingPageForPublish(IEnumerable<AuthenticationCredentialsProvider> providers,
             [ActionParameter] PublishPageReqeuest request)
         {
