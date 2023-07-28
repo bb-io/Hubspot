@@ -12,7 +12,7 @@ namespace Apps.Hubspot.Dtos.Blogs.Posts
         public bool ArchivedInDashboard { get; set; }
         public string AuthorName { get; set; }
         public string BlogAuthorId { get; set; }
-        public int CategoryId { get; set; }
+        public string CategoryId { get; set; }
         public string ContentGroupId { get; set; }
         public int ContentTypeCategory { get; set; }
         public string Created { get; set; }

@@ -19,7 +19,7 @@ namespace Apps.Hubspot.Dtos.Pages
     {
         public string Slug { get; set; }
         public string ContentGroupId { get; set; }
-        public int CategoryId { get; set; }
+        public string CategoryId { get; set; }
         public string State { get; set; }
         public string AuthorName { get; set; }
         public string CreatedById { get; set; }

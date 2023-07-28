@@ -11,7 +11,7 @@ namespace Apps.Hubspot.Dtos.Blogs.Posts
         public string Slug { get; set; }
         public string ContentGroupId { get; set; }
         public string Campaign { get; set; }
-        public int CategoryId { get; set; }
+        public string CategoryId { get; set; }
         public string State { get; set; }
         public string Name { get; set; }
         public string MabExperimentId { get; set; }

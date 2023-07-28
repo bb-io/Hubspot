@@ -28,7 +28,7 @@ namespace Apps.Hubspot.Actions
 
         [Action("Get blog post", Description = "Get information of a specific blog post")]
         public BlogPostDto? GetBlogPost(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] long blogPostId)
+            [ActionParameter] string blogPostId)
         {
             var client = new HubspotClient(authenticationCredentialsProviders);
             var request = new HubspotRequest($"/cms/v3/blogs/posts/{blogPostId}", Method.Get, authenticationCredentialsProviders);
@@ -61,7 +61,7 @@ namespace Apps.Hubspot.Actions
 
         [Action("Update blog post", Description = "Update a blog post information")]
         public BlogPostDto? UpdateCompany(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] long blogPostId, [ActionParameter] CreateOrUpdateBlogPostDto dto)
+            [ActionParameter] string blogPostId, [ActionParameter] CreateOrUpdateBlogPostDto dto)
         {
             var client = new HubspotClient(authenticationCredentialsProviders);
             var request = new HubspotRequest($"/cms/v3/blogs/posts/{blogPostId}", Method.Patch, authenticationCredentialsProviders);
@@ -71,7 +71,7 @@ namespace Apps.Hubspot.Actions
 
         [Action("Delete blog post", Description = "Delete a blog post")]
         public void DeleteCompany(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] long blogPostId)
+            [ActionParameter] string blogPostId)
         {
             var client = new HubspotClient(authenticationCredentialsProviders);
             var request = new HubspotRequest($"/cms/v3/blogs/posts/{blogPostId}", Method.Delete, authenticationCredentialsProviders);
@@ -133,7 +133,7 @@ namespace Apps.Hubspot.Actions
             var body = doc.DocumentNode.SelectSingleNode("/html/body").InnerHtml;
 
             var existingTranslation = GetBlogPostTranslation(authenticationCredentialsProviders, input.BlogPostId, input.Locale);
-            if(existingTranslation.Id == 0)
+            if(existingTranslation.Id == "0")
             {
                 var createdPost = CreateBlogLanguageVariation(authenticationCredentialsProviders, new CreateNewBlogLanguageRequest()
                 {
@@ -156,7 +156,7 @@ namespace Apps.Hubspot.Actions
                 if(post.TranslatedFromId == null)
                 {
                     var translation = GetBlogPostTranslation(authenticationCredentialsProviders, post.Id, locale);
-                    if(translation.Id == 0)
+                    if(translation.Id == "0")
                     {
                         missingTranslationsPosts.Add(post);
                     }
