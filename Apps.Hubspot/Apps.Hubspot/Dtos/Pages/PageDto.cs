@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Text.Json.Serialization;
+
 namespace Apps.Hubspot.Dtos.Pages
 {
     public class PageBaseDto
@@ -19,6 +21,8 @@ namespace Apps.Hubspot.Dtos.Pages
     {
         public string Slug { get; set; }
         public string ContentGroupId { get; set; }
+
+        [JsonConverter(typeof(StringConverter))] 
         public string CategoryId { get; set; }
         public string State { get; set; }
         public string AuthorName { get; set; }

@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json.Converters;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Apps.Hubspot.Dtos.Blogs.Posts
@@ -12,6 +14,8 @@ namespace Apps.Hubspot.Dtos.Blogs.Posts
         public bool ArchivedInDashboard { get; set; }
         public string AuthorName { get; set; }
         public string BlogAuthorId { get; set; }
+
+        [JsonConverter(typeof(StringConverter))]
         public string CategoryId { get; set; }
         public string ContentGroupId { get; set; }
         public int ContentTypeCategory { get; set; }
