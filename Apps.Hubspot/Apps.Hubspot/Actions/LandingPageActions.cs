@@ -18,6 +18,8 @@ using Blackbird.Applications.Sdk.Common.Authentication;
 using Apps.Hubspot.Models.Requests;
 using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json.Linq;
+using Apps.Hubspot.DynamicHandlers;
+using Blackbird.Applications.Sdk.Common.Dynamic;
 #endregion
 
 namespace Apps.Hubspot.Actions
@@ -71,7 +73,7 @@ namespace Apps.Hubspot.Actions
 
         [Action("Get a landing page", Description = "Get information of a specific landing page")]
         public async Task<PageDto?> GetLandingPage(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] string pageId)
+            [ActionParameter][DataSource(typeof(LandingPageHandler))] string pageId)
         {
             var result = await GetLPage(authenticationCredentialsProviders, pageId);
             return result;
@@ -79,7 +81,7 @@ namespace Apps.Hubspot.Actions
 
         [Action("Get a landing page as HTML file", Description = "Get information of a specific landing page and return an HTML file of its content")]
         public async Task<FileResponse> GetLandingPageAsHtml(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] string pageId)
+            [ActionParameter][DataSource(typeof(LandingPageHandler))] string pageId)
         {
             var result = await GetLPage(authenticationCredentialsProviders, pageId);
             var htmlStringBuilder = PageHelpers.ObjectToHtml(JsonConvert.DeserializeObject(result.LayoutSections.ToString()));
@@ -96,7 +98,7 @@ namespace Apps.Hubspot.Actions
 
         [Action("Translate a landing page from HTML file", Description = "Create a new translation for a site page based on a file input")]
         public async Task<BaseResponse> TranslateLandingPageFromFile(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] TranslateFromFileRequest request)
+            [ActionParameter] TranslateLandingPageFromFileRequest request)
         {
             try
             {
@@ -130,7 +132,7 @@ namespace Apps.Hubspot.Actions
 
         [Action("Schedule a landing page for publishing", Description = "Schedules a landing page for publishing on the given time")]
         public async Task<BaseResponse> ScheduleALandingPageForPublish(IEnumerable<AuthenticationCredentialsProvider> providers,
-            [ActionParameter] PublishPageReqeuest request)
+            [ActionParameter] PublishLandingPageRequest request)
         {
             // Publish the translaged page
             var publishResponse = await PublishLandingPage(providers, request.Id, request.DateTime == null ? request.DateTime.Value : DateTime.Now.AddSeconds(30));

@@ -12,6 +12,8 @@ using Apps.Hubspot.Dtos.Blogs.Posts;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using HtmlAgilityPack;
+using Blackbird.Applications.Sdk.Common.Dynamic;
+using Apps.Hubspot.DynamicHandlers;
 
 namespace Apps.Hubspot.Actions
 {
@@ -28,7 +30,7 @@ namespace Apps.Hubspot.Actions
 
         [Action("Get blog post", Description = "Get information of a specific blog post")]
         public BlogPostDto? GetBlogPost(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] string blogPostId)
+            [ActionParameter][DataSource(typeof(BlogPostHandler))] string blogPostId)
         {
             var client = new HubspotClient(authenticationCredentialsProviders);
             var request = new HubspotRequest($"/cms/v3/blogs/posts/{blogPostId}", Method.Get, authenticationCredentialsProviders);
@@ -61,7 +63,7 @@ namespace Apps.Hubspot.Actions
 
         [Action("Update blog post", Description = "Update a blog post information")]
         public BlogPostDto? UpdateCompany(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] string blogPostId, [ActionParameter] CreateOrUpdateBlogPostDto dto)
+            [ActionParameter][DataSource(typeof(BlogPostHandler))] string blogPostId, [ActionParameter] CreateOrUpdateBlogPostDto dto)
         {
             var client = new HubspotClient(authenticationCredentialsProviders);
             var request = new HubspotRequest($"/cms/v3/blogs/posts/{blogPostId}", Method.Patch, authenticationCredentialsProviders);
@@ -71,7 +73,7 @@ namespace Apps.Hubspot.Actions
 
         [Action("Delete blog post", Description = "Delete a blog post")]
         public void DeleteCompany(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] string blogPostId)
+            [ActionParameter][DataSource(typeof(BlogPostHandler))] string blogPostId)
         {
             var client = new HubspotClient(authenticationCredentialsProviders);
             var request = new HubspotRequest($"/cms/v3/blogs/posts/{blogPostId}", Method.Delete, authenticationCredentialsProviders);
@@ -80,7 +82,7 @@ namespace Apps.Hubspot.Actions
 
         [Action("Get blog post translation", Description = "Get blog post translation by language")]
         public TranslationInfoDto? GetBlogPostTranslation(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] string blogPostId, [ActionParameter] string locale)
+            [ActionParameter][DataSource(typeof(BlogPostHandler))] string blogPostId, [ActionParameter] string locale)
         {
             var client = new HubspotClient(authenticationCredentialsProviders);
             var request = new HubspotRequest($"/cms/v3/blogs/posts/{blogPostId}", Method.Get, authenticationCredentialsProviders);
@@ -96,7 +98,7 @@ namespace Apps.Hubspot.Actions
 
         [Action("Update name and body of blog post", Description = "Update name and body of blog post")]
         public BlogPostDto? UpdateBlogPostNameAndBody(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] string blogPostId, [ActionParameter] string name, [ActionParameter] string body)
+            [ActionParameter][DataSource(typeof(BlogPostHandler))] string blogPostId, [ActionParameter] string name, [ActionParameter] string body)
         {
             var client = new HubspotClient(authenticationCredentialsProviders);
             var request = new HubspotRequest($"/cms/v3/blogs/posts/{blogPostId}", Method.Patch, authenticationCredentialsProviders);
@@ -110,7 +112,7 @@ namespace Apps.Hubspot.Actions
 
         [Action("Get blog post as HTML file", Description = "Get blog post as HTML file")]
         public FileResponse GetBlogPostAsHtml(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] string blogPostId)
+            [ActionParameter][DataSource(typeof(BlogPostHandler))] string blogPostId)
         {
             var client = new HubspotClient(authenticationCredentialsProviders);
             var request = new HubspotRequest($"/cms/v3/blogs/posts/{blogPostId}", Method.Get, authenticationCredentialsProviders);

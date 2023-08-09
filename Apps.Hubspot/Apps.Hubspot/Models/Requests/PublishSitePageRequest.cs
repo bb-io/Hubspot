@@ -6,13 +6,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Apps.Hubspot.Dtos.Blogs.Posts
+namespace Apps.Hubspot.Models.Requests
 {
-    public class CreateNewBlogLanguageRequest
+    public class PublishSitePageRequest
     {
-        [DataSource(typeof(BlogPostHandler))]
-        public string PostId { get; set; }
-
-        public string Language { get; set; }
+        [DataSource(typeof(SitePageHandler))]
+        public string Id { get; set; }
+        public Nullable<DateTime> DateTime { get; set; }
     }
 }

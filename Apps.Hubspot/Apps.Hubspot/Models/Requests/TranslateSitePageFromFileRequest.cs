@@ -6,15 +6,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Apps.Hubspot.Dtos.Blogs.Posts
+namespace Apps.Hubspot.Models.Requests
 {
-    public class TranslateBlogPostFromHtmlRequest
+    public class TranslateSitePageFromFileRequest
     {
-        [DataSource(typeof(BlogPostHandler))]
-        public string BlogPostId { get; set; }
-
-        public string Locale { get; set; }
-
         public byte[] File { get; set; }
+        public string TargetLanguage { get; set; }
+        [DataSource(typeof(SitePageHandler))]
+        public string SourcePageId { get; set; }
     }
 }
