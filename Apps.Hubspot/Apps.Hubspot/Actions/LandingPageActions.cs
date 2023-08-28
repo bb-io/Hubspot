@@ -22,6 +22,9 @@ using Apps.Hubspot.DynamicHandlers;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 #endregion
 
+using File = Blackbird.Applications.Sdk.Common.Files.File;
+using System.Net.Mime;
+
 namespace Apps.Hubspot.Actions
 {
     public partial class PageActions
@@ -81,18 +84,21 @@ namespace Apps.Hubspot.Actions
 
         [Action("Get a landing page as HTML file", Description = "Get information of a specific landing page and return an HTML file of its content")]
         public async Task<FileResponse> GetLandingPageAsHtml(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter][DataSource(typeof(LandingPageHandler))] string pageId)
+            [ActionParameter] GetLandingPageAsHtmlRequest input)
         {
-            var result = await GetLPage(authenticationCredentialsProviders, pageId);
+            var result = await GetLPage(authenticationCredentialsProviders, input.PageId);
             var htmlStringBuilder = PageHelpers.ObjectToHtml(JsonConvert.DeserializeObject(result.LayoutSections.ToString()));
             string htmlFile = $"<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\" />\n<title>{result.HtmlTitle}</title>\n</head>\n<body><div lang=\"{result.Language}\"></div>\n{htmlStringBuilder.ToString()}</body></html>";
 
             return new FileResponse()
             {
-                File = Encoding.ASCII.GetBytes(htmlFile),
-                FileName = $"{pageId}.html",
+                File = new File(Encoding.ASCII.GetBytes(htmlFile)) 
+                {
+                    Name = $"{input.PageId}.html",
+                    ContentType = MediaTypeNames.Text.Html
+                },
                 FileLanguage = result.Language,
-                Id = pageId
+                Id = input.PageId
             };
         }
 
@@ -102,7 +108,7 @@ namespace Apps.Hubspot.Actions
         {
             try
             {
-                var pageInfo = PageHelpers.ExtractParentInfo(request.File);
+                var pageInfo = PageHelpers.ExtractParentInfo(request.File.Bytes);
                 // Create a Translation of the parent page
                 var translationResponse = await CreateLandingPageTranslation(authenticationCredentialsProviders, request.SourcePageId, pageInfo.Language, request.TargetLanguage);
 

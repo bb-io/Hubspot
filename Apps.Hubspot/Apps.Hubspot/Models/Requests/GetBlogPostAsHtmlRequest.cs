@@ -10,13 +10,10 @@ using File = Blackbird.Applications.Sdk.Common.Files.File;
 
 namespace Apps.Hubspot.Models.Requests
 {
-    public class TranslateSitePageFromFileRequest
+    public class GetBlogPostAsHtmlRequest
     {
-        public File File { get; set; }
-        public string TargetLanguage { get; set; }
-
-        [DataSource(typeof(SitePageHandler))]
-        [Display("Source page")]
-        public string SourcePageId { get; set; }
+        [DataSource(typeof(BlogPostHandler))]
+        [Display("Blog post")]
+        public string BlogPost { get; set; }
     }
 }

@@ -1,10 +1,15 @@
-﻿namespace Apps.Hubspot.Models
+﻿using Blackbird.Applications.Sdk.Common;
+using File = Blackbird.Applications.Sdk.Common.Files.File;
+
+namespace Apps.Hubspot.Models
 {
     public class FileResponse
     {
-        public byte[] File { get; set; }
-        public string FileName { get; set; }
-        public string FileLanguage { get; set; }
+        [Display("File")]
+        public File File { get; set; }
         public string Id { get; set; }
+
+        [Display("File language")]
+        public string FileLanguage { get; set; }
     }
 }

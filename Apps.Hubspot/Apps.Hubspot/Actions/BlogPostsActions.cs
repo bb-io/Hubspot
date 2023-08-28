@@ -14,6 +14,9 @@ using Newtonsoft.Json.Linq;
 using HtmlAgilityPack;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Apps.Hubspot.DynamicHandlers;
+using File = Blackbird.Applications.Sdk.Common.Files.File;
+using Apps.Hubspot.Models.Requests;
+using System.Net.Mime;
 
 namespace Apps.Hubspot.Actions
 {
@@ -112,15 +115,19 @@ namespace Apps.Hubspot.Actions
 
         [Action("Get blog post as HTML file", Description = "Get blog post as HTML file")]
         public FileResponse GetBlogPostAsHtml(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter][DataSource(typeof(BlogPostHandler))] string blogPostId)
+            [ActionParameter] GetBlogPostAsHtmlRequest input)
         {
             var client = new HubspotClient(authenticationCredentialsProviders);
-            var request = new HubspotRequest($"/cms/v3/blogs/posts/{blogPostId}", Method.Get, authenticationCredentialsProviders);
+            var request = new HubspotRequest($"/cms/v3/blogs/posts/{input.BlogPost}", Method.Get, authenticationCredentialsProviders);
             var blogPost = client.Get<BlogPostDto>(request);
             string htmlFile = $"<html><head><title>{blogPost.Name}</title></head><body>{blogPost.PostBody}</body></html>";
             return new FileResponse()
             {
-                File = Encoding.ASCII.GetBytes(htmlFile)
+                File = new File(Encoding.ASCII.GetBytes(htmlFile))
+                {
+                    Name = $"{blogPost.Name}.html",
+                    ContentType = MediaTypeNames.Text.Html
+                },
             };
         }
 
@@ -128,7 +135,7 @@ namespace Apps.Hubspot.Actions
         public BlogPostDto? TranslateBlogPostFromHtml(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] TranslateBlogPostFromHtmlRequest input)
         {
-            var fileString = Encoding.ASCII.GetString(input.File);
+            var fileString = Encoding.ASCII.GetString(input.File.Bytes);
             var doc = new HtmlDocument();
             doc.LoadHtml(fileString);
             var title = doc.DocumentNode.SelectSingleNode("html/head/title").InnerText;

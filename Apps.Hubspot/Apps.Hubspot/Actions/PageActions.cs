@@ -22,6 +22,9 @@ using Apps.Hubspot.DynamicHandlers;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 #endregion
 
+using File = Blackbird.Applications.Sdk.Common.Files.File;
+using System.Net.Mime;
+
 namespace Apps.Hubspot.Actions
 {
     [ActionList]
@@ -100,8 +103,10 @@ namespace Apps.Hubspot.Actions
 
             return new FileResponse()
             {
-                File = Encoding.ASCII.GetBytes(htmlFile),
-                FileName = $"{pageId}.html",
+                File = new File(Encoding.ASCII.GetBytes(htmlFile)) {
+                     Name = $"{pageId}.html",
+                     ContentType = MediaTypeNames.Text.Html
+                },
                 FileLanguage = result.Language,
                 Id = pageId
             };
@@ -113,7 +118,7 @@ namespace Apps.Hubspot.Actions
         {
             try
             {
-                var pageInfo = PageHelpers.ExtractParentInfo(request.File);
+                var pageInfo = PageHelpers.ExtractParentInfo(request.File.Bytes);
                 // Create a Translation of the parent page
                 var translationResponse = await CreateTranslation(authenticationCredentialsProviders, request.SourcePageId, pageInfo.Language, request.TargetLanguage);
 
