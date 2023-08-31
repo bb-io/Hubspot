@@ -92,7 +92,7 @@ namespace Apps.Hubspot.Actions
 
             return new FileResponse()
             {
-                File = new File(Encoding.ASCII.GetBytes(htmlFile)) 
+                File = new File(Encoding.UTF8.GetBytes(htmlFile)) 
                 {
                     Name = $"{input.PageId}.html",
                     ContentType = MediaTypeNames.Text.Html

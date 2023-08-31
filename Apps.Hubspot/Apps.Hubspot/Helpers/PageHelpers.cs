@@ -43,7 +43,7 @@ namespace Apps.Hubspot.Helpers
 
 		public static PageInfo ExtractParentInfo(byte[] File)
 		{
-            var fileString = Encoding.ASCII.GetString(File);
+            var fileString = Encoding.UTF8.GetString(File);
             var doc = new HtmlDocument();
             doc.LoadHtml(fileString);
 			var pageId = doc.DocumentNode.SelectNodes("//div/@lang").FirstOrDefault();

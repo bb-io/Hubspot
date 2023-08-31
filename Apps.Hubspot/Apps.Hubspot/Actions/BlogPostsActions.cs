@@ -123,7 +123,7 @@ namespace Apps.Hubspot.Actions
             string htmlFile = $"<html><head><title>{blogPost.Name}</title></head><body>{blogPost.PostBody}</body></html>";
             return new FileResponse()
             {
-                File = new File(Encoding.ASCII.GetBytes(htmlFile))
+                File = new File(Encoding.UTF8.GetBytes(htmlFile))
                 {
                     Name = $"{blogPost.Name}.html",
                     ContentType = MediaTypeNames.Text.Html
@@ -135,14 +135,13 @@ namespace Apps.Hubspot.Actions
         public BlogPostDto? TranslateBlogPostFromHtml(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
             [ActionParameter] TranslateBlogPostFromHtmlRequest input)
         {
-            var fileString = Encoding.ASCII.GetString(input.File.Bytes);
+            var fileString = Encoding.UTF8.GetString(input.File.Bytes);
             var doc = new HtmlDocument();
             doc.LoadHtml(fileString);
             var title = doc.DocumentNode.SelectSingleNode("html/head/title").InnerText;
             var body = doc.DocumentNode.SelectSingleNode("/html/body").InnerHtml;
 
-            var existingTranslation = GetBlogPostTranslation(authenticationCredentialsProviders, input.BlogPostId, input.Locale);
-            if(existingTranslation.Id == "0")
+            try
             {
                 var createdPost = CreateBlogLanguageVariation(authenticationCredentialsProviders, new CreateNewBlogLanguageRequest()
                 {
@@ -150,8 +149,23 @@ namespace Apps.Hubspot.Actions
                     Language = input.Locale
                 });
                 return UpdateBlogPostNameAndBody(authenticationCredentialsProviders, createdPost.Id, title, body);
+            } catch (Exception ex)
+            {
+                var existingTranslation = GetBlogPostTranslation(authenticationCredentialsProviders, input.BlogPostId, input.Locale);
+                return UpdateBlogPostNameAndBody(authenticationCredentialsProviders, existingTranslation.Id, title, body);
             }
-            return UpdateBlogPostNameAndBody(authenticationCredentialsProviders, existingTranslation.Id.ToString(), title, body);
+
+            //var existingTranslation = GetBlogPostTranslation(authenticationCredentialsProviders, input.BlogPostId, input.Locale);
+            //if(existingTranslation == null)
+            //{
+            //    var createdPost = CreateBlogLanguageVariation(authenticationCredentialsProviders, new CreateNewBlogLanguageRequest()
+            //    {
+            //        PostId = input.BlogPostId,
+            //        Language = input.Locale
+            //    });
+            //    return UpdateBlogPostNameAndBody(authenticationCredentialsProviders, createdPost.Id, title, body);
+            //}
+            //return UpdateBlogPostNameAndBody(authenticationCredentialsProviders, existingTranslation.Id, title, body);
         }
 
         [Action("Get blog posts without translations", Description = "Get blog posts without translations to specific language")]
@@ -165,7 +179,7 @@ namespace Apps.Hubspot.Actions
                 if(post.TranslatedFromId == null)
                 {
                     var translation = GetBlogPostTranslation(authenticationCredentialsProviders, post.Id, locale);
-                    if(translation.Id == "0")
+                    if(translation == null)
                     {
                         missingTranslationsPosts.Add(post);
                     }

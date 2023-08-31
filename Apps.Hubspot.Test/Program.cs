@@ -42,12 +42,12 @@ Console.WriteLine(sitePageResponse);
 //using (StreamReader r = new StreamReader("EmptyHtmlFile.html"))
 //{
 //    string fileHtml = r.ReadToEnd();
-//    var response = await actions.TranslateSitePageFromFile(credentials, new Apps.Hubspot.Models.Requests.TranslateFromFileRequest() { File = Encoding.ASCII.GetBytes(fileHtml), TargetLanguage="sv-SE" });
+//    var response = await actions.TranslateSitePageFromFile(credentials, new Apps.Hubspot.Models.Requests.TranslateFromFileRequest() { File = Encoding.UTF8.GetBytes(fileHtml), TargetLanguage="sv-SE" });
 //    //using (StreamReader jr = new StreamReader("htmlObj.json"))
 //    //{
 //    //    string json = jr.ReadToEnd();
 //    //    var items = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(json);
-//    // var fileInfo = PageHelpers.ExtractParentInfo(Encoding.ASCII.GetBytes(fileHtml));
+//    // var fileInfo = PageHelpers.ExtractParentInfo(Encoding.UTF8.GetBytes(fileHtml));
 //    //var layoutSection = PageHelpers.HtmlToObject(fileInfo.Html);
 //    //    items["layoutSection"] = layoutSection;
 //    //    using (StreamWriter w = new StreamWriter("translated.Json"))
