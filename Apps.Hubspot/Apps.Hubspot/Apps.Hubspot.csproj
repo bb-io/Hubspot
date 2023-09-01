@@ -7,11 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Blackbird.Applications.Sdk.Common" Version="2.1.0" />
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
-    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="RestSharp" Version="110.2.0" />
+    <PackageReference Include="Blackbird.Applications.Sdk.Utils" Version="1.0.4" />
+    <PackageReference Include="Blackbird.Applications.Sdk.Utils.Html" Version="1.0.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,7 +20,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Constants\" />
-    <Folder Include="Dtos\Pages\" />
     <Folder Include="Helpers\" />
     <Folder Include="Models\Responses\" />
   </ItemGroup>

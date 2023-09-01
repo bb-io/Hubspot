@@ -1,229 +1,135 @@
-﻿#region General Imports
-using RestSharp;
+﻿using RestSharp;
 using System.Text;
-using Newtonsoft.Json;
-#endregion
-
-#region Internal Imports
-using Apps.Hubspot.Models;
 using Apps.Hubspot.Helpers;
 using Apps.Hubspot.Constants;
-using Apps.Hubspot.Dtos.Pages;
-#endregion
-
-#region SDK Imports
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
-using Blackbird.Applications.Sdk.Common.Authentication;
 using Apps.Hubspot.Models.Requests;
-using Newtonsoft.Json.Serialization;
-using Newtonsoft.Json.Linq;
-using Apps.Hubspot.DynamicHandlers;
-using Blackbird.Applications.Sdk.Common.Dynamic;
-#endregion
-
-using File = Blackbird.Applications.Sdk.Common.Files.File;
 using System.Net.Mime;
+using Apps.Hubspot.Actions.Base;
+using Apps.Hubspot.Api;
+using Apps.Hubspot.Extensions;
+using Apps.Hubspot.Models.Dtos.Pages;
+using Apps.Hubspot.Models.Requests.LandingPages;
+using Apps.Hubspot.Models.Requests.Translations;
+using Apps.Hubspot.Models.Responses;
+using Apps.Hubspot.Models.Responses.Files;
+using Apps.Hubspot.Models.Responses.Translations;
+using Blackbird.Applications.Sdk.Common.Invocation;
 
-namespace Apps.Hubspot.Actions
+namespace Apps.Hubspot.Actions;
+
+public class LandingPageActions : BasePageActions
 {
-    public partial class PageActions
+    public LandingPageActions(InvocationContext invocationContext) : base(invocationContext)
     {
+    }
 
-        [Action("Get all landing pages", Description = "Get a list of all landing pagess")]
-        public async Task<GetAllResponse<PageDto>> GetAllLandingPages(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders)
+    [Action("Get all landing pages", Description = "Get a list of all landing pagess")]
+    public Task<GetAllResponse<PageDto>> GetAllLandingPages()
+    {
+        var request = new HubspotRequest(ApiEndpoints.LandingPages(), Method.Get, Creds);
+        return Client.ExecuteWithErrorHandling<GetAllResponse<PageDto>>(request);
+    }
+
+
+    [Action("Get all landing pages with certain language",
+        Description = "Get a list of all pages in a specified language")]
+    public Task<GetAllResponse<PageDto>> GetAllLandingPagesInLanguage([ActionParameter] LanguageRequest input)
+    {
+        var endpoint = $"{ApiEndpoints.LandingPages()}?language={input.Language}";
+        var request = new HubspotRequest(endpoint, Method.Get, Creds);
+
+        return Client.ExecuteWithErrorHandling<GetAllResponse<PageDto>>(request);
+    }
+
+    [Action("Get all landing pages not translated in certain language",
+        Description = "Get a list of all pages not translated in specified language")]
+    public async Task<GetAllResponse<PageDto>> GetAllLandingPagesNotInLanguage(
+        [ActionParameter] TranslationRequest input)
+    {
+        var endpoint = $"{ApiEndpoints.LandingPages()}?property=language,id,translations";
+        var request = new HubspotRequest(endpoint, Method.Get, Creds);
+        var getAllResponse = await Client.ExecuteWithErrorHandling<GetAllResponse<PageDto>>(request);
+
+        var result = getAllResponse.Results
+            .Where(p => p.Language is null
+                        || (p.Language == input.PrimaryLanguage
+                            && p.Translations
+                                .Properties()
+                                .All(t => t.Name != input.Language.ToLower())));
+
+        return new()
         {
-            var client = new HubspotClient(authenticationCredentialsProviders);
-            var request = new HubspotRequest(PageConstants.LandingPages(), Method.Get, authenticationCredentialsProviders);
-            GetAllResponse<PageDto>? getAllResponse = await client.GetAsync<GetAllResponse<PageDto>>(request);
-            return getAllResponse;
-        }
+            Results = result.ToList()
+        };
+    }
 
+    [Action("Get all landing pages updated after datetime",
+        Description =
+            "Get a list of all landing pagess that were updated after the given date time. Date time is exclusive")]
+    public Task<GetAllResponse<PageDto>> GetAllLandingPagesAfter([ActionParameter] UpdatedAfterRequest input)
+    {
+        var endpoint = ApiEndpoints.LandingPages(input.UpdatedAfter);
+        var request = new HubspotRequest(endpoint, Method.Get, Creds);
 
-        [Action("Get all landing pages with language X", Description = "Get a list of all pages in a specified language")]
-        public async Task<GetAllResponse<PageDto>> GetAllLandingPagesInLanguage(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] string language)
+        return Client.ExecuteWithErrorHandling<GetAllResponse<PageDto>>(request);
+    }
+
+    [Action("Get a landing page", Description = "Get information of a specific landing page")]
+    public Task<PageDto> GetLandingPage([ActionParameter] LandingPageRequest input)
+        => GetPage(ApiEndpoints.ALandingPage(input.PageId));
+
+    [Action("Get a landing page as HTML file",
+        Description = "Get information of a specific landing page and return an HTML file of its content")]
+    public async Task<FileResponse> GetLandingPageAsHtml([ActionParameter] LandingPageRequest input)
+    {
+        var result = await GetPage(ApiEndpoints.ALandingPage(input.PageId));
+
+        var htmlStringBuilder = PageHelpers.ObjectToHtml(result.LayoutSections);
+        var htmlFile = (result.HtmlTitle, result.Language, htmlStringBuilder).AsPageHtml();
+
+        return new()
         {
-            var client = new HubspotClient(authenticationCredentialsProviders);
-            var request = new HubspotRequest($"{PageConstants.LandingPages()}?language={language}", Method.Get, authenticationCredentialsProviders);
-            GetAllResponse<PageDto>? getAllResponse = await client.GetAsync<GetAllResponse<PageDto>>(request);
-            return getAllResponse;
-        }
-
-
-        [Action("Get all landing pages not translated in language X", Description = "Get a list of all pages not translated in specified language")]
-        public async Task<List<PageDto>> GetAllLandingPagesNotInLanguage(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] string primaryLanguage, [ActionParameter] string language)
-        {
-            var client = new HubspotClient(authenticationCredentialsProviders);
-            var request = new HubspotRequest($"{PageConstants.LandingPages()}?property=language,id,translations", Method.Get, authenticationCredentialsProviders);
-            GetAllResponse<PageDto>? getAllResponse = await client.GetAsync<GetAllResponse<PageDto>>(request);
-            // filter all the pages that are in primary language or they are never translated
-            var result = getAllResponse.Results.Where(p => p.Language is null || p.Language == primaryLanguage).ToList();
-            // filter the pages that do not have the specified language in the translations
-            result = result.Where(p => p.Language is null || !((JObject)JsonConvert.DeserializeObject(p.Translations.ToString())).Properties().Any(t => t.Name == language.ToLower())).ToList();
-            return result;
-        }
-
-        [Action("Get all landing pages updated after datetime", Description = "Get a list of all landing pagess that were updated after the given date time. Date time is exclusive")]
-        public async Task<GetAllResponse<PageDto>> GetAllLandingPagesAfter(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, DateTime updatedAfter)
-        {
-            var client = new HubspotClient(authenticationCredentialsProviders);
-            var request = new HubspotRequest(PageConstants.LandingPages(updatedAfter), Method.Get, authenticationCredentialsProviders);
-            GetAllResponse<PageDto>? getAllResponse = await client.GetAsync<GetAllResponse<PageDto>>(request);
-            return getAllResponse;
-        }
-
-        [Action("Get a landing page", Description = "Get information of a specific landing page")]
-        public async Task<PageDto?> GetLandingPage(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter][DataSource(typeof(LandingPageHandler))] string pageId)
-        {
-            var result = await GetLPage(authenticationCredentialsProviders, pageId);
-            return result;
-        }
-
-        [Action("Get a landing page as HTML file", Description = "Get information of a specific landing page and return an HTML file of its content")]
-        public async Task<FileResponse> GetLandingPageAsHtml(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] GetLandingPageAsHtmlRequest input)
-        {
-            var result = await GetLPage(authenticationCredentialsProviders, input.PageId);
-            var htmlStringBuilder = PageHelpers.ObjectToHtml(JsonConvert.DeserializeObject(result.LayoutSections.ToString()));
-            string htmlFile = $"<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\" />\n<title>{result.HtmlTitle}</title>\n</head>\n<body><div lang=\"{result.Language}\"></div>\n{htmlStringBuilder.ToString()}</body></html>";
-
-            return new FileResponse()
+            File = new(Encoding.UTF8.GetBytes(htmlFile))
             {
-                File = new File(Encoding.UTF8.GetBytes(htmlFile)) 
-                {
-                    Name = $"{input.PageId}.html",
-                    ContentType = MediaTypeNames.Text.Html
-                },
-                FileLanguage = result.Language,
-                Id = input.PageId
-            };
-        }
+                Name = $"{input.PageId}.html",
+                ContentType = MediaTypeNames.Text.Html
+            },
+            FileLanguage = result.Language,
+        };
+    }
 
-        [Action("Translate a landing page from HTML file", Description = "Create a new translation for a site page based on a file input")]
-        public async Task<BaseResponse> TranslateLandingPageFromFile(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] TranslateLandingPageFromFileRequest request)
+    [Action("Translate a landing page from HTML file",
+        Description = "Create a new translation for a site page based on a file input")]
+    public async Task<TranslationResponse> TranslateLandingPageFromFile(
+        [ActionParameter] TranslateLandingPageFromFileRequest request)
+    {
+        var pageInfo = PageHelpers.ExtractParentInfo(request.File.Bytes);
+        var translationResponse = await CreateTranslation(ApiEndpoints.CreateLandingPageTranslation,
+            request.SourcePageId,
+            pageInfo.Language,
+            request.TargetLanguage);
+
+        var translationId = translationResponse.Id;
+        var updateResponse = await UpdateTranslatedPage(ApiEndpoints.UpdateLandingPage(translationId), new()
         {
-            try
-            {
-                var pageInfo = PageHelpers.ExtractParentInfo(request.File.Bytes);
-                // Create a Translation of the parent page
-                var translationResponse = await CreateLandingPageTranslation(authenticationCredentialsProviders, request.SourcePageId, pageInfo.Language, request.TargetLanguage);
+            Id = translationId,
+            HtmlTitle = pageInfo.Title,
+            LayoutSections = PageHelpers.HtmlToObject(pageInfo.Html, translationResponse.LayoutSections)
+        });
 
-                // Update the layout section of translated page
-                var updateDto = new PageBaseDto()
-                {
-                    Id = translationResponse.Id,
-                    HtmlTitle = pageInfo.Title,
-                    LayoutSections = PageHelpers.HtmlToObject(pageInfo.Html, JsonConvert.DeserializeObject(translationResponse.LayoutSections.ToString()))
-                };
-                // Update the translated page
-                var updateResponse = await UpdateTranslatedLandingPage(authenticationCredentialsProviders, updateDto);
-
-                return new BaseResponse()
-                {
-                    StatusCode = ((int)updateResponse.StatusCode),
-                    Details = string.Empty,
-                    Id = translationResponse.Id
-                };
-            }
-            catch (Exception ex)
-            {
-                Logger.LogJson(ex);
-                throw;
-            }
-        }
-
-        [Action("Schedule a landing page for publishing", Description = "Schedules a landing page for publishing on the given time")]
-        public async Task<BaseResponse> ScheduleALandingPageForPublish(IEnumerable<AuthenticationCredentialsProvider> providers,
-            [ActionParameter] PublishLandingPageRequest request)
+        return new()
         {
-            // Publish the translaged page
-            var publishResponse = await PublishLandingPage(providers, request.Id, request.DateTime == null ? request.DateTime.Value : DateTime.Now.AddSeconds(30));
-            return new BaseResponse()
-            {
-                StatusCode = ((int)publishResponse.StatusCode),
-                Details = publishResponse.Content,
-                Id = request.Id
-            };
-        }
+            TranslationId = translationResponse.Id
+        };
+    }
 
-        #region PRIVATE METHODS
-
-        private async Task<PageDto?> GetLPage(IEnumerable<AuthenticationCredentialsProvider> providers, string pageId)
-        {
-            var client = new HubspotClient(providers);
-            var request = new HubspotRequest(PageConstants.ALandingPage(pageId), Method.Get, providers);
-            var page = await client.GetAsync<PageDto>(request);
-            return page;
-        }
-
-        private async Task<PageDto?> CreateLandingPageTranslation(IEnumerable<AuthenticationCredentialsProvider> providers, string pageId, string primaryLanguage, string targetLanguage)
-        {
-            try
-            {
-                var client = new HubspotClient(providers);
-                var request = new HubspotRequest(PageConstants.CreateLandingPageTranslation, Method.Post, providers);
-
-                var translationRequestBody = new CreateTranslationRequest
-                {
-                    Id = pageId
-                };
-                translationRequestBody.SetLanguage(new System.Globalization.CultureInfo(primaryLanguage), new System.Globalization.CultureInfo(targetLanguage));
-                request.AddJsonBody(translationRequestBody);
-
-                var response = await client.PostAsync<PageDto>(request);
-                return response;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                throw;
-            }
-        }
-
-        private async Task<RestResponse> UpdateTranslatedLandingPage(IEnumerable<AuthenticationCredentialsProvider> providers, PageBaseDto page)
-        {
-            try
-            {
-                var client = new HubspotClient(providers);
-                var request = new HubspotRequest(PageConstants.UpdateLandingPage(page.Id), Method.Patch, providers);
-
-                var jsonString = JsonConvert.SerializeObject(page, serializationSettings);
-
-                request.AddParameter("application/json", jsonString, ParameterType.RequestBody);
-                var response = await client.ExecuteAsync(request);
-                return response;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                throw;
-            }
-        }
-
-        private async Task<RestResponse> PublishLandingPage(IEnumerable<AuthenticationCredentialsProvider> providers, string pageId, DateTime dateTime)
-        {
-            try
-            {
-                var client = new HubspotClient(providers);
-                var request = new HubspotRequest(PageConstants.PublishLandingPage, Method.Post, providers);
-
-                var jsonString = JsonConvert.SerializeObject(new {id = pageId, publishDate = dateTime}, serializationSettings);
-
-                request.AddParameter("application/json", jsonString, ParameterType.RequestBody);
-                var response = await client.ExecuteAsync(request);
-                return response;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                throw;
-            }
-        }
-
-        #endregion
+    [Action("Schedule a landing page for publishing",
+        Description = "Schedules a landing page for publishing on the given time")]
+    public Task ScheduleALandingPageForPublish([ActionParameter] PublishLandingPageRequest request)
+    {
+        var publishData = request.DateTime ?? DateTime.Now.AddSeconds(30);
+        return PublishPage(ApiEndpoints.PublishLandingPage, request.Id, publishData);
     }
 }

@@ -1,194 +1,202 @@
-﻿using Apps.Hubspot.Models;
-using Blackbird.Applications.Sdk.Common;
+﻿using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
-using Blackbird.Applications.Sdk.Common.Authentication;
 using RestSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Apps.Hubspot.Dtos.Blogs.Posts;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using HtmlAgilityPack;
-using Blackbird.Applications.Sdk.Common.Dynamic;
-using Apps.Hubspot.DynamicHandlers;
 using File = Blackbird.Applications.Sdk.Common.Files.File;
-using Apps.Hubspot.Models.Requests;
 using System.Net.Mime;
+using Apps.Hubspot.Api;
+using Apps.Hubspot.Constants;
+using Apps.Hubspot.Exceptions;
+using Apps.Hubspot.Invocables;
+using Apps.Hubspot.Models.Dtos.Blogs.Posts;
+using Apps.Hubspot.Models.Requests.BlogPosts;
+using Apps.Hubspot.Models.Responses;
+using Apps.Hubspot.Models.Responses.Files;
+using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Utils.Extensions.Http;
+using Blackbird.Applications.Sdk.Utils.Html.Extensions;
 
-namespace Apps.Hubspot.Actions
+namespace Apps.Hubspot.Actions;
+
+[ActionList]
+public class BlogPostsActions : HubSpotInvocable
 {
-    [ActionList]
-    public class BlogPostsActions
+    public BlogPostsActions(InvocationContext invocationContext) : base(invocationContext)
     {
-        [Action("Get all blog posts", Description = "Get a list of all blog posts")]
-        public async Task<GetAllResponse<BlogPostDto>> GetBlogPosts(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders)
-        {
-            var client = new HubspotClient(authenticationCredentialsProviders);
-            var request = new HubspotRequest("/cms/v3/blogs/posts", Method.Get, authenticationCredentialsProviders);
-            return await client.GetAsync<GetAllResponse<BlogPostDto>>(request);
-        }
+    }
 
-        [Action("Get blog post", Description = "Get information of a specific blog post")]
-        public BlogPostDto? GetBlogPost(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter][DataSource(typeof(BlogPostHandler))] string blogPostId)
-        {
-            var client = new HubspotClient(authenticationCredentialsProviders);
-            var request = new HubspotRequest($"/cms/v3/blogs/posts/{blogPostId}", Method.Get, authenticationCredentialsProviders);
-            return client.Get<BlogPostDto>(request);
-        }
+    [Action("Get all blog posts", Description = "Get a list of all blog posts")]
+    public Task<GetAllResponse<BlogPostDto>> GetBlogPosts()
+    {
+        var request = new HubspotRequest(ApiEndpoints.BlogPostsSegment, Method.Get, Creds);
+        return Client.ExecuteWithErrorHandling<GetAllResponse<BlogPostDto>>(request);
+    }
 
-        [Action("Create blog post", Description = "Create a new blog post")]
-        public BlogPostDto? CreateBlogPost(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] CreateOrUpdateBlogPostDto dto)
-        {
-            var client = new HubspotClient(authenticationCredentialsProviders);
-            var request = new HubspotRequest($"/cms/v3/blogs/posts", Method.Post, authenticationCredentialsProviders);
-            request.AddJsonBody(dto);
-            return client.Post<BlogPostDto>(request);
-        }
+    [Action("Get blog post", Description = "Get information of a specific blog post")]
+    public Task<BlogPostDto> GetBlogPost([ActionParameter] BlogPostRequest blogPost)
+    {
+        var endpoint = $"{ApiEndpoints.BlogPostsSegment}/{blogPost.BlogPostId}";
+        var request = new HubspotRequest(endpoint, Method.Get, Creds);
 
-        [Action("Create blog language variation", Description = "Create new blog language variation")]
-        public BlogPostDto? CreateBlogLanguageVariation(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] CreateNewBlogLanguageRequest input)
+        return Client.ExecuteWithErrorHandling<BlogPostDto>(request);
+    }
+
+    [Action("Create blog post", Description = "Create a new blog post")]
+    public Task<BlogPostDto> CreateBlogPost([ActionParameter] ManageBlogPostRequest input)
+    {
+        var request = new HubspotRequest(ApiEndpoints.BlogPostsSegment, Method.Post, Creds)
+            .WithJsonBody(input, JsonConfig.Settings);
+
+        return Client.ExecuteWithErrorHandling<BlogPostDto>(request);
+    }
+
+    [Action("Create blog language variation", Description = "Create new blog language variation")]
+    public Task<BlogPostDto> CreateBlogLanguageVariation(
+        [ActionParameter] CreateNewBlogLanguageRequest input)
+    {
+        var payload = new CreateBlogLanguageVariationRequest
         {
-            var client = new HubspotClient(authenticationCredentialsProviders);
-            var request = new HubspotRequest($"/cms/v3/blogs/posts/multi-language/create-language-variation", Method.Post, authenticationCredentialsProviders);
-            request.AddJsonBody(new
+            Id = input.PostId,
+            Language = input.Language
+        };
+        var endpoint = $"{ApiEndpoints.BlogPostsSegment}/multi-language/create-language-variation";
+        var request = new HubspotRequest(endpoint, Method.Post, Creds)
+            .WithJsonBody(payload, JsonConfig.Settings);
+
+        return Client.ExecuteWithErrorHandling<BlogPostDto>(request);
+    }
+
+    [Action("Update blog post", Description = "Update a blog post information")]
+    public Task<BlogPostDto> UpdateBlogPost(
+        [ActionParameter] BlogPostRequest blogPost,
+        [ActionParameter] ManageBlogPostRequest input)
+    {
+        var endpoint = $"{ApiEndpoints.BlogPostsSegment}/{blogPost.BlogPostId}";
+        var request = new HubspotRequest(endpoint, Method.Patch, Creds)
+            .WithJsonBody(input, JsonConfig.Settings);
+
+        return Client.ExecuteWithErrorHandling<BlogPostDto>(request);
+    }
+
+    [Action("Delete blog post", Description = "Delete a blog post")]
+    public Task DeleteCompany([ActionParameter] BlogPostRequest blogPost)
+    {
+        var endpoint = $"{ApiEndpoints.BlogPostsSegment}/{blogPost.BlogPostId}";
+        var request = new HubspotRequest(endpoint, Method.Delete, Creds);
+
+        return Client.ExecuteWithErrorHandling(request);
+    }
+
+    [Action("Get blog post translation", Description = "Get blog post translation by language")]
+    public async Task<TranslationDto> GetBlogPostTranslation(
+        [ActionParameter] GetBlogPostTranslationRequest input)
+    {
+        var endpoint = $"{ApiEndpoints.BlogPostsSegment}/{input.BlogPostId}";
+        var request = new HubspotRequest(endpoint, Method.Get, Creds);
+
+        var response = await Client.ExecuteWithErrorHandling(request);
+
+        var translationsObj = JObject.Parse(response.Content)["translations"].ToObject<JObject>();
+
+        if (translationsObj is null || !translationsObj.ContainsKey(input.Locale))
+            throw new("No translation found");
+        
+        return translationsObj[input.Locale]!.ToObject<TranslationDto>()!;
+    }
+
+    [Action("Get blog post as HTML file", Description = "Get blog post as HTML file")]
+    public async Task<FileResponse> GetBlogPostAsHtml(
+        [ActionParameter] GetBlogPostAsHtmlRequest input)
+    {
+        var endpoint = $"{ApiEndpoints.BlogPostsSegment}/{input.BlogPost}";
+        var request = new HubspotRequest(endpoint, Method.Get, Creds);
+
+        var blogPost = await Client.ExecuteWithErrorHandling<BlogPostDto>(request);
+        var htmlFile = (blogPost.Name, blogPost.PostBody).AsHtml();
+
+        return new FileResponse()
+        {
+            File = new File(Encoding.UTF8.GetBytes(htmlFile))
             {
-                id = input.PostId,
-                language = input.Language
+                Name = $"{blogPost.Name}.html",
+                ContentType = MediaTypeNames.Text.Html
+            },
+            FileLanguage = blogPost.Language,
+        };
+    }
+
+    [Action("Translate blog post from HTML file", Description = "Translate blog post from HTML file")]
+    public async Task<BlogPostDto> TranslateBlogPostFromHtml(
+        [ActionParameter] TranslateBlogPostFromHtmlRequest input)
+    {
+        var fileString = Encoding.UTF8.GetString(input.File.Bytes);
+        var doc = fileString.AsHtmlDocument();
+
+        var title = doc.GetTitle();
+        var body = doc.DocumentNode.SelectSingleNode("/html/body").InnerHtml;
+
+        string postId;
+        try
+        {
+            var createdPost = await CreateBlogLanguageVariation(new()
+            {
+                PostId = input.BlogPostId,
+                Language = input.Locale
             });
-            return client.Post<BlogPostDto>(request);
+
+            postId = createdPost.Id;
         }
-
-        [Action("Update blog post", Description = "Update a blog post information")]
-        public BlogPostDto? UpdateCompany(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter][DataSource(typeof(BlogPostHandler))] string blogPostId, [ActionParameter] CreateOrUpdateBlogPostDto dto)
+        catch(HubspotException ex)
         {
-            var client = new HubspotClient(authenticationCredentialsProviders);
-            var request = new HubspotRequest($"/cms/v3/blogs/posts/{blogPostId}", Method.Patch, authenticationCredentialsProviders);
-            request.AddJsonBody(dto);
-            return client.Patch<BlogPostDto>(request);
-        }
-
-        [Action("Delete blog post", Description = "Delete a blog post")]
-        public void DeleteCompany(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter][DataSource(typeof(BlogPostHandler))] string blogPostId)
-        {
-            var client = new HubspotClient(authenticationCredentialsProviders);
-            var request = new HubspotRequest($"/cms/v3/blogs/posts/{blogPostId}", Method.Delete, authenticationCredentialsProviders);
-            client.Execute(request);
-        }
-
-        [Action("Get blog post translation", Description = "Get blog post translation by language")]
-        public TranslationInfoDto? GetBlogPostTranslation(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter][DataSource(typeof(BlogPostHandler))] string blogPostId, [ActionParameter] string locale)
-        {
-            var client = new HubspotClient(authenticationCredentialsProviders);
-            var request = new HubspotRequest($"/cms/v3/blogs/posts/{blogPostId}", Method.Get, authenticationCredentialsProviders);
-
-            var translationInfo = new TranslationInfoDto();
-            JObject translationsObj = JObject.Parse(client.Get(request).Content)["translations"].ToObject<JObject>();
-            if (translationsObj != null && translationsObj.ContainsKey(locale))
+            if (ex.ErrorType != ErrorTypes.LanguageAlreadyTranslated)
+                throw;
+            
+            var existingTranslation = await GetBlogPostTranslation(new()
             {
-                translationInfo = translationsObj[locale].ToObject<TranslationInfoDto>();
-            }
-            return translationInfo;
-        }
-
-        [Action("Update name and body of blog post", Description = "Update name and body of blog post")]
-        public BlogPostDto? UpdateBlogPostNameAndBody(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter][DataSource(typeof(BlogPostHandler))] string blogPostId, [ActionParameter] string name, [ActionParameter] string body)
-        {
-            var client = new HubspotClient(authenticationCredentialsProviders);
-            var request = new HubspotRequest($"/cms/v3/blogs/posts/{blogPostId}", Method.Patch, authenticationCredentialsProviders);
-            request.AddJsonBody(new
-            {
-                name = name,
-                postBody = body
+                BlogPostId = input.BlogPostId,
+                Locale = input.Locale
             });
-            return client.Patch<BlogPostDto>(request);
+            
+            postId = existingTranslation.Id;
         }
-
-        [Action("Get blog post as HTML file", Description = "Get blog post as HTML file")]
-        public FileResponse GetBlogPostAsHtml(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] GetBlogPostAsHtmlRequest input)
+        
+        return await UpdateBlogPost(new()
         {
-            var client = new HubspotClient(authenticationCredentialsProviders);
-            var request = new HubspotRequest($"/cms/v3/blogs/posts/{input.BlogPost}", Method.Get, authenticationCredentialsProviders);
-            var blogPost = client.Get<BlogPostDto>(request);
-            string htmlFile = $"<html><head><title>{blogPost.Name}</title></head><body>{blogPost.PostBody}</body></html>";
-            return new FileResponse()
-            {
-                File = new File(Encoding.UTF8.GetBytes(htmlFile))
-                {
-                    Name = $"{blogPost.Name}.html",
-                    ContentType = MediaTypeNames.Text.Html
-                },
-            };
-        }
-
-        [Action("Translate blog post from HTML file", Description = "Translate blog post from HTML file")]
-        public BlogPostDto? TranslateBlogPostFromHtml(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] TranslateBlogPostFromHtmlRequest input)
+            BlogPostId = postId
+        }, new()
         {
-            var fileString = Encoding.UTF8.GetString(input.File.Bytes);
-            var doc = new HtmlDocument();
-            doc.LoadHtml(fileString);
-            var title = doc.DocumentNode.SelectSingleNode("html/head/title").InnerText;
-            var body = doc.DocumentNode.SelectSingleNode("/html/body").InnerHtml;
+            Name = title,
+            PostBody = body
+        });
+    }
 
-            try
-            {
-                var createdPost = CreateBlogLanguageVariation(authenticationCredentialsProviders, new CreateNewBlogLanguageRequest()
-                {
-                    PostId = input.BlogPostId,
-                    Language = input.Locale
-                });
-                return UpdateBlogPostNameAndBody(authenticationCredentialsProviders, createdPost.Id, title, body);
-            } catch (Exception ex)
-            {
-                var existingTranslation = GetBlogPostTranslation(authenticationCredentialsProviders, input.BlogPostId, input.Locale);
-                return UpdateBlogPostNameAndBody(authenticationCredentialsProviders, existingTranslation.Id, title, body);
-            }
+    [Action("Get blog posts without translations",
+        Description = "Get blog posts without translations to specific language")]
+    public async Task<GetAllResponse<BlogPostDto>> GetBlogPostsWithoutTranslations(
+       [ActionParameter] [Display("Locale")] string locale)
+    {
+        var posts = await GetBlogPosts();
+        var missingTranslationsPosts = new List<BlogPostDto>();
 
-            //var existingTranslation = GetBlogPostTranslation(authenticationCredentialsProviders, input.BlogPostId, input.Locale);
-            //if(existingTranslation == null)
-            //{
-            //    var createdPost = CreateBlogLanguageVariation(authenticationCredentialsProviders, new CreateNewBlogLanguageRequest()
-            //    {
-            //        PostId = input.BlogPostId,
-            //        Language = input.Locale
-            //    });
-            //    return UpdateBlogPostNameAndBody(authenticationCredentialsProviders, createdPost.Id, title, body);
-            //}
-            //return UpdateBlogPostNameAndBody(authenticationCredentialsProviders, existingTranslation.Id, title, body);
-        }
-
-        [Action("Get blog posts without translations", Description = "Get blog posts without translations to specific language")]
-        public async Task<GetAllResponse<BlogPostDto>> GetBlogPostsWithoutTranslations(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders,
-            [ActionParameter] string locale)
+        foreach (var post in posts.Results)
         {
-            var posts = await GetBlogPosts(authenticationCredentialsProviders);
-            var missingTranslationsPosts = new List<BlogPostDto>();
-            foreach (var post in posts.Results)
+            if (post.TranslatedFromId is not null)
+                continue;
+
+            var translation = await GetBlogPostTranslation(new()
             {
-                if(post.TranslatedFromId == null)
-                {
-                    var translation = GetBlogPostTranslation(authenticationCredentialsProviders, post.Id, locale);
-                    if(translation == null)
-                    {
-                        missingTranslationsPosts.Add(post);
-                    }
-                }
-            }
-            return new GetAllResponse<BlogPostDto>()
-            {
-                Results = missingTranslationsPosts
-            };
+                BlogPostId = post.Id,
+                Locale = locale
+            });
+
+            if (translation is null)
+                missingTranslationsPosts.Add(post);
         }
+
+        return new()
+        {
+            Results = missingTranslationsPosts
+        };
     }
 }

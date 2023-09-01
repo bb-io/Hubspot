@@ -1,21 +1,20 @@
-﻿using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
-using Microsoft.AspNetCore.WebUtilities;
+﻿using Apps.Hubspot.Constants;
+using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
+using Blackbird.Applications.Sdk.Utils.Extensions.String;
 
-namespace Apps.Hubspot.Authorization.OAuth2
+namespace Apps.Hubspot.Auth.OAuth2;
+
+public class OAuth2AuthorizeService : IOAuth2AuthorizeService
 {
-    public class OAuth2AuthorizeService : IOAuth2AuthorizeService
+    public string GetAuthorizationUrl(Dictionary<string, string> values)
     {
-        public string GetAuthorizationUrl(Dictionary<string, string> values)
+        var parameters = new Dictionary<string, string>
         {
-            const string oauthUrl = "https://app.hubspot.com/oauth/authorize";
-            var parameters = new Dictionary<string, string>
-            {
-                { "client_id", ApplicationConstants.ClientId },
-                { "redirect_uri", ApplicationConstants.RedirectUri },
-                { "scope", ApplicationConstants.Scope },
-                { "state", values["state"] }
-            };
-            return QueryHelpers.AddQueryString(oauthUrl, parameters);
-        }
+            { "client_id", ApplicationConstants.ClientId },
+            { "redirect_uri", ApplicationConstants.RedirectUri },
+            { "scope", ApplicationConstants.Scope },
+            { "state", values["state"] }
+        };
+        return Urls.OAuth.WithQuery(parameters);
     }
 }
