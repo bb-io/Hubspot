@@ -2,6 +2,7 @@
 using Apps.Hubspot.Constants;
 using Apps.Hubspot.Invocables;
 using Apps.Hubspot.Models.Dtos.Pages;
+using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Models.Requests.SitePages;
 using Apps.Hubspot.Models.Requests.Translations;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -16,13 +17,13 @@ public abstract class BasePageActions : HubSpotInvocable
     {
     }
 
-    protected Task<PageDto> GetPage(string url)
+    protected Task<T> GetPage<T>(string url) where T : PageDto
     {
         var request = new HubspotRequest(url, Method.Get, Creds);
-        return Client.ExecuteWithErrorHandling<PageDto>(request);
+        return Client.ExecuteWithErrorHandling<T>(request);
     }
 
-    protected Task<PageDto> CreateTranslation(string url,
+    protected Task<GenericPageDto> CreateTranslation(string url,
         string pageId, string primaryLanguage, string targetLanguage)
     {
         var payload = new CreateTranslationRequest
@@ -34,10 +35,10 @@ public abstract class BasePageActions : HubSpotInvocable
         var request = new HubspotRequest(url, Method.Post, Creds)
             .WithJsonBody(payload, JsonConfig.Settings);
 
-        return Client.ExecuteWithErrorHandling<PageDto>(request);
+        return Client.ExecuteWithErrorHandling<GenericPageDto>(request);
     }
 
-    protected Task<RestResponse> UpdateTranslatedPage(string url, BasePageDto page)
+    protected Task<RestResponse> UpdateTranslatedPage(string url, UpdateTranslatedPageRequest page)
     {
         var request = new HubspotRequest(url, Method.Patch, Creds)
             .WithJsonBody(page, JsonConfig.Settings);
@@ -49,7 +50,7 @@ public abstract class BasePageActions : HubSpotInvocable
     {
         var payload = new PublishPageRequest
         {
-            Id = pageId, 
+            Id = pageId,
             PublishDate = dateTime
         };
         var request = new HubspotRequest(requestUrl, Method.Post, Creds)

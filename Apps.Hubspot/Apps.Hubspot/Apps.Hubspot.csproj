@@ -11,16 +11,4 @@
     <PackageReference Include="Blackbird.Applications.Sdk.Utils.Html" Version="1.0.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Remove="Constants\" />
-    <None Remove="Dtos\Pages\" />
-    <None Remove="Helpers\" />
-    <None Remove="Models\Requests\" />
-    <None Remove="Models\Responses\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Constants\" />
-    <Folder Include="Helpers\" />
-    <Folder Include="Models\Responses\" />
-  </ItemGroup>
 </Project>

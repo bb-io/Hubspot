@@ -80,7 +80,7 @@ public class BlogPostsActions : HubSpotInvocable
     }
 
     [Action("Delete blog post", Description = "Delete a blog post")]
-    public Task DeleteCompany([ActionParameter] BlogPostRequest blogPost)
+    public Task DeleteBlogPost([ActionParameter] BlogPostRequest blogPost)
     {
         var endpoint = $"{ApiEndpoints.BlogPostsSegment}/{blogPost.BlogPostId}";
         var request = new HubspotRequest(endpoint, Method.Delete, Creds);
@@ -101,7 +101,7 @@ public class BlogPostsActions : HubSpotInvocable
 
         if (translationsObj is null || !translationsObj.ContainsKey(input.Locale))
             throw new("No translation found");
-        
+
         return translationsObj[input.Locale]!.ToObject<TranslationDto>()!;
     }
 
@@ -147,20 +147,20 @@ public class BlogPostsActions : HubSpotInvocable
 
             postId = createdPost.Id;
         }
-        catch(HubspotException ex)
+        catch (HubspotException ex)
         {
             if (ex.ErrorType != ErrorTypes.LanguageAlreadyTranslated)
                 throw;
-            
+
             var existingTranslation = await GetBlogPostTranslation(new()
             {
                 BlogPostId = input.BlogPostId,
                 Locale = input.Locale
             });
-            
+
             postId = existingTranslation.Id;
         }
-        
+
         return await UpdateBlogPost(new()
         {
             BlogPostId = postId
@@ -174,7 +174,7 @@ public class BlogPostsActions : HubSpotInvocable
     [Action("Get blog posts without translations",
         Description = "Get blog posts without translations to specific language")]
     public async Task<GetAllResponse<BlogPostDto>> GetBlogPostsWithoutTranslations(
-       [ActionParameter] [Display("Locale")] string locale)
+        [ActionParameter] [Display("Locale")] string locale)
     {
         var posts = await GetBlogPosts();
         var missingTranslationsPosts = new List<BlogPostDto>();

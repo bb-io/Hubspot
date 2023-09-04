@@ -1,21 +1,21 @@
-﻿using RestSharp;
-using System.Text;
+﻿using System.Text;
 using Apps.Hubspot.Helpers;
 using Apps.Hubspot.Constants;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
-using Apps.Hubspot.Models.Requests;
 using System.Net.Mime;
 using Apps.Hubspot.Actions.Base;
 using Apps.Hubspot.Api;
 using Apps.Hubspot.Extensions;
 using Apps.Hubspot.Models.Dtos.Pages;
+using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Models.Requests.SitePages;
 using Apps.Hubspot.Models.Requests.Translations;
 using Apps.Hubspot.Models.Responses;
 using Apps.Hubspot.Models.Responses.Files;
 using Apps.Hubspot.Models.Responses.Translations;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using RestSharp;
 
 namespace Apps.Hubspot.Actions;
 
@@ -33,7 +33,8 @@ public class PageActions : BasePageActions
         return Client.ExecuteWithErrorHandling<GetAllResponse<PageDto>>(request);
     }
 
-    [Action("Get all site pages with certain language", Description = "Get a list of all pages in a specified language")]
+    [Action("Get all site pages with certain language",
+        Description = "Get a list of all pages in a specified language")]
     public Task<GetAllResponse<PageDto>> GetAllSitePagesInLanguage([ActionParameter] LanguageRequest input)
     {
         var endpoint = $"{ApiEndpoints.SitePages()}?language={input.Language}";
@@ -50,19 +51,18 @@ public class PageActions : BasePageActions
     {
         var endpoint = $"{ApiEndpoints.SitePages()}?property=language,id,translations";
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
-        var getAllResponse = await Client.ExecuteWithErrorHandling<GetAllResponse<PageDto>>(request);
+        var getAllResponse = await Client.ExecuteWithErrorHandling<GetAllResponse<GenericPageDto>>(request);
 
         var result = getAllResponse.Results
             .Where(p => p.Language is null || (p.Language == input.PrimaryLanguage
                                                && p.Translations
-                                               .Properties()
-                                               .All(t => t.Name != input.Language.ToLower())));
+                                                   .Properties()
+                                                   .All(t => t.Name != input.Language.ToLower())));
         return new()
         {
-            Results = result.ToList()
+            Results = result.Cast<PageDto>().ToList()
         };
     }
-
 
     [Action("Get all site pages updated after datetime",
         Description =
@@ -77,13 +77,13 @@ public class PageActions : BasePageActions
 
     [Action("Get a site page", Description = "Get information of a specific page")]
     public Task<PageDto> GetSitePage([ActionParameter] SitePageRequest input)
-        => GetPage(ApiEndpoints.ASitePage(input.PageId));
+        => GetPage<PageDto>(ApiEndpoints.ASitePage(input.PageId));
 
     [Action("Get a site page as HTML file",
         Description = "Get information of a specific page and return an HTML file of its content")]
     public async Task<FileResponse> GetSitePageAsHtml([ActionParameter] SitePageRequest input)
     {
-        var result = await GetPage(ApiEndpoints.ASitePage(input.PageId));
+        var result = await GetPage<GenericPageDto>(ApiEndpoints.ASitePage(input.PageId));
         var htmlStringBuilder =
             PageHelpers.ObjectToHtml(result.LayoutSections);
         var htmlFile = (result.HtmlTitle, result.Language, htmlStringBuilder).AsPageHtml();

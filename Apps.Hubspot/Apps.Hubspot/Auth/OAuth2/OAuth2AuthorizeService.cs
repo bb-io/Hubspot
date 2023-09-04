@@ -15,6 +15,7 @@ public class OAuth2AuthorizeService : IOAuth2AuthorizeService
             { "scope", ApplicationConstants.Scope },
             { "state", values["state"] }
         };
+        
         return Urls.OAuth.WithQuery(parameters);
     }
 }

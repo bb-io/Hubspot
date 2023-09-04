@@ -26,7 +26,7 @@ public class TranslationDto
     public string State { get; set; }
     
     [Display("Tag IDs")]
-    public List<string> TagIds { get; set; }
+    public IEnumerable<string> TagIds { get; set; }
     
     [Display("Update date")]
     public DateTime Updated { get; set; }

@@ -1,10 +1,25 @@
 ﻿using Blackbird.Applications.Sdk.Common;
-using Newtonsoft.Json.Linq;
 
 namespace Apps.Hubspot.Models.Dtos.Pages;
 
-public class PageDto : BasePageDto
+public class PageDto
 {
+    
+    [Display("Page ID")]
+    public string Id { get; set; }
+    
+    [Display("HTML title")]
+    public string HtmlTitle { get; set; }
+
+    [Display("Language")]
+    public string? Language { get; set; }
+
+    [Display("Currently published")]
+    public bool CurrentlyPublished { get; set; }
+    
+    [Display("Current state")]
+    public string CurrentState { get; set; }
+    
     [Display("Slug")]
     public string Slug { get; set; }
 
@@ -71,12 +86,6 @@ public class PageDto : BasePageDto
     [Display("Name")]
     public string Name { get; set; }
 
-    [Display("Language")]
-    public string? Language { get; set; }
-
     [Display("Translated from ID")]
     public string? TranslatedFromId { get; set; }
-
-    [Display("Translations")]
-    public JObject Translations { get; set; }
 }

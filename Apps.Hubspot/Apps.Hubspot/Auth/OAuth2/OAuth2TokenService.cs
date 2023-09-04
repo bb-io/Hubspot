@@ -39,6 +39,7 @@ public class OAuth2TokenService : IOAuth2TokenService
             { "redirect_uri", ApplicationConstants.RedirectUri },
             { "code", code }
         };
+        
         return GetToken(bodyParameters, cancellationToken);
     }
 

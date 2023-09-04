@@ -19,6 +19,7 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 
 namespace Apps.Hubspot.Actions;
 
+[ActionList]
 public class LandingPageActions : BasePageActions
 {
     public LandingPageActions(InvocationContext invocationContext) : base(invocationContext)
@@ -50,7 +51,7 @@ public class LandingPageActions : BasePageActions
     {
         var endpoint = $"{ApiEndpoints.LandingPages()}?property=language,id,translations";
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
-        var getAllResponse = await Client.ExecuteWithErrorHandling<GetAllResponse<PageDto>>(request);
+        var getAllResponse = await Client.ExecuteWithErrorHandling<GetAllResponse<GenericPageDto>>(request);
 
         var result = getAllResponse.Results
             .Where(p => p.Language is null
@@ -61,7 +62,7 @@ public class LandingPageActions : BasePageActions
 
         return new()
         {
-            Results = result.ToList()
+            Results = result.Cast<PageDto>().ToList()
         };
     }
 
@@ -78,13 +79,13 @@ public class LandingPageActions : BasePageActions
 
     [Action("Get a landing page", Description = "Get information of a specific landing page")]
     public Task<PageDto> GetLandingPage([ActionParameter] LandingPageRequest input)
-        => GetPage(ApiEndpoints.ALandingPage(input.PageId));
+        => GetPage<PageDto>(ApiEndpoints.ALandingPage(input.PageId));
 
     [Action("Get a landing page as HTML file",
         Description = "Get information of a specific landing page and return an HTML file of its content")]
     public async Task<FileResponse> GetLandingPageAsHtml([ActionParameter] LandingPageRequest input)
     {
-        var result = await GetPage(ApiEndpoints.ALandingPage(input.PageId));
+        var result = await GetPage<GenericPageDto>(ApiEndpoints.ALandingPage(input.PageId));
 
         var htmlStringBuilder = PageHelpers.ObjectToHtml(result.LayoutSections);
         var htmlFile = (result.HtmlTitle, result.Language, htmlStringBuilder).AsPageHtml();

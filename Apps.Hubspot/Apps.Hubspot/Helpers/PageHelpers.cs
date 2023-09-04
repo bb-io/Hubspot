@@ -17,7 +17,7 @@ public static class PageHelpers
     /// <returns>HTML in string builder instance</returns>
     public static string ObjectToHtml(JObject layoutObject)
     {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         foreach (var item in layoutObject.Properties())
         {
             var html = GetHtml((JObject)item.Value);
@@ -46,7 +46,7 @@ public static class PageHelpers
     {
         var fileString = Encoding.UTF8.GetString(File);
         var doc = fileString.AsHtmlDocument();
-
+     
         var pageId = doc.DocumentNode.SelectNodes("//div/@lang").FirstOrDefault();
         var title = doc.DocumentNode.SelectSingleNode("//title");
 
