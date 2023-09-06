@@ -66,7 +66,7 @@ Before you can connect you need to make sure that:
 
 
 ## Example
-![Example](<Images/README/Hubspot-CMS-Blackbird-Example.png>)
+![Example](<Images /README/Hubspot-CMS-Blackbird-Example.png>)
 
 ## Missing features
 
