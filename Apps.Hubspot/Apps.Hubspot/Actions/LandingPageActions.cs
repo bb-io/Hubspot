@@ -26,7 +26,7 @@ public class LandingPageActions : BasePageActions
     {
     }
 
-    [Action("Get all landing pages", Description = "Get a list of all landing pagess")]
+    [Action("Get all landing pages", Description = "Get a list of all landing pages")]
     public Task<GetAllResponse<PageDto>> GetAllLandingPages()
     {
         var request = new HubspotRequest(ApiEndpoints.LandingPages(), Method.Get, Creds);
@@ -68,7 +68,7 @@ public class LandingPageActions : BasePageActions
 
     [Action("Get all landing pages updated after datetime",
         Description =
-            "Get a list of all landing pagess that were updated after the given date time. Date time is exclusive")]
+            "Get a list of all landing pages that were updated after the given date time. Date time is exclusive")]
     public Task<GetAllResponse<PageDto>> GetAllLandingPagesAfter([ActionParameter] UpdatedAfterRequest input)
     {
         var endpoint = ApiEndpoints.LandingPages(input.UpdatedAfter);

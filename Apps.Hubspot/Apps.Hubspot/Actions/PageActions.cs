@@ -26,7 +26,7 @@ public class PageActions : BasePageActions
     {
     }
 
-    [Action("Get all site pagess", Description = "Get a list of all pagess")]
+    [Action("Get all site pages", Description = "Get a list of all pages")]
     public Task<GetAllResponse<PageDto>> GetAllSitePages()
     {
         var request = new HubspotRequest(ApiEndpoints.SitePages(), Method.Get, Creds);
@@ -66,7 +66,7 @@ public class PageActions : BasePageActions
 
     [Action("Get all site pages updated after datetime",
         Description =
-            "Get a list of all site pagess that were updated after the given date time. Date time is exclusive")]
+            "Get a list of all site pages that were updated after the given date time. Date time is exclusive")]
     public Task<GetAllResponse<PageDto>> GetAllPagesAfter([ActionParameter] UpdatedAfterRequest input)
     {
         var endpoint = ApiEndpoints.SitePages(input.UpdatedAfter);
