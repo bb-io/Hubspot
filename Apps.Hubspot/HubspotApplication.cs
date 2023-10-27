@@ -1,15 +1,16 @@
 ﻿using Apps.Hubspot.Auth.OAuth2;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
+using Blackbird.Applications.Sdk.Common.Invocation;
 
 namespace Apps.Hubspot;
 
-public class HubspotApplication : IApplication
+public class HubspotApplication : BaseInvocable, IApplication
 {
     private string _name;
     private readonly Dictionary<Type, object> _typesInstances;
 
-    public HubspotApplication()
+    public HubspotApplication(InvocationContext invocationContext) : base(invocationContext)
     {
         _name = "Hubspot";
         _typesInstances = CreateTypesInstances();
@@ -34,8 +35,8 @@ public class HubspotApplication : IApplication
     {
         return new Dictionary<Type, object>
         {
-            { typeof(IOAuth2AuthorizeService), new OAuth2AuthorizeService() },
-            { typeof(IOAuth2TokenService), new OAuth2TokenService() }
+            { typeof(IOAuth2AuthorizeService), new OAuth2AuthorizeService(InvocationContext) },
+            { typeof(IOAuth2TokenService), new OAuth2TokenService(InvocationContext) }
         };
     }
 }
