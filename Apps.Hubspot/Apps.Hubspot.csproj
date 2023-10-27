@@ -4,9 +4,9 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-	<Product>Blackbird Hubspot CMS</Product>
+	<Product>Hubspot CMS</Product>
 	<Description>Hubspot CMS features including blogs and pages</Description>
-	<Version>1.0.1</Version>
+	<Version>1.0.2</Version>
 	<AssemblyName>Apps.Hubspot</AssemblyName>
   </PropertyGroup>
 
