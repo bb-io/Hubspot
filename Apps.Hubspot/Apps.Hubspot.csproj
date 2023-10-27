@@ -5,13 +5,18 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 	<Product>Blackbird Hubspot CMS</Product>
+	<Description>Hubspot CMS features including blogs and pages</Description>
 	<Version>1.0.0</Version>
+	<AssemblyName>Apps.Hubspot</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Blackbird.Applications.Sdk.Common" Version="2.2.0-alpha3" />
+    <PackageReference Include="Blackbird.Applications.Sdk.Common" Version="2.2.0-alpha4" />
     <PackageReference Include="Blackbird.Applications.Sdk.Utils" Version="1.0.4" />
     <PackageReference Include="Blackbird.Applications.Sdk.Utils.Html" Version="1.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
   </ItemGroup>
-
+	<ItemGroup>
+		<EmbeddedResource CopyToOutputDirectory="Always" Include="image\icon.jpg"></EmbeddedResource>
+	</ItemGroup>
 </Project>
