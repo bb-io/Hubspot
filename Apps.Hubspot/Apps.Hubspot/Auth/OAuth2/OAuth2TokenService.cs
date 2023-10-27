@@ -36,7 +36,7 @@ public class OAuth2TokenService : IOAuth2TokenService
             { "grant_type", "authorization_code" },
             { "client_id", ApplicationConstants.ClientId },
             { "client_secret", ApplicationConstants.ClientSecret },
-            { "redirect_uri", ApplicationConstants.RedirectUri },
+            { "redirect_uri", $"{ApplicationConstants.BridgeUri.TrimEnd('/')}/AuthorizationCode" },
             { "code", code }
         };
         
