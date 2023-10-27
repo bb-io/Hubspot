@@ -1,6 +1,7 @@
 ﻿using Apps.Hubspot.Constants;
 using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace Apps.Hubspot.Auth.OAuth2;
 
@@ -19,6 +20,6 @@ public class OAuth2AuthorizeService : IOAuth2AuthorizeService
             { "actual_redirect_uri", ApplicationConstants.RedirectUri },
         };
         
-        return Urls.OAuth.WithQuery(parameters);
+        return QueryHelpers.AddQueryString(bridgeOauthUrl, parameters);
     }
 }
