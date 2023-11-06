@@ -1,22 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-	<Product>Hubspot CMS</Product>
-	<Description>Hubspot CMS features including blogs and pages</Description>
-	<Version>1.0.2</Version>
-	<AssemblyName>Apps.Hubspot</AssemblyName>
+    <Product>Hubspot CMS</Product>
+    <Description>Hubspot CMS features including blogs and pages</Description>
+    <Version>1.0.3</Version>
+    <AssemblyName>Apps.Hubspot</AssemblyName>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Blackbird.Applications.Sdk.Common" Version="2.2.0-alpha4" />
     <PackageReference Include="Blackbird.Applications.Sdk.Utils" Version="1.0.4" />
     <PackageReference Include="Blackbird.Applications.Sdk.Utils.Html" Version="1.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
   </ItemGroup>
-	<ItemGroup>
-		<EmbeddedResource CopyToOutputDirectory="Always" Include="image\icon.jpg"></EmbeddedResource>
-	</ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource CopyToOutputDirectory="Always" Include="image\icon.jpg"></EmbeddedResource>
+  </ItemGroup>
 </Project>
