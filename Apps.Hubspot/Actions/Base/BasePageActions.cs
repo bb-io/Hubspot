@@ -1,19 +1,20 @@
 ﻿using Apps.Hubspot.Api;
 using Apps.Hubspot.Constants;
-using Apps.Hubspot.Invocables;
 using Apps.Hubspot.Models.Dtos.Pages;
 using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Models.Requests.SitePages;
 using Apps.Hubspot.Models.Requests.Translations;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using RestSharp;
 
 namespace Apps.Hubspot.Actions.Base;
 
-public abstract class BasePageActions : HubSpotInvocable
+public abstract class BasePageActions : BaseActions
 {
-    protected BasePageActions(InvocationContext invocationContext) : base(invocationContext)
+    protected BasePageActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
+        : base(invocationContext, fileManagementClient)
     {
     }
 
