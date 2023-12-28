@@ -15,14 +15,18 @@ using Apps.Hubspot.Models.Requests.Translations;
 using Apps.Hubspot.Models.Responses;
 using Apps.Hubspot.Models.Responses.Files;
 using Apps.Hubspot.Models.Responses.Translations;
+using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
+using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 
 namespace Apps.Hubspot.Actions;
 
 [ActionList]
 public class LandingPageActions : BasePageActions
 {
-    public LandingPageActions(InvocationContext invocationContext) : base(invocationContext)
+    public LandingPageActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) 
+        : base(invocationContext, fileManagementClient)
     {
     }
 
@@ -89,15 +93,17 @@ public class LandingPageActions : BasePageActions
 
         var htmlStringBuilder = PageHelpers.ObjectToHtml(result.LayoutSections);
         var htmlFile = (result.HtmlTitle, result.Language, htmlStringBuilder).AsPageHtml();
+        
+        FileReference file;
+        using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(htmlFile)))
+        {
+            file = await FileManagementClient.UploadAsync(stream, MediaTypeNames.Text.Html, $"{input.PageId}.html");
+        }
 
         return new()
         {
-            File = new(Encoding.UTF8.GetBytes(htmlFile))
-            {
-                Name = $"{input.PageId}.html",
-                ContentType = MediaTypeNames.Text.Html
-            },
-            FileLanguage = result.Language,
+            File = file,
+            FileLanguage = result.Language
         };
     }
 
@@ -106,7 +112,10 @@ public class LandingPageActions : BasePageActions
     public async Task<TranslationResponse> TranslateLandingPageFromFile(
         [ActionParameter] TranslateLandingPageFromFileRequest request)
     {
-        var pageInfo = PageHelpers.ExtractParentInfo(request.File.Bytes);
+        var file = await FileManagementClient.DownloadAsync(request.File);
+        var fileBytes = await file.GetByteData();
+        
+        var pageInfo = PageHelpers.ExtractParentInfo(fileBytes);
         var translationResponse = await CreateTranslation(ApiEndpoints.CreateLandingPageTranslation,
             request.SourcePageId,
             pageInfo.Language,

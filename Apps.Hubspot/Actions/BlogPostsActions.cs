@@ -3,26 +3,29 @@ using Blackbird.Applications.Sdk.Common.Actions;
 using RestSharp;
 using System.Text;
 using Newtonsoft.Json.Linq;
-using File = Blackbird.Applications.Sdk.Common.Files.File;
 using System.Net.Mime;
+using Apps.Hubspot.Actions.Base;
 using Apps.Hubspot.Api;
 using Apps.Hubspot.Constants;
 using Apps.Hubspot.Exceptions;
-using Apps.Hubspot.Invocables;
 using Apps.Hubspot.Models.Dtos.Blogs.Posts;
 using Apps.Hubspot.Models.Requests.BlogPosts;
 using Apps.Hubspot.Models.Responses;
 using Apps.Hubspot.Models.Responses.Files;
+using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
+using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.Sdk.Utils.Html.Extensions;
 
 namespace Apps.Hubspot.Actions;
 
 [ActionList]
-public class BlogPostsActions : HubSpotInvocable
+public class BlogPostsActions : BaseActions
 {
-    public BlogPostsActions(InvocationContext invocationContext) : base(invocationContext)
+    public BlogPostsActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) 
+        : base(invocationContext, fileManagementClient)
     {
     }
 
@@ -114,14 +117,16 @@ public class BlogPostsActions : HubSpotInvocable
 
         var blogPost = await Client.ExecuteWithErrorHandling<BlogPostDto>(request);
         var htmlFile = (blogPost.Name, blogPost.PostBody).AsHtml();
-
-        return new FileResponse()
+        
+        FileReference file;
+        using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(htmlFile)))
         {
-            File = new File(Encoding.UTF8.GetBytes(htmlFile))
-            {
-                Name = $"{blogPost.Name}.html",
-                ContentType = MediaTypeNames.Text.Html
-            },
+            file = await FileManagementClient.UploadAsync(stream, MediaTypeNames.Text.Html, $"{blogPost.Name}.html");
+        }
+
+        return new FileResponse
+        {
+            File = file,
             FileLanguage = blogPost.Language,
         };
     }
@@ -130,7 +135,10 @@ public class BlogPostsActions : HubSpotInvocable
     public async Task<BlogPostDto> TranslateBlogPostFromHtml(
         [ActionParameter] TranslateBlogPostFromHtmlRequest input)
     {
-        var fileString = Encoding.UTF8.GetString(input.File.Bytes);
+        var file = await FileManagementClient.DownloadAsync(input.File);
+        var fileBytes = await file.GetByteData();
+        
+        var fileString = Encoding.UTF8.GetString(fileBytes);
         var doc = fileString.AsHtmlDocument();
 
         var title = doc.GetTitle();
