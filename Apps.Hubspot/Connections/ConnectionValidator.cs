@@ -1,7 +1,5 @@
 ﻿using Apps.Hubspot.Api;
 using Apps.Hubspot.Constants;
-using Apps.Hubspot.Models.Dtos.Pages;
-using Apps.Hubspot.Models.Responses;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Connections;
 using RestSharp;

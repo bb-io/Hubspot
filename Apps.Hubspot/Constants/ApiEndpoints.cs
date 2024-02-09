@@ -6,6 +6,7 @@ public static class ApiEndpoints
     private const string PagesSegment = "/pages";
     private const string LandingPagesSegment = "landing-pages";
     private const string SitePagesSegment = "site-pages";
+    public const string MarketingEmailsEndpoint = "https://api.hubapi.com/marketing/v3/emails/";
 
     public static readonly string CreateTranslation = $"{SitePages()}/multi-language/create-language-variation";
     public static readonly string PublishPage = $"{SitePages()}/schedule";
