@@ -122,7 +122,7 @@ namespace Apps.Hubspot.DataSourceHandlers
             { "lv", "Latvian" },
             { "lv-lv", "Latvian - Latvia" },
             { "lt", "Lithuanian" },
-            { "lt-lt", "Lithuanian - Latvia" },
+            { "lt-lv", "Lithuanian - Latvia" },
             { "lt-lt", "Lithuanian - Lithuania" },
             { "mk", "Macedonian" },
             { "mk-mk", "Macedonian - Macedonia" },
