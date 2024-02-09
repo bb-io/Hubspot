@@ -1,4 +1,6 @@
-﻿namespace Apps.Hubspot.Models.Requests.SitePages;
+﻿using Blackbird.Applications.Sdk.Common;
+
+namespace Apps.Hubspot.Models.Requests.SitePages;
 
 public class PublishPageRequest
 {

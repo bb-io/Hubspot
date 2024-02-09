@@ -6,9 +6,10 @@ namespace Apps.Hubspot.Models.Requests.BlogPosts;
 
 public class CreateNewBlogLanguageRequest
 {
-    [Display("Post")]
+    [Display("Post ID")]
     [DataSource(typeof(BlogPostHandler))]
     public string PostId { get; set; }
 
+    [DataSource(typeof(LanguageHandler))]
     public string Language { get; set; }
 }

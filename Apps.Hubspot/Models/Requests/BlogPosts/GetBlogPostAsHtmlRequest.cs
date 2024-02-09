@@ -7,6 +7,6 @@ namespace Apps.Hubspot.Models.Requests.BlogPosts;
 public class GetBlogPostAsHtmlRequest
 {
     [DataSource(typeof(BlogPostHandler))]
-    [Display("Blog post")]
+    [Display("Post ID")]
     public string BlogPost { get; set; }
 }

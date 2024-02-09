@@ -11,9 +11,10 @@ public class TranslateLandingPageFromFileRequest
 	public FileReference File { get; set; }
 	
 	[Display("Target language")]
-	public string TargetLanguage { get; set; }
+    [DataSource(typeof(LanguageHandler))]
+    public string TargetLanguage { get; set; }
 
-	[Display("Source page")]
+	[Display("Source page ID")]
 	[DataSource(typeof(LandingPageHandler))]
 	public string SourcePageId { get; set; }
 }

@@ -6,7 +6,7 @@ namespace Apps.Hubspot.Models.Requests.BlogPosts;
 
 public class BlogPostRequest
 {
-    [Display("Blog post")]
+    [Display("Post ID")]
     [DataSource(typeof(BlogPostHandler))]
     public string BlogPostId { get; set; }
 }

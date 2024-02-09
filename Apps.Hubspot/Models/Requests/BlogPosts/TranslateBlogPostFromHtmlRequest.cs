@@ -8,10 +8,11 @@ namespace Apps.Hubspot.Models.Requests.BlogPosts;
 public class TranslateBlogPostFromHtmlRequest
 {
     [DataSource(typeof(BlogPostHandler))]
-    [Display("Blog post")]
+    [Display("Post ID")]
     public string BlogPostId { get; set; }
 
-    public string Locale { get; set; }
+    [DataSource(typeof(LanguageHandler))]
+    public string Language { get; set; }
 
     public FileReference File { get; set; }
 }
