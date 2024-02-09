@@ -6,7 +6,7 @@ namespace Apps.Hubspot.Models.Requests.LandingPages;
 
 public class LandingPageRequest
 {
-    [Display("Landing page")]
+    [Display("Landing page ID")]
     [DataSource(typeof(LandingPageHandler))]
     public string PageId { get; set; }
 }

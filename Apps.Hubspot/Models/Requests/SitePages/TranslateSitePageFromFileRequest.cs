@@ -10,9 +10,10 @@ public class TranslateSitePageFromFileRequest
     public FileReference File { get; set; }
     
     [Display("Target language")]
+    [DataSource(typeof(LanguageHandler))]
     public string TargetLanguage { get; set; }
 
     [DataSource(typeof(SitePageHandler))]
-    [Display("Source page")]
+    [Display("Source page ID")]
     public string SourcePageId { get; set; }
 }

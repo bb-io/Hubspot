@@ -102,10 +102,10 @@ public class BlogPostsActions : BaseActions
 
         var translationsObj = JObject.Parse(response.Content)["translations"].ToObject<JObject>();
 
-        if (translationsObj is null || !translationsObj.ContainsKey(input.Locale))
+        if (translationsObj is null || !translationsObj.ContainsKey(input.Language))
             throw new("No translation found");
 
-        return translationsObj[input.Locale]!.ToObject<TranslationDto>()!;
+        return translationsObj[input.Language]!.ToObject<TranslationDto>()!;
     }
 
     [Action("Get blog post as HTML file", Description = "Get blog post as HTML file")]
@@ -150,7 +150,7 @@ public class BlogPostsActions : BaseActions
             var createdPost = await CreateBlogLanguageVariation(new()
             {
                 PostId = input.BlogPostId,
-                Language = input.Locale
+                Language = input.Language
             });
 
             postId = createdPost.Id;
@@ -163,7 +163,7 @@ public class BlogPostsActions : BaseActions
             var existingTranslation = await GetBlogPostTranslation(new()
             {
                 BlogPostId = input.BlogPostId,
-                Locale = input.Locale
+                Language = input.Language
             });
 
             postId = existingTranslation.Id;
@@ -195,7 +195,7 @@ public class BlogPostsActions : BaseActions
             var translation = await GetBlogPostTranslation(new()
             {
                 BlogPostId = post.Id,
-                Locale = locale
+                Language = locale
             });
 
             if (translation is null)

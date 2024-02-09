@@ -388,3 +388,6 @@ FodyWeavers.xsd
 .editorconfig
 /Apps.Hubspot.Test/obj*
 /Apps.Hubspot.Test/bin*
+/langs.json
+/output.txt
+/script.py
