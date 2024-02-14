@@ -109,7 +109,7 @@ public class BlogPostsActions : BaseActions
     }
 
     [Action("Get blog post as HTML file", Description = "Get blog post as HTML file")]
-    public async Task<FileResponse> GetBlogPostAsHtml(
+    public async Task<FileLanguageResponse> GetBlogPostAsHtml(
         [ActionParameter] GetBlogPostAsHtmlRequest input)
     {
         var endpoint = $"{ApiEndpoints.BlogPostsSegment}/{input.BlogPost}";
@@ -124,7 +124,7 @@ public class BlogPostsActions : BaseActions
             file = await FileManagementClient.UploadAsync(stream, MediaTypeNames.Text.Html, $"{blogPost.Name}.html");
         }
 
-        return new FileResponse
+        return new FileLanguageResponse
         {
             File = file,
             FileLanguage = blogPost.Language,

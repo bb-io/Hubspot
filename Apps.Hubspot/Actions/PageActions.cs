@@ -85,7 +85,7 @@ public class PageActions : BasePageActions
 
     [Action("Get a site page as HTML file",
         Description = "Get information of a specific page and return an HTML file of its content")]
-    public async Task<FileResponse> GetSitePageAsHtml([ActionParameter] SitePageRequest input)
+    public async Task<FileLanguageResponse> GetSitePageAsHtml([ActionParameter] SitePageRequest input)
     {
         var result = await GetPage<GenericPageDto>(ApiEndpoints.ASitePage(input.PageId));
         var htmlStringBuilder =

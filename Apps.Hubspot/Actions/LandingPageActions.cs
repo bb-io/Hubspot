@@ -87,7 +87,7 @@ public class LandingPageActions : BasePageActions
 
     [Action("Get a landing page as HTML file",
         Description = "Get information of a specific landing page and return an HTML file of its content")]
-    public async Task<FileResponse> GetLandingPageAsHtml([ActionParameter] LandingPageRequest input)
+    public async Task<FileLanguageResponse> GetLandingPageAsHtml([ActionParameter] LandingPageRequest input)
     {
         var result = await GetPage<GenericPageDto>(ApiEndpoints.ALandingPage(input.PageId));
 
