@@ -18,6 +18,7 @@ using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
+using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using RestSharp;
 
 namespace Apps.Hubspot.Actions;
@@ -31,29 +32,23 @@ public class PageActions : BasePageActions
     }
 
     [Action("Get all site pages", Description = "Get a list of all pages")]
-    public Task<GetAllResponse<PageDto>> GetAllSitePages()
+    public async Task<ListResponse<PageDto>> GetAllSitePages([ActionParameter] SearchPagesRequest input)
     {
-        var request = new HubspotRequest(ApiEndpoints.SitePages(), Method.Get, Creds);
-        return Client.ExecuteWithErrorHandling<GetAllResponse<PageDto>>(request);
-    }
-
-    [Action("Get all site pages with certain language",
-        Description = "Get a list of all pages in a specified language")]
-    public Task<GetAllResponse<PageDto>> GetAllSitePagesInLanguage([ActionParameter] LanguageRequest input)
-    {
-        var endpoint = $"{ApiEndpoints.SitePages()}?language={input.Language}";
+        var query = input.AsQuery();
+        var endpoint = ApiEndpoints.SitePages.WithQuery(query);
+        
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
-
-        return Client.ExecuteWithErrorHandling<GetAllResponse<PageDto>>(request);
+        var response = await Client.Paginate<PageDto>(request);
+        
+        return new(response);
     }
-
-
+    
     [Action("Get all site pages not translated in certain language",
         Description = "Get a list of all pages not translated in specified language")]
-    public async Task<GetAllResponse<PageDto>> GetAllSitePagesNotInLanguage(
+    public async Task<ListResponse<PageDto>> GetAllSitePagesNotInLanguage(
         [ActionParameter] TranslationRequest input)
     {
-        var endpoint = $"{ApiEndpoints.SitePages()}?property=language,id,translations";
+        var endpoint = $"{ApiEndpoints.SitePages}?property=language,id,translations";
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
         var getAllResponse = await Client.ExecuteWithErrorHandling<GetAllResponse<GenericPageDto>>(request);
 
@@ -62,21 +57,7 @@ public class PageActions : BasePageActions
                                                && p.Translations
                                                    .Properties()
                                                    .All(t => t.Name != input.Language.ToLower())));
-        return new()
-        {
-            Results = result.Cast<PageDto>().ToList()
-        };
-    }
-
-    [Action("Get all site pages updated after datetime",
-        Description =
-            "Get a list of all site pages that were updated after the given date time. Date time is exclusive")]
-    public Task<GetAllResponse<PageDto>> GetAllPagesAfter([ActionParameter] UpdatedAfterRequest input)
-    {
-        var endpoint = ApiEndpoints.SitePages(input.UpdatedAfter);
-        var request = new HubspotRequest(endpoint, Method.Get, Creds);
-
-        return Client.ExecuteWithErrorHandling<GetAllResponse<PageDto>>(request);
+        return new(result);
     }
 
     [Action("Get a site page", Description = "Get information of a specific page")]
@@ -118,7 +99,7 @@ public class PageActions : BasePageActions
             request.SourcePageId, pageInfo.Language, request.TargetLanguage);
 
         var translationId = translationResponse.Id;
-        var updateResponse = await UpdateTranslatedPage(ApiEndpoints.UpdatePage(translationId), new()
+        await UpdateTranslatedPage(ApiEndpoints.UpdatePage(translationId), new()
         {
             Id = translationId,
             HtmlTitle = pageInfo.Title,

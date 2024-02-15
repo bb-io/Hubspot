@@ -19,41 +19,36 @@ using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
+using Blackbird.Applications.Sdk.Utils.Extensions.String;
 
 namespace Apps.Hubspot.Actions;
 
 [ActionList]
 public class LandingPageActions : BasePageActions
 {
-    public LandingPageActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) 
+    public LandingPageActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
         : base(invocationContext, fileManagementClient)
     {
     }
 
     [Action("Get all landing pages", Description = "Get a list of all landing pages")]
-    public Task<GetAllResponse<PageDto>> GetAllLandingPages()
+    public async Task<ListResponse<PageDto>> GetAllLandingPages([ActionParameter] SearchPagesRequest input)
     {
-        var request = new HubspotRequest(ApiEndpoints.LandingPages(), Method.Get, Creds);
-        return Client.ExecuteWithErrorHandling<GetAllResponse<PageDto>>(request);
-    }
+        var query = input.AsQuery();
+        var endpoint = ApiEndpoints.LandingPages.WithQuery(query);
 
-
-    [Action("Get all landing pages with certain language",
-        Description = "Get a list of all pages in a specified language")]
-    public Task<GetAllResponse<PageDto>> GetAllLandingPagesInLanguage([ActionParameter] LanguageRequest input)
-    {
-        var endpoint = $"{ApiEndpoints.LandingPages()}?language={input.Language}";
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
+        var response = await Client.Paginate<PageDto>(request);
 
-        return Client.ExecuteWithErrorHandling<GetAllResponse<PageDto>>(request);
+        return new(response);
     }
 
     [Action("Get all landing pages not translated in certain language",
         Description = "Get a list of all pages not translated in specified language")]
-    public async Task<GetAllResponse<PageDto>> GetAllLandingPagesNotInLanguage(
+    public async Task<ListResponse<PageDto>> GetAllLandingPagesNotInLanguage(
         [ActionParameter] TranslationRequest input)
     {
-        var endpoint = $"{ApiEndpoints.LandingPages()}?property=language,id,translations";
+        var endpoint = $"{ApiEndpoints.LandingPages}?property=language,id,translations";
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
         var getAllResponse = await Client.ExecuteWithErrorHandling<GetAllResponse<GenericPageDto>>(request);
 
@@ -64,21 +59,7 @@ public class LandingPageActions : BasePageActions
                                 .Properties()
                                 .All(t => t.Name != input.Language.ToLower())));
 
-        return new()
-        {
-            Results = result.Cast<PageDto>().ToList()
-        };
-    }
-
-    [Action("Get all landing pages updated after datetime",
-        Description =
-            "Get a list of all landing pages that were updated after the given date time. Date time is exclusive")]
-    public Task<GetAllResponse<PageDto>> GetAllLandingPagesAfter([ActionParameter] UpdatedAfterRequest input)
-    {
-        var endpoint = ApiEndpoints.LandingPages(input.UpdatedAfter);
-        var request = new HubspotRequest(endpoint, Method.Get, Creds);
-
-        return Client.ExecuteWithErrorHandling<GetAllResponse<PageDto>>(request);
+        return new(result);
     }
 
     [Action("Get a landing page", Description = "Get information of a specific landing page")]
@@ -93,7 +74,7 @@ public class LandingPageActions : BasePageActions
 
         var htmlStringBuilder = PageHelpers.ObjectToHtml(result.LayoutSections);
         var htmlFile = (result.HtmlTitle, result.Language, htmlStringBuilder).AsPageHtml();
-        
+
         FileReference file;
         using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(htmlFile)))
         {
@@ -114,7 +95,7 @@ public class LandingPageActions : BasePageActions
     {
         var file = await FileManagementClient.DownloadAsync(request.File);
         var fileBytes = await file.GetByteData();
-        
+
         var pageInfo = PageHelpers.ExtractParentInfo(fileBytes);
         var translationResponse = await CreateTranslation(ApiEndpoints.CreateLandingPageTranslation,
             request.SourcePageId,
@@ -122,7 +103,7 @@ public class LandingPageActions : BasePageActions
             request.TargetLanguage);
 
         var translationId = translationResponse.Id;
-        var updateResponse = await UpdateTranslatedPage(ApiEndpoints.UpdateLandingPage(translationId), new()
+        await UpdateTranslatedPage(ApiEndpoints.UpdateLandingPage(translationId), new()
         {
             Id = translationId,
             HtmlTitle = pageInfo.Title,

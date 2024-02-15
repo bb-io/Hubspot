@@ -14,7 +14,7 @@ public class ConnectionValidator : IConnectionValidator
         try
         {
             var client = new HubspotClient();
-            var request = new HubspotRequest(ApiEndpoints.SitePages(), Method.Get, authProviders);
+            var request = new HubspotRequest(ApiEndpoints.SitePages, Method.Get, authProviders);
             await client.ExecuteWithErrorHandling(request);
 
             return new()

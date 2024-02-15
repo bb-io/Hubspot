@@ -2,11 +2,12 @@ using System.Net.Mime;
 using Apps.Hubspot.Actions.Base;
 using Apps.Hubspot.Api;
 using Apps.Hubspot.Constants;
+using Apps.Hubspot.Extensions;
 using Apps.Hubspot.HtmlConversion;
 using Apps.Hubspot.Models.Dtos.Emails;
 using Apps.Hubspot.Models.Requests.Emails;
 using Apps.Hubspot.Models.Requests.Files;
-using Apps.Hubspot.Models.Responses.Emails;
+using Apps.Hubspot.Models.Responses;
 using Apps.Hubspot.Models.Responses.Files;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
@@ -14,8 +15,6 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
-using Blackbird.Applications.Sdk.Utils.Extensions.System;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
 
@@ -33,10 +32,10 @@ public class MarketingEmailsActions : BaseActions
     }
 
     [Action("Search marketing emails", Description = "Search for marketing emails based on provided filters")]
-    public async Task<SearchMarketingEmailsResponse> SearchMarketingEmails([ActionParameter] SearchEmailsRequest input)
+    public async Task<ListResponse<MarketingEmailDto>> SearchMarketingEmails([ActionParameter] SearchEmailsRequest input)
     {
-        var query = JsonConvert.DeserializeObject<Dictionary<string, string>>(JsonConvert.SerializeObject(input));
-        var endpoint = $"{ApiEndpoints.MarketingEmailsEndpoint}".WithQuery(query.AllIsNotNull());
+        var query = input.AsQuery();
+        var endpoint = $"{ApiEndpoints.MarketingEmailsEndpoint}".WithQuery(query);
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
 
         var result = await Client.Paginate<MarketingEmailDto>(request);
