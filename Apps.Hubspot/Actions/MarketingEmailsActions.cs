@@ -44,9 +44,10 @@ public class MarketingEmailsActions : BaseActions
     }
 
     [Action("Create marketing email", Description = "Create a new marketing email")]
-    public Task<MarketingEmailDto> CreateMarketingEmail()
+    public Task<MarketingEmailDto> CreateMarketingEmail([ActionParameter] CreateMarketingEmailRequest input)
     {
-        var request = new HubspotRequest(ApiEndpoints.MarketingEmailsEndpoint, Method.Post, Creds);
+        var request = new HubspotRequest(ApiEndpoints.MarketingEmailsEndpoint, Method.Post, Creds)
+            .WithJsonBody(input, JsonConfig.Settings);
         return Client.ExecuteWithErrorHandling<MarketingEmailDto>(request);
     }
 

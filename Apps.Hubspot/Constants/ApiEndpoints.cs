@@ -24,5 +24,5 @@ public static class ApiEndpoints
     public static string UpdatePage(string sitePageId) => $"{SitePages()}/{sitePageId}";
 
     public static string BaseWithQueryString(string pageType, DateTime? dateTime) =>
-        (dateTime == null ? $"{BaseByPages(pageType)}" : $"{BaseByPages(pageType)}?updatedAfter={dateTime.ToString()}");
+        (dateTime == null ? $"{BaseByPages(pageType)}" : $"{BaseByPages(pageType)}?updatedAfter={dateTime.Value.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss.FFF'Z'")}");
 }
