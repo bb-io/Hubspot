@@ -16,7 +16,7 @@ public class LandingPageHandler : HubSpotInvocable, IAsyncDataSourceHandler
 
     public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
     {
-        var endpoint = $"/pages/landing-pages?name__icontains={context.SearchString}";
+        var endpoint = $"/pages/landing-pages?name__icontains={context.SearchString}&translatedFromId__is_null&limit=20";
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
         
         var landingPages = await Client.ExecuteWithErrorHandling<GetAllResponse<PageDto>>(request);

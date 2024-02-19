@@ -4,5 +4,5 @@ namespace Apps.Hubspot.Models.Dtos.Blogs.Posts;
 
 public class BlogPostWithTranslationsDto : BlogPostDto
 {
-    public JObject? Translations { get; set; }
+    public Dictionary<string, JObject>? Translations { get; set; }
 }

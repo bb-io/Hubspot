@@ -33,35 +33,21 @@ public class BlogPostsActions : BasePageActions
     {
     }
 
-    [Action("Get all blog posts", Description = "Get a list of all blog posts")]
+    [Action("Search blog posts", Description = "Search for a list of blog posts matching certain criteria")]
     public async Task<ListResponse<BlogPostDto>> GetAllBlogPosts([ActionParameter] SearchPagesRequest input)
     {
         var query = input.AsQuery();
         var endpoint = ApiEndpoints.BlogPostsSegment.WithQuery(query);
 
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
-        var response = await Client.Paginate<BlogPostDto>(request);
+        var response = await Client.Paginate<BlogPostWithTranslationsDto>(request);
+
+        if (input.NotTranslatedInLanguage != null)
+        {
+            response = response.Where(p => p.Translations == null || p.Translations.Keys.All(key => key != input.NotTranslatedInLanguage.ToLower())).ToList();
+        }
 
         return new(response);
-    }
-
-    [Action("Get all blog posts not translated in certain language",
-        Description = "Get a list of all blog posts not translated in specified language")]
-    public async Task<ListResponse<BlogPostDto>> GetBlogPostsWithoutTranslations(
-        [ActionParameter] TranslationRequest input)
-    {
-        var request = new HubspotRequest(ApiEndpoints.BlogPostsSegment, Method.Get, Creds);
-        var posts = await Client.ExecuteWithErrorHandling<GetAllResponse<BlogPostWithTranslationsDto>>(request);
-
-        var result = posts.Results
-            .Where(p => p.TranslatedFromId is null && (p.Language is null
-                                                       || (p.Language == input.PrimaryLanguage
-                                                           && p.Translations?
-                                                                   .Properties()
-                                                                   .All(t => t.Name != input.Language.ToLower())
-                                                               is
-                                                               true)));
-        return new(result);
     }
 
     [Action("Get blog post", Description = "Get information of a specific blog post")]
@@ -78,22 +64,6 @@ public class BlogPostsActions : BasePageActions
     {
         var request = new HubspotRequest(ApiEndpoints.BlogPostsSegment, Method.Post, Creds)
             .WithJsonBody(input, JsonConfig.Settings);
-
-        return Client.ExecuteWithErrorHandling<BlogPostDto>(request);
-    }
-
-    [Action("Create blog language variation", Description = "Create new blog language variation")]
-    public Task<BlogPostDto> CreateBlogLanguageVariation(
-        [ActionParameter] CreateNewBlogLanguageRequest input)
-    {
-        var payload = new CreateBlogLanguageVariationRequest
-        {
-            Id = input.PostId,
-            Language = input.Language
-        };
-        var endpoint = $"{ApiEndpoints.BlogPostsSegment}/multi-language/create-language-variation";
-        var request = new HubspotRequest(endpoint, Method.Post, Creds)
-            .WithJsonBody(payload, JsonConfig.Settings);
 
         return Client.ExecuteWithErrorHandling<BlogPostDto>(request);
     }
@@ -119,23 +89,6 @@ public class BlogPostsActions : BasePageActions
         return Client.ExecuteWithErrorHandling(request);
     }
 
-    [Action("Get blog post translation", Description = "Get blog post translation by language")]
-    public async Task<TranslationDto> GetBlogPostTranslation(
-        [ActionParameter] GetBlogPostTranslationRequest input)
-    {
-        var endpoint = $"{ApiEndpoints.BlogPostsSegment}/{input.BlogPostId}";
-        var request = new HubspotRequest(endpoint, Method.Get, Creds);
-
-        var response = await Client.ExecuteWithErrorHandling(request);
-
-        var translationsObj = JObject.Parse(response.Content)["translations"].ToObject<JObject>();
-
-        if (translationsObj is null || !translationsObj.ContainsKey(input.Language))
-            throw new("No translation found");
-
-        return translationsObj[input.Language]!.ToObject<TranslationDto>()!;
-    }
-
     [Action("Get blog post as HTML file", Description = "Get blog post as HTML file")]
     public async Task<FileLanguageResponse> GetBlogPostAsHtml(
         [ActionParameter] GetBlogPostAsHtmlRequest input)
@@ -159,6 +112,7 @@ public class BlogPostsActions : BasePageActions
         };
     }
 
+
     [Action("Translate blog post from HTML file", Description = "Translate blog post from HTML file")]
     public async Task<BlogPostDto> TranslateBlogPostFromHtml(
         [ActionParameter] TranslateBlogPostFromHtmlRequest input)
@@ -172,39 +126,39 @@ public class BlogPostsActions : BasePageActions
         var title = doc.GetTitle();
         var body = doc.DocumentNode.SelectSingleNode("/html/body").InnerHtml;
 
-        string postId;
-        try
+        var blogPostRequest = new HubspotRequest($"{ApiEndpoints.BlogPostsSegment}/{input.BlogPostId}", Method.Get, Creds);
+
+        var blogPostResponse = await Client.ExecuteWithErrorHandling<BlogPostWithTranslationsDto>(blogPostRequest);
+
+        string translatedPostId;
+        if (blogPostResponse.Translations is null || !blogPostResponse.Translations.ContainsKey(input.Language))
         {
-            var createdPost = await CreateBlogLanguageVariation(new()
+            var payload = new CreateBlogLanguageVariationRequest
             {
-                PostId = input.BlogPostId,
+                Id = input.BlogPostId,
                 Language = input.Language
-            });
+            };
+            var request = new HubspotRequest($"{ApiEndpoints.BlogPostsSegment}/multi-language/create-language-variation", Method.Post, Creds)
+                .WithJsonBody(payload, JsonConfig.Settings);
 
-            postId = createdPost.Id;
+            var translation = await Client.ExecuteWithErrorHandling<BlogPostDto>(request);
+            translatedPostId = translation.Id;
         }
-        catch (HubspotException ex)
+        else
         {
-            if (ex.ErrorType != ErrorTypes.LanguageAlreadyTranslated)
-                throw;
-
-            var existingTranslation = await GetBlogPostTranslation(new()
-            {
-                BlogPostId = input.BlogPostId,
-                Language = input.Language
-            });
-
-            postId = existingTranslation.Id;
+            translatedPostId = blogPostResponse.Translations[input.Language]!.ToObject<TranslationDto>()!.Id;
         }
+
 
         return await UpdateBlogPost(new()
         {
-            BlogPostId = postId
+            BlogPostId = translatedPostId
         }, new()
         {
             Name = title,
             PostBody = body
         });
+
     }
 
     [Action("Schedule a blog post for publishing",
