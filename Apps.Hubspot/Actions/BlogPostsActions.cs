@@ -22,6 +22,7 @@ using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using Blackbird.Applications.Sdk.Utils.Html.Extensions;
+using Apps.Hubspot.Models.Dtos;
 
 namespace Apps.Hubspot.Actions;
 
@@ -126,33 +127,11 @@ public class BlogPostsActions : BasePageActions
         var title = doc.GetTitle();
         var body = doc.DocumentNode.SelectSingleNode("/html/body").InnerHtml;
 
-        var blogPostRequest = new HubspotRequest($"{ApiEndpoints.BlogPostsSegment}/{input.BlogPostId}", Method.Get, Creds);
-
-        var blogPostResponse = await Client.ExecuteWithErrorHandling<BlogPostWithTranslationsDto>(blogPostRequest);
-
-        string translatedPostId;
-        if (blogPostResponse.Translations is null || !blogPostResponse.Translations.ContainsKey(input.Language))
-        {
-            var payload = new CreateBlogLanguageVariationRequest
-            {
-                Id = input.BlogPostId,
-                Language = input.Language
-            };
-            var request = new HubspotRequest($"{ApiEndpoints.BlogPostsSegment}/multi-language/create-language-variation", Method.Post, Creds)
-                .WithJsonBody(payload, JsonConfig.Settings);
-
-            var translation = await Client.ExecuteWithErrorHandling<BlogPostDto>(request);
-            translatedPostId = translation.Id;
-        }
-        else
-        {
-            translatedPostId = blogPostResponse.Translations[input.Language]!.ToObject<TranslationDto>()!.Id;
-        }
-
+        var translationId = await GetOrCreateTranslationId(ApiEndpoints.BlogPostsSegment, input.BlogPostId, input.Language);
 
         return await UpdateBlogPost(new()
         {
-            BlogPostId = translatedPostId
+            BlogPostId = translationId
         }, new()
         {
             Name = title,

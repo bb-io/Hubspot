@@ -31,35 +31,21 @@ public class LandingPageActions : BasePageActions
     {
     }
 
-    [Action("Get all landing pages", Description = "Get a list of all landing pages")]
+    [Action("Search landing pages", Description = "Search for a list of site pages that match a certain criteria")]
     public async Task<ListResponse<PageDto>> GetAllLandingPages([ActionParameter] SearchPagesRequest input)
     {
         var query = input.AsQuery();
         var endpoint = ApiEndpoints.LandingPages.WithQuery(query);
 
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
-        var response = await Client.Paginate<PageDto>(request);
+        var response = await Client.Paginate<GenericPageDto>(request);
+
+        if (input.NotTranslatedInLanguage != null)
+        {
+            response = response.Where(p => p.Translations == null || p.Translations.Keys.All(key => key != input.NotTranslatedInLanguage.ToLower())).ToList();
+        }
 
         return new(response);
-    }
-
-    [Action("Get all landing pages not translated in certain language",
-        Description = "Get a list of all pages not translated in specified language")]
-    public async Task<ListResponse<PageDto>> GetAllLandingPagesNotInLanguage(
-        [ActionParameter] TranslationRequest input)
-    {
-        var endpoint = $"{ApiEndpoints.LandingPages}?property=language,id,translations";
-        var request = new HubspotRequest(endpoint, Method.Get, Creds);
-        var getAllResponse = await Client.ExecuteWithErrorHandling<GetAllResponse<GenericPageDto>>(request);
-
-        var result = getAllResponse.Results
-            .Where(p => p.Language is null
-                        || (p.Language == input.PrimaryLanguage
-                            && p.Translations
-                                .Properties()
-                                .All(t => t.Name != input.Language.ToLower())));
-
-        return new(result);
     }
 
     [Action("Get a landing page", Description = "Get information of a specific landing page")]
@@ -97,22 +83,19 @@ public class LandingPageActions : BasePageActions
         var fileBytes = await file.GetByteData();
 
         var pageInfo = PageHelpers.ExtractParentInfo(fileBytes);
-        var translationResponse = await CreateTranslation(ApiEndpoints.CreateLandingPageTranslation,
-            request.SourcePageId,
-            pageInfo.Language,
-            request.TargetLanguage);
+        var translationId = await GetOrCreateTranslationId(ApiEndpoints.LandingPages, request.SourcePageId, request.TargetLanguage, pageInfo.Language);
+        var translation = await GetPage<GenericPageDto>(ApiEndpoints.ALandingPage(translationId));
 
-        var translationId = translationResponse.Id;
-        await UpdateTranslatedPage(ApiEndpoints.UpdateLandingPage(translationId), new()
+        await UpdateTranslatedPage(ApiEndpoints.UpdatePage(translationId), new()
         {
             Id = translationId,
             HtmlTitle = pageInfo.Title,
-            LayoutSections = PageHelpers.HtmlToObject(pageInfo.Html, translationResponse.LayoutSections)
+            LayoutSections = PageHelpers.HtmlToObject(pageInfo.Html, translation.LayoutSections)
         });
 
         return new()
         {
-            TranslationId = translationResponse.Id
+            TranslationId = translationId
         };
     }
 

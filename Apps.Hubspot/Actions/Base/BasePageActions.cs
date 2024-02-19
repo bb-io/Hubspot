@@ -8,6 +8,8 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using RestSharp;
+using Apps.Hubspot.Models.Dtos.Blogs.Posts;
+using Apps.Hubspot.Models.Dtos;
 
 namespace Apps.Hubspot.Actions.Base;
 
@@ -24,19 +26,29 @@ public abstract class BasePageActions : BaseActions
         return Client.ExecuteWithErrorHandling<T>(request);
     }
 
-    protected Task<GenericPageDto> CreateTranslation(string url,
-        string pageId, string primaryLanguage, string targetLanguage)
+    protected async Task<string> GetOrCreateTranslationId(string resourceUrlPart, string resourceId, string targetLanguage, string primaryLanguage = null)
     {
-        var payload = new CreateTranslationRequest
-        {
-            Id = pageId,
-            PrimaryLanguage = primaryLanguage,
-            Language = targetLanguage
-        };
-        var request = new HubspotRequest(url, Method.Post, Creds)
-            .WithJsonBody(payload, JsonConfig.Settings);
+        var request = new HubspotRequest($"{resourceUrlPart}/{resourceId}", Method.Get, Creds);
+        var response = await Client.ExecuteWithErrorHandling<ObjectWithTranslations>(request);
 
-        return Client.ExecuteWithErrorHandling<GenericPageDto>(request);
+        if (response.Translations is null || !response.Translations.ContainsKey(targetLanguage))
+        {
+            var payload = new LanguageVariationRequest
+            {
+                Id = resourceId,
+                Language = targetLanguage,
+                PrimaryLanguage = primaryLanguage,
+            };
+            var translationRequest = new HubspotRequest($"{resourceUrlPart}/multi-language/create-language-variation", Method.Post, Creds)
+                .WithJsonBody(payload, JsonConfig.Settings);
+
+            var translation = await Client.ExecuteWithErrorHandling<ObjectWithId>(translationRequest);
+            return translation.Id;
+        }
+        else
+        {
+            return response.Translations[targetLanguage]!.Id;
+        }
     }
 
     protected Task<RestResponse> UpdateTranslatedPage(string url, UpdateTranslatedPageRequest page)
