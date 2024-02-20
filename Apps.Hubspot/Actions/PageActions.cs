@@ -83,14 +83,16 @@ public class PageActions : BasePageActions
         var fileBytes = await file.GetByteData();
         
         var pageInfo = PageHelpers.ExtractParentInfo(fileBytes);
-        var translationId = await GetOrCreateTranslationId(ApiEndpoints.SitePages, request.SourcePageId, request.TargetLanguage, pageInfo.Language);
-        var translation = await GetPage<GenericPageDto>(ApiEndpoints.ASitePage(translationId));
+        var primaryLanguage = string.IsNullOrEmpty(pageInfo.Language) ? request.PrimaryLanguage : pageInfo.Language;
+        if (string.IsNullOrEmpty(primaryLanguage)) throw new Exception("You are creating a new multi-language variation of a page that has no primary language configured. Please select the primary language optional value");
+        var translationId = await GetOrCreateTranslationId(ApiEndpoints.SitePages, request.SourcePageId, request.TargetLanguage, primaryLanguage);
+        var sourcePage = await GetPage<GenericPageDto>(ApiEndpoints.ASitePage(request.SourcePageId));
 
         await UpdateTranslatedPage(ApiEndpoints.UpdatePage(translationId), new()
         {
             Id = translationId,
             HtmlTitle = pageInfo.Title,
-            LayoutSections = PageHelpers.HtmlToObject(pageInfo.Html, translation.LayoutSections)
+            LayoutSections = PageHelpers.HtmlToObject(pageInfo.Html, sourcePage.LayoutSections)
         });
 
         return new()
