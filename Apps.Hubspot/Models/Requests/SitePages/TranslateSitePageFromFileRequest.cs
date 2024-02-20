@@ -16,4 +16,8 @@ public class TranslateSitePageFromFileRequest
     [DataSource(typeof(SitePageHandler))]
     [Display("Source page ID")]
     public string SourcePageId { get; set; }
+
+    [Display("Primary language", Description = "In case there are no multi-lingual versions yet, a primary language should be selected")]
+    [DataSource(typeof(LanguageHandler))]
+    public string? PrimaryLanguage { get; set; }
 }
