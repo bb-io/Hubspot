@@ -22,4 +22,25 @@ public class HubspotClient : BlackBirdRestClient
         var error = JsonConvert.DeserializeObject<Error>(response.Content);
         return new HubspotException(error);
     }
+
+    public async Task<List<T>> Paginate<T>(RestRequest request)
+    {
+        var baseUrl = request.Resource;
+        var after = string.Empty;
+
+        var result = new List<T>();
+        GetAllResponse<T> response;
+        do
+        {
+            if (!string.IsNullOrEmpty(after))
+                request.Resource = baseUrl.SetQueryParameter("after", after);
+
+            response = await ExecuteWithErrorHandling<GetAllResponse<T>>(request);
+            result.AddRange(response.Results);
+
+            after = response.Paging?.Next?.After;
+        } while (response.Total > result.Count);
+
+        return result;
+    }
 }

@@ -11,6 +11,7 @@ public class TranslateBlogPostFromHtmlRequest
     [Display("Post ID")]
     public string BlogPostId { get; set; }
 
+    [Display("Target language")]
     [DataSource(typeof(LanguageHandler))]
     public string Language { get; set; }
 

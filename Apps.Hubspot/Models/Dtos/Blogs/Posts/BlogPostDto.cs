@@ -39,7 +39,7 @@ public class BlogPostDto
 
     [Display("ID")] public string Id { get; set; }
 
-    [Display("Language")] public string Language { get; set; }
+    [Display("Language")] public string? Language { get; set; }
 
     [Display("Meta description")] public string MetaDescription { get; set; }
 
