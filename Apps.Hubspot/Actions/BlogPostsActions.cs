@@ -2,17 +2,14 @@
 using Blackbird.Applications.Sdk.Common.Actions;
 using RestSharp;
 using System.Text;
-using Newtonsoft.Json.Linq;
 using System.Net.Mime;
 using Apps.Hubspot.Actions.Base;
 using Apps.Hubspot.Api;
 using Apps.Hubspot.Constants;
-using Apps.Hubspot.Exceptions;
 using Apps.Hubspot.Extensions;
 using Apps.Hubspot.Models.Dtos.Blogs.Posts;
 using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Models.Requests.BlogPosts;
-using Apps.Hubspot.Models.Requests.Translations;
 using Apps.Hubspot.Models.Responses;
 using Apps.Hubspot.Models.Responses.Files;
 using Blackbird.Applications.Sdk.Common.Files;
@@ -22,7 +19,6 @@ using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using Blackbird.Applications.Sdk.Utils.Html.Extensions;
-using Apps.Hubspot.Models.Dtos;
 
 namespace Apps.Hubspot.Actions;
 
