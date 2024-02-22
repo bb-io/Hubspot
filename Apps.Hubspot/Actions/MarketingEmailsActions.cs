@@ -4,6 +4,7 @@ using Apps.Hubspot.Api;
 using Apps.Hubspot.Constants;
 using Apps.Hubspot.Extensions;
 using Apps.Hubspot.HtmlConversion;
+using Apps.Hubspot.Models.Dtos;
 using Apps.Hubspot.Models.Dtos.Emails;
 using Apps.Hubspot.Models.Requests.Emails;
 using Apps.Hubspot.Models.Requests.Files;
@@ -15,7 +16,6 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
-using Newtonsoft.Json.Linq;
 using RestSharp;
 
 namespace Apps.Hubspot.Actions;
@@ -55,7 +55,7 @@ public class MarketingEmailsActions : BaseActions
     public async Task<FileResponse> GetMarketingEmailHtml([ActionParameter] MarketingEmailRequest emailRequest)
     {
         var email = await GetEmail(emailRequest.MarketingEmailId);
-        var html = EmailHtmlConverter.ToHtml((email["content"] as JObject)!);
+        var html = HtmlConverter.ToHtml(email.Content, email.Name, email.Language);
 
         var file = await _fileManagementClient.UploadAsync(new MemoryStream(html), MediaTypeNames.Text.Html,
             $"{emailRequest}.html");
@@ -73,20 +73,19 @@ public class MarketingEmailsActions : BaseActions
     {
         var email = await GetEmail(emailRequest.MarketingEmailId);
         var htmlFile = await _fileManagementClient.DownloadAsync(fileRequest.File);
-
-        email["content"] = EmailHtmlConverter.ToJson(htmlFile);
+        email.Content = HtmlConverter.ToJson(htmlFile).json;
 
         var endpoint = $"{ApiEndpoints.MarketingEmailsEndpoint}{emailRequest.MarketingEmailId}";
-        var request = new HubspotRequest(endpoint, Method.Patch, Creds).WithJsonBody(email);
+        var request = new HubspotRequest(endpoint, Method.Patch, Creds).WithJsonBody(email, JsonConfig.Settings);
 
         await Client.ExecuteWithErrorHandling(request);
     }
 
-    private Task<JObject> GetEmail(string emailId)
+    private Task<EmailContentDto> GetEmail(string emailId)
     {
         var endpoint = $"{ApiEndpoints.MarketingEmailsEndpoint}{emailId}";
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
 
-        return Client.ExecuteWithErrorHandling<JObject>(request);
+        return Client.ExecuteWithErrorHandling<EmailContentDto>(request);
     }
 }

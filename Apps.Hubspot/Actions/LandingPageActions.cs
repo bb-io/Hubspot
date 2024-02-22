@@ -1,6 +1,4 @@
 ﻿using RestSharp;
-using System.Text;
-using Apps.Hubspot.Helpers;
 using Apps.Hubspot.Constants;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
@@ -9,16 +7,15 @@ using System.Net.Mime;
 using Apps.Hubspot.Actions.Base;
 using Apps.Hubspot.Api;
 using Apps.Hubspot.Extensions;
+using Apps.Hubspot.HtmlConversion;
 using Apps.Hubspot.Models.Dtos.Pages;
 using Apps.Hubspot.Models.Requests.LandingPages;
-using Apps.Hubspot.Models.Requests.Translations;
 using Apps.Hubspot.Models.Responses;
 using Apps.Hubspot.Models.Responses.Files;
 using Apps.Hubspot.Models.Responses.Translations;
 using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
-using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
 
 namespace Apps.Hubspot.Actions;
@@ -58,11 +55,10 @@ public class LandingPageActions : BasePageActions
     {
         var result = await GetPage<GenericPageDto>(ApiEndpoints.ALandingPage(input.PageId));
 
-        var htmlStringBuilder = PageHelpers.ObjectToHtml(result.LayoutSections);
-        var htmlFile = (result.HtmlTitle, result.Language, htmlStringBuilder).AsPageHtml();
+        var htmlFile = HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language);
 
         FileReference file;
-        using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(htmlFile)))
+        using (var stream = new MemoryStream(htmlFile))
         {
             file = await FileManagementClient.UploadAsync(stream, MediaTypeNames.Text.Html, $"{input.PageId}.html");
         }
@@ -80,19 +76,17 @@ public class LandingPageActions : BasePageActions
         [ActionParameter] TranslateLandingPageFromFileRequest request)
     {
         var file = await FileManagementClient.DownloadAsync(request.File);
-        var fileBytes = await file.GetByteData();
+        var (pageInfo, json) = HtmlConverter.ToJson(file);
 
-        var pageInfo = PageHelpers.ExtractParentInfo(fileBytes);
         var primaryLanguage = string.IsNullOrEmpty(pageInfo.Language) ? request.PrimaryLanguage : pageInfo.Language;
         if (string.IsNullOrEmpty(primaryLanguage)) throw new Exception("You are creating a new multi-language variation of a page that has no primary language configured. Please select the primary language optional value");
         var translationId = await GetOrCreateTranslationId(ApiEndpoints.LandingPages, request.SourcePageId, request.TargetLanguage, primaryLanguage);
-        var sourcePage = await GetPage<GenericPageDto>(ApiEndpoints.ALandingPage(request.SourcePageId));
 
         await UpdateTranslatedPage(ApiEndpoints.UpdatePage(translationId), new()
         {
             Id = translationId,
             HtmlTitle = pageInfo.Title,
-            LayoutSections = PageHelpers.HtmlToObject(pageInfo.Html, sourcePage.LayoutSections)
+            LayoutSections = json
         });
 
         return new()

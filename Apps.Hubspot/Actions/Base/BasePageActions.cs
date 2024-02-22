@@ -3,12 +3,10 @@ using Apps.Hubspot.Constants;
 using Apps.Hubspot.Models.Dtos.Pages;
 using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Models.Requests.SitePages;
-using Apps.Hubspot.Models.Requests.Translations;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using RestSharp;
-using Apps.Hubspot.Models.Dtos.Blogs.Posts;
 using Apps.Hubspot.Models.Dtos;
 
 namespace Apps.Hubspot.Actions.Base;
