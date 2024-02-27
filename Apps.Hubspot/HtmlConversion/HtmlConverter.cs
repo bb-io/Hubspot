@@ -11,7 +11,8 @@ public static class HtmlConverter
     private static readonly HashSet<string> ContentProperties =
     [
         "content", "html", "title", "value", "button_text", "quote_text", "speaker_name", "speaker_title", "heading",
-        "subheading", "price", "tab_label", "header", "subheader", "content_text", "alt", "text", "quotation", "author_name"
+        "subheading", "price", "tab_label", "header", "subheader", "content_text", "alt", "text", "quotation", "author_name",
+        "description"
     ];
 
     private static readonly HashSet<string> RawHtmlProperties = 
