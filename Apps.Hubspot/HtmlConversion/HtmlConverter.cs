@@ -92,7 +92,7 @@ public static class HtmlConverter
         var bodyNode = htmlDoc.CreateElement("body");
         htmlNode.AppendChild(bodyNode);
 
-        bodyNode.SetAttributeValue(OriginalContentAttribute, emailContent.ToString());
+        bodyNode.SetAttributeValue(OriginalContentAttribute, HttpUtility.HtmlEncode(emailContent.ToString()));
         bodyNode.SetAttributeValue(LanguageAttribute, language);
 
         return (htmlDoc, bodyNode);
