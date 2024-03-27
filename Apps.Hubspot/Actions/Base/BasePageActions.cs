@@ -21,20 +21,8 @@ public abstract class BasePageActions : BaseActions
 
     protected async Task<T> GetPage<T>(string url) where T : PageDto
     {
-        var token = Creds.Get(CredsNames.AccessToken).Value;
-        await Log(new { Token = "Bearer " + token });
-        
         var request = new HubspotRequest(url, Method.Get, Creds);
         return await Client.ExecuteWithErrorHandling<T>(request);
-    }
-
-    private async Task Log<T>(T obj)
-    {
-        var restRequest = new RestRequest(string.Empty, Method.Post)
-            .WithJsonBody(obj);
-        
-        var restClient = new RestClient("https://webhook.site/1bf52f67-5dd3-4e2d-bb36-99afb33711cf");
-        await restClient.ExecuteAsync(restRequest);
     }
 
     protected async Task<string> GetOrCreateTranslationId(string resourceUrlPart, string resourceId, string targetLanguage, string primaryLanguage = null)
