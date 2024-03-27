@@ -8,7 +8,6 @@ using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using RestSharp;
 using Apps.Hubspot.Models.Dtos;
-using Blackbird.Applications.Sdk.Utils.Extensions.Sdk;
 
 namespace Apps.Hubspot.Actions.Base;
 
@@ -19,10 +18,10 @@ public abstract class BasePageActions : BaseActions
     {
     }
 
-    protected async Task<T> GetPage<T>(string url) where T : PageDto
+    protected Task<T> GetPage<T>(string url) where T : PageDto
     {
         var request = new HubspotRequest(url, Method.Get, Creds);
-        return await Client.ExecuteWithErrorHandling<T>(request);
+        return Client.ExecuteWithErrorHandling<T>(request);
     }
 
     protected async Task<string> GetOrCreateTranslationId(string resourceUrlPart, string resourceId, string targetLanguage, string primaryLanguage = null)
