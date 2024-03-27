@@ -19,6 +19,8 @@ using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using Blackbird.Applications.Sdk.Utils.Html.Extensions;
+using Apps.Hubspot.Utils.Extensions;
+using HtmlExtensions = Blackbird.Applications.Sdk.Utils.Html.Extensions.HtmlExtensions;
 
 namespace Apps.Hubspot.Actions;
 
@@ -94,7 +96,7 @@ public class BlogPostsActions : BasePageActions
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
 
         var blogPost = await Client.ExecuteWithErrorHandling<BlogPostDto>(request);
-        var htmlFile = (blogPost.Name, blogPost.PostBody).AsHtml();
+        var htmlFile = (blogPost.Name, blogPost.MetaDescription, blogPost.PostBody).AsHtml();
 
         FileReference file;
         using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(htmlFile)))
@@ -121,6 +123,7 @@ public class BlogPostsActions : BasePageActions
         var doc = fileString.AsHtmlDocument();
 
         var title = doc.GetTitle();
+        var metaDescription = doc.GetNodeFromHead("description");
         var body = doc.DocumentNode.SelectSingleNode("/html/body").InnerHtml;
 
         var translationId = await GetOrCreateTranslationId(ApiEndpoints.BlogPostsSegment, input.BlogPostId, input.Language);
@@ -131,7 +134,8 @@ public class BlogPostsActions : BasePageActions
         }, new()
         {
             Name = title,
-            PostBody = body
+            PostBody = body,
+            MetaDescription = metaDescription
         });
 
     }
