@@ -11,7 +11,13 @@ public static class HtmlConverter
     private static readonly HashSet<string> ContentProperties =
     [
         "content", "html", "title", "value", "button_text", "quote_text", "speaker_name", "speaker_title", "heading",
-        "subheading", "price", "tab_label", "header", "subheader"
+        "subheading", "price", "tab_label", "header", "subheader", "content_text", "alt", "text", "quotation", "author_name",
+        "description"
+    ];
+
+    private static readonly HashSet<string> RawHtmlProperties = 
+    [
+        "content", "html", "content_text"
     ];
 
     private const string OriginalContentAttribute = "original";
@@ -26,7 +32,7 @@ public static class HtmlConverter
             .Select(x =>
             {
                 var jProperty = x as JProperty;
-                return (jProperty!.Path, Html: jProperty.Value.ToString());
+                return (jProperty!.Path, Html: RawHtmlProperties.Contains(jProperty.Name) ? jProperty.Value.ToString() : HttpUtility.HtmlEncode(jProperty.Value.ToString()) );
             })
             .ToList();
 
@@ -87,7 +93,7 @@ public static class HtmlConverter
         var bodyNode = htmlDoc.CreateElement("body");
         htmlNode.AppendChild(bodyNode);
 
-        bodyNode.SetAttributeValue(OriginalContentAttribute, emailContent.ToString());
+        bodyNode.SetAttributeValue(OriginalContentAttribute, HttpUtility.HtmlEncode(emailContent.ToString()));
         bodyNode.SetAttributeValue(LanguageAttribute, language);
 
         return (htmlDoc, bodyNode);

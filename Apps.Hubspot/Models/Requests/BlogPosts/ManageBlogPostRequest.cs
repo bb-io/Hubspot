@@ -63,4 +63,7 @@ public class ManageBlogPostRequest
 
     [Display("Footer HTML")]
     public string? FooterHtml { get; set; }
+    
+    [Display("Meta description")]
+    public string? MetaDescription { get; set; }
 }
