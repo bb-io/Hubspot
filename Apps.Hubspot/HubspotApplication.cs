@@ -2,14 +2,20 @@
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Common.Metadata;
 
 namespace Apps.Hubspot;
 
-public class HubspotApplication : BaseInvocable, IApplication
+public class HubspotApplication : BaseInvocable, IApplication, ICategoryProvider
 {
     private string _name;
     private readonly Dictionary<Type, object> _typesInstances;
 
+    public IEnumerable<ApplicationCategory> Categories
+    {
+        get => [ApplicationCategory.Marketing, ApplicationCategory.Cms];
+        set { }
+    }
     public HubspotApplication(InvocationContext invocationContext) : base(invocationContext)
     {
         _name = "Hubspot";
