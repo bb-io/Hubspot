@@ -78,9 +78,10 @@ public class PageActions : BasePageActions
         var file = await FileManagementClient.DownloadAsync(request.File);
         var (pageInfo, json) = HtmlConverter.ToJson(file);
 
+        var sourcePageId = request.SourcePageId ?? pageInfo.HtmlDocument.ExtractBlackbirdReferenceId() ?? throw new Exception("The source page ID is missing. Provide it as an optional input or add it to the HTML file");
         var primaryLanguage = string.IsNullOrEmpty(pageInfo.Language) ? request.PrimaryLanguage : pageInfo.Language;
         if (string.IsNullOrEmpty(primaryLanguage)) throw new Exception("You are creating a new multi-language variation of a page that has no primary language configured. Please select the primary language optional value");
-        var translationId = await GetOrCreateTranslationId(ApiEndpoints.SitePages, request.SourcePageId, request.TargetLanguage, primaryLanguage);
+        var translationId = await GetOrCreateTranslationId(ApiEndpoints.SitePages, sourcePageId, request.TargetLanguage, primaryLanguage);
 
         await UpdateTranslatedPage(ApiEndpoints.UpdatePage(translationId), new()
         {

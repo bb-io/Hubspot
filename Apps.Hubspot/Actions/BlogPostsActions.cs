@@ -120,12 +120,13 @@ public class BlogPostsActions : BasePageActions
 
         var fileString = Encoding.UTF8.GetString(fileBytes);
         var doc = fileString.AsHtmlDocument();
-
+        var blogPostId = input.BlogPostId ?? doc.ExtractBlackbirdReferenceId() ?? throw new Exception("Blog post ID not found. Please provide it from optional input");
+        
         var title = doc.GetTitle();
         var metaDescription = doc.GetNodeFromHead("description");
         var body = doc.DocumentNode.SelectSingleNode("/html/body").InnerHtml;
 
-        var translationId = await GetOrCreateTranslationId(ApiEndpoints.BlogPostsSegment, input.BlogPostId, input.Language);
+        var translationId = await GetOrCreateTranslationId(ApiEndpoints.BlogPostsSegment, blogPostId, input.Language);
 
         return await UpdateBlogPost(new()
         {

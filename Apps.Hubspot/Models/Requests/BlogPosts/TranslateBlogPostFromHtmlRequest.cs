@@ -9,7 +9,7 @@ public class TranslateBlogPostFromHtmlRequest
 {
     [DataSource(typeof(BlogPostHandler))]
     [Display("Post ID")]
-    public string BlogPostId { get; set; }
+    public string? BlogPostId { get; set; }
 
     [Display("Target language")]
     [DataSource(typeof(LanguageHandler))]

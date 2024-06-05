@@ -68,14 +68,18 @@ public class MarketingEmailsActions : BaseActions
 
     [Action("Update marketing email content from HTML",
         Description = "Update content of a specific marketing email from HTML file")]
-    public async Task UpdateMarketingEmail([ActionParameter] MarketingEmailRequest emailRequest,
+    public async Task UpdateMarketingEmail([ActionParameter] MarketingEmailOptionalRequest emailRequest,
         [ActionParameter] FileRequest fileRequest)
     {
-        var email = await GetEmail(emailRequest.MarketingEmailId);
         var htmlFile = await _fileManagementClient.DownloadAsync(fileRequest.File);
-        email.Content = HtmlConverter.ToJson(htmlFile).json;
+        var (pageInfo, json) = HtmlConverter.ToJson(htmlFile);
+        
+        var marketingEmailId = emailRequest.MarketingEmailId ?? pageInfo.HtmlDocument.ExtractBlackbirdReferenceId() ??
+                               throw new InvalidOperationException("Marketing email ID is required. Please provide it as optional parameter or in the HTML file.");
+        var email = await GetEmail(marketingEmailId);
+        email.Content = json;
 
-        var endpoint = $"{ApiEndpoints.MarketingEmailsEndpoint}{emailRequest.MarketingEmailId}";
+        var endpoint = $"{ApiEndpoints.MarketingEmailsEndpoint}{marketingEmailId}";
         var request = new HubspotRequest(endpoint, Method.Patch, Creds).WithJsonBody(email, JsonConfig.Settings);
 
         await Client.ExecuteWithErrorHandling(request);
