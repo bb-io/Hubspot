@@ -16,7 +16,7 @@ public class TranslateLandingPageFromFileRequest
 
 	[Display("Source page ID")]
 	[DataSource(typeof(LandingPageHandler))]
-	public string SourcePageId { get; set; }
+	public string? SourcePageId { get; set; }
 
     [Display("Primary language", Description = "In case there are no multi-lingual versions yet, a primary language should be selected")]
     [DataSource(typeof(LanguageHandler))]

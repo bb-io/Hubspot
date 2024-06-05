@@ -5,12 +5,14 @@ namespace Apps.Hubspot.Utils.Extensions;
 
 public static class HtmlExtensions
 {
-    public static string AsHtml(this (string title, string metaDescription, string body) tuple)
+    private const string BlackbirdReferenceIdAttribute = "blackbird-reference-id";
+
+    public static string AsHtml(this (string title, string metaDescription, string body, string pageId) tuple)
     {
         return
-            $"<html><head><title>{tuple.title}</title><description>{tuple.metaDescription}</description></head><body>{tuple.body}</body></html>";
+            $"<html><head><title>{tuple.title}</title><meta name=\"{BlackbirdReferenceIdAttribute}\" content=\"{tuple.pageId}\"><description>{tuple.metaDescription}</description></head><body>{tuple.body}</body></html>";
     }
-    
+
     public static string GetNodeFromHead(this HtmlDocument doc, string nodeName)
     {
         return GetHtmlText(doc, $"html/head/{nodeName}");

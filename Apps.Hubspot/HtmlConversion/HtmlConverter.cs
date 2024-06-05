@@ -8,23 +8,24 @@ namespace Apps.Hubspot.HtmlConversion;
 
 public static class HtmlConverter
 {
-    private static readonly HashSet<string> ContentProperties =
-    [
+    private static readonly HashSet<string> ContentProperties = new HashSet<string>
+    {
         "content", "html", "title", "value", "button_text", "quote_text", "speaker_name", "speaker_title", "heading",
         "subheading", "price", "tab_label", "header", "subheader", "content_text", "alt", "text", "quotation", "author_name",
         "description"
-    ];
+    };
 
-    private static readonly HashSet<string> RawHtmlProperties = 
-    [
+    private static readonly HashSet<string> RawHtmlProperties = new HashSet<string>
+    {
         "content", "html", "content_text"
-    ];
+    };
 
     private const string OriginalContentAttribute = "original";
     private const string LanguageAttribute = "lang";
     private const string PathAttribute = "path";
+    private const string BlackbirdReferenceIdAttribute = "blackbird-reference-id";
 
-    public static byte[] ToHtml(JObject emailContent, string title, string language)
+    public static byte[] ToHtml(JObject emailContent, string title, string language, string pageId)
     {
         var htmlNodes = emailContent.Descendants()
             .Where(x => x is JProperty { Value.Type: JTokenType.String } jProperty &&
@@ -32,11 +33,11 @@ public static class HtmlConverter
             .Select(x =>
             {
                 var jProperty = x as JProperty;
-                return (jProperty!.Path, Html: RawHtmlProperties.Contains(jProperty.Name) ? jProperty.Value.ToString() : HttpUtility.HtmlEncode(jProperty.Value.ToString()) );
+                return (jProperty!.Path, Html: RawHtmlProperties.Contains(jProperty.Name) ? jProperty.Value.ToString() : HttpUtility.HtmlEncode(jProperty.Value.ToString()));
             })
             .ToList();
 
-        var (doc, bodyNode) = PrepareEmptyHtmlDocument(emailContent, title, language);
+        var (doc, bodyNode) = PrepareEmptyHtmlDocument(emailContent, title, language, pageId);
 
         htmlNodes.ForEach(x => AddContentToHtml(x.Path, x.Html, bodyNode, doc.CreateElement("div")));
 
@@ -68,6 +69,16 @@ public static class HtmlConverter
         return (pageInfo, originalJson);
     }
 
+    public static string? ExtractBlackbirdId(byte[] fileBytes)
+    {
+        var fileString = Encoding.UTF8.GetString(fileBytes);
+        var doc = new HtmlDocument();
+        doc.LoadHtml(fileString);
+        var referenceId = doc.DocumentNode.SelectSingleNode("//meta[@name='blackbird-reference-id']")?.GetAttributeValue("content", null);
+
+        return referenceId;
+    }
+
     private static void AddContentToHtml(string path, string html, HtmlNode bodyNode, HtmlNode elementNode)
     {
         elementNode.InnerHtml = html;
@@ -77,7 +88,7 @@ public static class HtmlConverter
     }
 
     private static (HtmlDocument document, HtmlNode bodyNode) PrepareEmptyHtmlDocument(JObject emailContent,
-        string title, string language)
+        string title, string language, string pageId)
     {
         var htmlDoc = new HtmlDocument();
         var htmlNode = htmlDoc.CreateElement("html");
@@ -89,6 +100,11 @@ public static class HtmlConverter
         var titleNode = htmlDoc.CreateElement("title");
         headNode.AppendChild(titleNode);
         titleNode.InnerHtml = title;
+
+        var metaNode = htmlDoc.CreateElement("meta");
+        metaNode.SetAttributeValue("name", BlackbirdReferenceIdAttribute);
+        metaNode.SetAttributeValue("content", pageId);
+        headNode.AppendChild(metaNode);
 
         var bodyNode = htmlDoc.CreateElement("body");
         htmlNode.AppendChild(bodyNode);

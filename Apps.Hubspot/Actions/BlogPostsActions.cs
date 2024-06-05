@@ -96,7 +96,7 @@ public class BlogPostsActions : BasePageActions
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
 
         var blogPost = await Client.ExecuteWithErrorHandling<BlogPostDto>(request);
-        var htmlFile = (blogPost.Name, blogPost.MetaDescription, blogPost.PostBody).AsHtml();
+        var htmlFile = (blogPost.Name, blogPost.MetaDescription, blogPost.PostBody, input.BlogPost).AsHtml();
 
         FileReference file;
         using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(htmlFile)))
@@ -111,7 +111,6 @@ public class BlogPostsActions : BasePageActions
         };
     }
 
-
     [Action("Translate blog post from HTML file", Description = "Translate blog post from HTML file")]
     public async Task<BlogPostDto> TranslateBlogPostFromHtml(
         [ActionParameter] TranslateBlogPostFromHtmlRequest input)
@@ -121,12 +120,13 @@ public class BlogPostsActions : BasePageActions
 
         var fileString = Encoding.UTF8.GetString(fileBytes);
         var doc = fileString.AsHtmlDocument();
-
+        var blogPostId = input.BlogPostId ?? doc.ExtractBlackbirdReferenceId() ?? throw new Exception("Blog post ID not found. Please provide it from optional input");
+        
         var title = doc.GetTitle();
         var metaDescription = doc.GetNodeFromHead("description");
         var body = doc.DocumentNode.SelectSingleNode("/html/body").InnerHtml;
 
-        var translationId = await GetOrCreateTranslationId(ApiEndpoints.BlogPostsSegment, input.BlogPostId, input.Language);
+        var translationId = await GetOrCreateTranslationId(ApiEndpoints.BlogPostsSegment, blogPostId, input.Language);
 
         return await UpdateBlogPost(new()
         {
