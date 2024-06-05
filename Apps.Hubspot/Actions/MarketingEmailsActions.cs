@@ -55,7 +55,7 @@ public class MarketingEmailsActions : BaseActions
     public async Task<FileResponse> GetMarketingEmailHtml([ActionParameter] MarketingEmailRequest emailRequest)
     {
         var email = await GetEmail(emailRequest.MarketingEmailId);
-        var html = HtmlConverter.ToHtml(email.Content, email.Name, email.Language);
+        var html = HtmlConverter.ToHtml(email.Content, email.Name, email.Language, emailRequest.MarketingEmailId);
 
         var file = await _fileManagementClient.UploadAsync(new MemoryStream(html), MediaTypeNames.Text.Html,
             $"{emailRequest}.html");

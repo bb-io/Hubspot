@@ -96,7 +96,7 @@ public class BlogPostsActions : BasePageActions
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
 
         var blogPost = await Client.ExecuteWithErrorHandling<BlogPostDto>(request);
-        var htmlFile = (blogPost.Name, blogPost.MetaDescription, blogPost.PostBody).AsHtml();
+        var htmlFile = (blogPost.Name, blogPost.MetaDescription, blogPost.PostBody, input.BlogPost).AsHtml();
 
         FileReference file;
         using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(htmlFile)))
@@ -110,7 +110,6 @@ public class BlogPostsActions : BasePageActions
             FileLanguage = blogPost.Language,
         };
     }
-
 
     [Action("Translate blog post from HTML file", Description = "Translate blog post from HTML file")]
     public async Task<BlogPostDto> TranslateBlogPostFromHtml(

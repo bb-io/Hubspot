@@ -55,7 +55,7 @@ public class LandingPageActions : BasePageActions
     {
         var result = await GetPage<GenericPageDto>(ApiEndpoints.ALandingPage(input.PageId));
 
-        var htmlFile = HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language);
+        var htmlFile = HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language, input.PageId);
 
         FileReference file;
         using (var stream = new MemoryStream(htmlFile))
