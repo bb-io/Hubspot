@@ -14,7 +14,8 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
 {
     [PollingEvent("On landing pages created or updated",
         Description = "Triggered when a landing page is created or updated")]
-    public async Task<PollingEventResponse<LandingPageCreatedOrUpdatedMemory, LandingPagesResponse>> OnLandingPageCreatedOrUpdated(PollingEventRequest<LandingPageCreatedOrUpdatedMemory> request)
+    public async Task<PollingEventResponse<LandingPageCreatedOrUpdatedMemory, LandingPagesResponse>>
+        OnLandingPageCreatedOrUpdated(PollingEventRequest<LandingPageCreatedOrUpdatedMemory> request)
     {
         try
         {
@@ -44,7 +45,8 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         }
     }
 
-    private async Task<PollingEventResponse<LandingPageCreatedOrUpdatedMemory, LandingPagesResponse>>HandleFirstRunAsync(List<PageDto> pages)
+    private async Task<PollingEventResponse<LandingPageCreatedOrUpdatedMemory, LandingPagesResponse>>
+        HandleFirstRunAsync(List<PageDto> pages)
     {
         await Logger.LogAsync(new
         {
@@ -60,8 +62,8 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         };
     }
 
-    private async Task<PollingEventResponse<LandingPageCreatedOrUpdatedMemory, LandingPagesResponse>> HandleSubsequentRunsAsync(PollingEventRequest<LandingPageCreatedOrUpdatedMemory> request,
-            List<PageDto> pages)
+    private async Task<PollingEventResponse<LandingPageCreatedOrUpdatedMemory, LandingPagesResponse>>
+        HandleSubsequentRunsAsync(PollingEventRequest<LandingPageCreatedOrUpdatedMemory> request, List<PageDto> pages)
     {
         await Logger.LogAsync(new
         {
@@ -84,7 +86,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
             };
         }
 
-        var updatedPages = pages.Where(p => request.Memory!.Pages.All(mp => mp.Id != p.Id)).ToList();
+        var updatedPages = pages.Where(p => request.Memory.Pages.Any(mp => mp.Id == p.Id && !mp.Equals(p))).ToList();
         await Logger.LogAsync(new
         {
             UpdatedPages = updatedPages,
