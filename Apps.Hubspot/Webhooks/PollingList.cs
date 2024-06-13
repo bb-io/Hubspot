@@ -16,7 +16,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
     [PollingEvent("On blog posts created or updated", Description = "Triggered when a blog posts is created or updated")]
     public async Task<PollingEventResponse<BlogPostsCreatedOrUpdatedMemory, BlogPostsResponse>>
         OnBlogPostsCreatedOrUpdated(PollingEventRequest<BlogPostsCreatedOrUpdatedMemory> request,
-            [PollingEventParameter] LanguageOptionalRequest languageRequest)
+            [PollingEventParameter] LanguageRequest languageRequest)
     {
         var blogPostActions = new BlogPostsActions(InvocationContext, null);
         var blogPosts = await blogPostActions.GetAllBlogPosts(new SearchPagesRequest());
@@ -34,7 +34,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         Description = "Triggered when a site pages is created or updated")]
     public async Task<PollingEventResponse<PageCreatedOrUpdatedMemory, PagesResponse>>
         OnSitePageCreatedOrUpdated(PollingEventRequest<PageCreatedOrUpdatedMemory> request,
-            [PollingEventParameter] LanguageOptionalRequest languageRequest)
+            [PollingEventParameter] LanguageRequest languageRequest)
     {
         var pageActions = new PageActions(InvocationContext, null);
         var sitePages = await pageActions.GetAllSitePages(new SearchPagesRequest());
@@ -52,7 +52,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         Description = "Triggered when a landing pages is created or updated")]
     public async Task<PollingEventResponse<PageCreatedOrUpdatedMemory, PagesResponse>>
         OnLandingPageCreatedOrUpdated(PollingEventRequest<PageCreatedOrUpdatedMemory> request,
-            [PollingEventParameter] LanguageOptionalRequest languageRequest)
+            [PollingEventParameter] LanguageRequest languageRequest)
     {
         var landingPageActions = new LandingPageActions(InvocationContext, null);
         var landingPages = await landingPageActions.GetAllLandingPages(new SearchPagesRequest());
@@ -79,7 +79,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
 
     private Task<PollingEventResponse<PageCreatedOrUpdatedMemory, PagesResponse>>
         HandleSubsequentRunsAsync(PollingEventRequest<PageCreatedOrUpdatedMemory> request,
-            LanguageOptionalRequest languageRequest, 
+            LanguageRequest languageRequest, 
             List<PageDto> pages)
     {
         if (pages.Count == 0)
@@ -134,7 +134,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
 
     private Task<PollingEventResponse<BlogPostsCreatedOrUpdatedMemory, BlogPostsResponse>>
         HandleSubsequentRunsAsync(PollingEventRequest<BlogPostsCreatedOrUpdatedMemory> request, 
-            LanguageOptionalRequest languageRequest, 
+            LanguageRequest languageRequest, 
             List<BlogPostDto> pages)
     {
         if (pages.Count == 0)
