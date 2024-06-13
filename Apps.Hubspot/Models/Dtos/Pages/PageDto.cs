@@ -93,7 +93,13 @@ public class PageDto : IEquatable<PageDto>
     {
         if (other == null) return false;
         if (ReferenceEquals(this, other)) return true;
-        return Id == other.Id && HtmlTitle == other.HtmlTitle && Name == other.Name && MetaDescription == other.MetaDescription;
+        return Id == other.Id;
+    }
+
+    public bool HasSignificantChanges(PageDto other)
+    {
+        if (other == null) return false;
+        return HtmlTitle != other.HtmlTitle || Name != other.Name || MetaDescription != other.MetaDescription;
     }
 
     public override bool Equals(object obj)

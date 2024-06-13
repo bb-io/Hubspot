@@ -86,7 +86,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         }
 
         var newPages = pages.Where(p => request.Memory.Pages.All(mp => mp.Id != p.Id)).ToList();
-        var updatedPages = pages.Where(p => request.Memory.Pages.Any(mp => mp.Id == p.Id && !mp.Equals(p))).ToList();
+        var updatedPages = pages.Where(p => request.Memory.Pages.Any(mp => mp.Id == p.Id && mp.HasSignificantChanges(p))).ToList();
 
         var allChanges = newPages.Concat(updatedPages).ToList();
 
