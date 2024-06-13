@@ -69,12 +69,16 @@ Note: the Hubspot API marks these endpoints in beta stage.
 - **On landing pages created or updated** triggers when a landing page is created or updated.
 - **On site pages created or updated** triggers when a site page is created or updated.
 
+This events are working on polling mechanism, so you won't be immediately notified about the changes. You can configure the polling interval starting from 5 minutes to 7 days.
+
 ## Useful tips
 
 All actions that work with HTML files will add a meta tag to the HTML. This meta tag is named `blackbird-reference-id`. This tag is used to identify the content in the Hubspot CMS, eliminating the need to store IDs elsewhere
 
-## Example
+## Examples
 
-![Example](image/README/Hubspot-CMS-Blackbird-Example.png)
+![Example](image/README/Event-example.png)
+
+This example uses a polling event to check for new blog posts. When a new blog post is created, the event triggers and the blog post is translated into a different language.
 
 <!-- end docs -->
