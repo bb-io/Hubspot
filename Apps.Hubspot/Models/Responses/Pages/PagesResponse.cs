@@ -5,6 +5,6 @@ namespace Apps.Hubspot.Models.Responses.Pages;
 
 public class PagesResponse
 {
-    [Display("Landing pages")]
+    [Display("Pages")]
     public List<PageDto> Pages { get; set; } = new();
 }
