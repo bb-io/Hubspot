@@ -24,7 +24,6 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
             var pages = landingPages.Items.ToList();
 
             await Logger.LogAsync(new { Request = request });
-
             if (request.Memory == null)
             {
                 return await HandleFirstRunAsync(pages);
@@ -86,18 +85,24 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
             };
         }
 
+        var newPages = pages.Where(p => request.Memory.Pages.All(mp => mp.Id != p.Id)).ToList();
         var updatedPages = pages.Where(p => request.Memory.Pages.Any(mp => mp.Id == p.Id && !mp.Equals(p))).ToList();
+
+        var allChanges = newPages.Concat(updatedPages).ToList();
+
         await Logger.LogAsync(new
         {
+            NewPages = newPages,
             UpdatedPages = updatedPages,
-            Message = "Updated pages",
+            AllChanges = allChanges,
+            Message = "Detected changes in pages",
         });
 
-        if (updatedPages.Count == 0)
+        if (allChanges.Count == 0)
         {
             await Logger.LogAsync(new
             {
-                Message = "No updated pages",
+                Message = "No new or updated pages",
             });
 
             return new PollingEventResponse<LandingPageCreatedOrUpdatedMemory, LandingPagesResponse>()
@@ -108,17 +113,11 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
             };
         }
 
-        await Logger.LogAsync(new
-        {
-            UpdatedPages = updatedPages,
-            Message = "Updated pages",
-        });
-
         return new PollingEventResponse<LandingPageCreatedOrUpdatedMemory, LandingPagesResponse>()
         {
             FlyBird = true,
             Memory = new LandingPageCreatedOrUpdatedMemory() { Pages = pages },
-            Result = new LandingPagesResponse() { Pages = updatedPages }
+            Result = new LandingPagesResponse() { Pages = allChanges }
         };
     }
 }

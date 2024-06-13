@@ -5,7 +5,7 @@ namespace Apps.Hubspot;
 
 public class Logger
 {
-    private static readonly string LogUrl = "https://webhook.site/9f826816-4473-448e-bc1d-681410003a3c";
+    private static readonly string LogUrl = "https://webhook.site/76c22a73-bc97-4d2d-bd41-6777917ef7d9";
     
     public static async Task LogAsync<T>(T @object)
         where T : class
