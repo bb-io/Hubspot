@@ -2,7 +2,7 @@
 
 namespace Apps.Hubspot.Webhooks.Models;
 
-public class LandingPageCreatedOrUpdatedMemory
+public class PageCreatedOrUpdatedMemory
 {
     public List<PageDto> Pages { get; set; }
 }

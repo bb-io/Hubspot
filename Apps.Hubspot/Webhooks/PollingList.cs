@@ -12,39 +12,43 @@ namespace Apps.Hubspot.Webhooks;
 [PollingEventList]
 public class PollingList(InvocationContext invocationContext) : HubSpotInvocable(invocationContext)
 {
-    [PollingEvent("On landing pages created or updated",
-        Description = "Triggered when a landing page is created or updated")]
-    public async Task<PollingEventResponse<LandingPageCreatedOrUpdatedMemory, LandingPagesResponse>>
-        OnLandingPageCreatedOrUpdated(PollingEventRequest<LandingPageCreatedOrUpdatedMemory> request)
+    [PollingEvent("On site pages created or updated",
+        Description = "Triggered when a site pages is created or updated")]
+    public async Task<PollingEventResponse<PageCreatedOrUpdatedMemory, PagesResponse>>
+        OnSitePageCreatedOrUpdated(PollingEventRequest<PageCreatedOrUpdatedMemory> request)
     {
-        try
+        var pageActions = new PageActions(InvocationContext, null);
+        var sitePages = await pageActions.GetAllSitePages(new SearchPagesRequest());
+        var pages = sitePages.Items.ToList();
+
+        await Logger.LogAsync(new { Request = request });
+        if (request.Memory == null)
         {
-            var landingPageActions = new LandingPageActions(InvocationContext, null);
-            var landingPages = await landingPageActions.GetAllLandingPages(new SearchPagesRequest());
-            var pages = landingPages.Items.ToList();
-
-            await Logger.LogAsync(new { Request = request });
-            if (request.Memory == null)
-            {
-                return await HandleFirstRunAsync(pages);
-            }
-
-            return await HandleSubsequentRunsAsync(request, pages);
+            return await HandleFirstRunAsync(pages);
         }
-        catch (Exception e)
+
+        return await HandleSubsequentRunsAsync(request, pages);
+    }
+    
+    [PollingEvent("On landing pages created or updated",
+        Description = "Triggered when a landing pages is created or updated")]
+    public async Task<PollingEventResponse<PageCreatedOrUpdatedMemory, PagesResponse>>
+        OnLandingPageCreatedOrUpdated(PollingEventRequest<PageCreatedOrUpdatedMemory> request)
+    {
+        var landingPageActions = new LandingPageActions(InvocationContext, null);
+        var landingPages = await landingPageActions.GetAllLandingPages(new SearchPagesRequest());
+        var pages = landingPages.Items.ToList();
+
+        await Logger.LogAsync(new { Request = request });
+        if (request.Memory == null)
         {
-            await Logger.LogAsync(e);
-
-            return new PollingEventResponse<LandingPageCreatedOrUpdatedMemory, LandingPagesResponse>()
-            {
-                FlyBird = false,
-                Memory = request.Memory,
-                Result = null
-            };
+            return await HandleFirstRunAsync(pages);
         }
+
+        return await HandleSubsequentRunsAsync(request, pages);
     }
 
-    private async Task<PollingEventResponse<LandingPageCreatedOrUpdatedMemory, LandingPagesResponse>>
+    private async Task<PollingEventResponse<PageCreatedOrUpdatedMemory, PagesResponse>>
         HandleFirstRunAsync(List<PageDto> pages)
     {
         await Logger.LogAsync(new
@@ -53,16 +57,16 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
             Message = "Last landing page if memory is null",
         });
 
-        return new PollingEventResponse<LandingPageCreatedOrUpdatedMemory, LandingPagesResponse>()
+        return new PollingEventResponse<PageCreatedOrUpdatedMemory, PagesResponse>()
         {
             FlyBird = false,
-            Memory = new LandingPageCreatedOrUpdatedMemory() { Pages = pages },
+            Memory = new PageCreatedOrUpdatedMemory() { Pages = pages },
             Result = null
         };
     }
 
-    private async Task<PollingEventResponse<LandingPageCreatedOrUpdatedMemory, LandingPagesResponse>>
-        HandleSubsequentRunsAsync(PollingEventRequest<LandingPageCreatedOrUpdatedMemory> request, List<PageDto> pages)
+    private async Task<PollingEventResponse<PageCreatedOrUpdatedMemory, PagesResponse>>
+        HandleSubsequentRunsAsync(PollingEventRequest<PageCreatedOrUpdatedMemory> request, List<PageDto> pages)
     {
         await Logger.LogAsync(new
         {
@@ -77,7 +81,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                 Message = "No updated landing pages",
             });
 
-            return new PollingEventResponse<LandingPageCreatedOrUpdatedMemory, LandingPagesResponse>()
+            return new PollingEventResponse<PageCreatedOrUpdatedMemory, PagesResponse>()
             {
                 FlyBird = false,
                 Memory = request.Memory,
@@ -105,7 +109,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                 Message = "No new or updated pages",
             });
 
-            return new PollingEventResponse<LandingPageCreatedOrUpdatedMemory, LandingPagesResponse>()
+            return new PollingEventResponse<PageCreatedOrUpdatedMemory, PagesResponse>()
             {
                 FlyBird = false,
                 Memory = request.Memory,
@@ -113,11 +117,11 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
             };
         }
 
-        return new PollingEventResponse<LandingPageCreatedOrUpdatedMemory, LandingPagesResponse>()
+        return new PollingEventResponse<PageCreatedOrUpdatedMemory, PagesResponse>()
         {
             FlyBird = true,
-            Memory = new LandingPageCreatedOrUpdatedMemory() { Pages = pages },
-            Result = new LandingPagesResponse() { Pages = allChanges }
+            Memory = new PageCreatedOrUpdatedMemory() { Pages = pages },
+            Result = new PagesResponse() { Pages = allChanges }
         };
     }
 }

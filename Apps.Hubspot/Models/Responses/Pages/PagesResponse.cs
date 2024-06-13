@@ -3,7 +3,7 @@ using Blackbird.Applications.Sdk.Common;
 
 namespace Apps.Hubspot.Models.Responses.Pages;
 
-public class LandingPagesResponse
+public class PagesResponse
 {
     [Display("Landing pages")]
     public List<PageDto> Pages { get; set; } = new();
