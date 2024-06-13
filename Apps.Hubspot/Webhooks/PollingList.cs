@@ -15,7 +15,8 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
 {
     [PollingEvent("On blog posts created or updated", Description = "Triggered when a blog posts is created or updated")]
     public async Task<PollingEventResponse<BlogPostsCreatedOrUpdatedMemory, BlogPostsResponse>>
-        OnBlogPostsCreatedOrUpdated(PollingEventRequest<BlogPostsCreatedOrUpdatedMemory> request)
+        OnBlogPostsCreatedOrUpdated(PollingEventRequest<BlogPostsCreatedOrUpdatedMemory> request,
+            [PollingEventParameter] LanguageOptionalRequest languageRequest)
     {
         var blogPostActions = new BlogPostsActions(InvocationContext, null);
         var blogPosts = await blogPostActions.GetAllBlogPosts(new SearchPagesRequest());
@@ -26,13 +27,14 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
             return await HandleFirstRunAsync(pages);
         }
 
-        return await HandleSubsequentRunsAsync(request, pages);
+        return await HandleSubsequentRunsAsync(request, languageRequest, pages);
     }
     
     [PollingEvent("On site pages created or updated",
         Description = "Triggered when a site pages is created or updated")]
     public async Task<PollingEventResponse<PageCreatedOrUpdatedMemory, PagesResponse>>
-        OnSitePageCreatedOrUpdated(PollingEventRequest<PageCreatedOrUpdatedMemory> request)
+        OnSitePageCreatedOrUpdated(PollingEventRequest<PageCreatedOrUpdatedMemory> request,
+            [PollingEventParameter] LanguageOptionalRequest languageRequest)
     {
         var pageActions = new PageActions(InvocationContext, null);
         var sitePages = await pageActions.GetAllSitePages(new SearchPagesRequest());
@@ -43,13 +45,14 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
             return await HandleFirstRunAsync(pages);
         }
 
-        return await HandleSubsequentRunsAsync(request, pages);
+        return await HandleSubsequentRunsAsync(request, languageRequest, pages);
     }
 
     [PollingEvent("On landing pages created or updated",
         Description = "Triggered when a landing pages is created or updated")]
     public async Task<PollingEventResponse<PageCreatedOrUpdatedMemory, PagesResponse>>
-        OnLandingPageCreatedOrUpdated(PollingEventRequest<PageCreatedOrUpdatedMemory> request)
+        OnLandingPageCreatedOrUpdated(PollingEventRequest<PageCreatedOrUpdatedMemory> request,
+            [PollingEventParameter] LanguageOptionalRequest languageRequest)
     {
         var landingPageActions = new LandingPageActions(InvocationContext, null);
         var landingPages = await landingPageActions.GetAllLandingPages(new SearchPagesRequest());
@@ -60,7 +63,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
             return await HandleFirstRunAsync(pages);
         }
 
-        return await HandleSubsequentRunsAsync(request, pages);
+        return await HandleSubsequentRunsAsync(request, languageRequest, pages);
     }
 
     private Task<PollingEventResponse<PageCreatedOrUpdatedMemory, PagesResponse>>
@@ -75,7 +78,9 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
     }
 
     private Task<PollingEventResponse<PageCreatedOrUpdatedMemory, PagesResponse>>
-        HandleSubsequentRunsAsync(PollingEventRequest<PageCreatedOrUpdatedMemory> request, List<PageDto> pages)
+        HandleSubsequentRunsAsync(PollingEventRequest<PageCreatedOrUpdatedMemory> request,
+            LanguageOptionalRequest languageRequest, 
+            List<PageDto> pages)
     {
         if (pages.Count == 0)
         {
@@ -101,6 +106,11 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                 Result = null
             });
         }
+        
+        if(languageRequest.Language != null)
+        {
+            allChanges = allChanges.Where(p => p.Language == languageRequest.Language).ToList();
+        }
 
         return Task.FromResult(new PollingEventResponse<PageCreatedOrUpdatedMemory, PagesResponse>()
         {
@@ -123,7 +133,9 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
     }
 
     private Task<PollingEventResponse<BlogPostsCreatedOrUpdatedMemory, BlogPostsResponse>>
-        HandleSubsequentRunsAsync(PollingEventRequest<BlogPostsCreatedOrUpdatedMemory> request, List<BlogPostDto> pages)
+        HandleSubsequentRunsAsync(PollingEventRequest<BlogPostsCreatedOrUpdatedMemory> request, 
+            LanguageOptionalRequest languageRequest, 
+            List<BlogPostDto> pages)
     {
         if (pages.Count == 0)
         {
@@ -148,6 +160,11 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                 Memory = request.Memory,
                 Result = null
             });
+        }
+        
+        if(languageRequest.Language != null)
+        {
+            allChanges = allChanges.Where(p => p.Language == languageRequest.Language).ToList();
         }
 
         return Task.FromResult(new PollingEventResponse<BlogPostsCreatedOrUpdatedMemory, BlogPostsResponse>()
