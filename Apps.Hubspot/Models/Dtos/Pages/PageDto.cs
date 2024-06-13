@@ -2,7 +2,7 @@
 
 namespace Apps.Hubspot.Models.Dtos.Pages;
 
-public class PageDto
+public class PageDto : IEquatable<PageDto>
 {
     
     [Display("Page ID")]
@@ -88,4 +88,27 @@ public class PageDto
 
     [Display("Translated from ID")]
     public string? TranslatedFromId { get; set; }
+
+    public bool Equals(PageDto other)
+    {
+        if (other == null) return false;
+        if (ReferenceEquals(this, other)) return true;
+        return Id == other.Id;
+    }
+
+    public bool HasSignificantChanges(PageDto other)
+    {
+        if (other == null) return false;
+        return HtmlTitle != other.HtmlTitle || Name != other.Name || MetaDescription != other.MetaDescription;
+    }
+
+    public override bool Equals(object obj)
+    {
+        return Equals(obj as PageDto);
+    }
+
+    public override int GetHashCode()
+    {
+        return Id.GetHashCode();
+    }
 }

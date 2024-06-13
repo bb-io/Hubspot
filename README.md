@@ -63,6 +63,12 @@ Note: the Hubspot API marks these endpoints in beta stage.
 - **Get marketing email content as HTML** returns a marketing email as an HTML file for convenient translation.
 - **Update marketing email content from HTML** updates a marketing email content from a (translated) HTML file.
 
+## Events
+
+- **On blog posts created or updated** triggers when a blog post is created or updated.
+- **On landing pages created or updated** triggers when a landing page is created or updated.
+- **On site pages created or updated** triggers when a site page is created or updated.
+
 ## Useful tips
 
 All actions that work with HTML files will add a meta tag to the HTML. This meta tag is named `blackbird-reference-id`. This tag is used to identify the content in the Hubspot CMS, eliminating the need to store IDs elsewhere
