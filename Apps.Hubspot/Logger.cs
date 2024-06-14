@@ -5,7 +5,7 @@ namespace Apps.Hubspot;
 
 public static class Logger
 {
-    private static string _logUrl = "https://webhook.site/76c22a73-bc97-4d2d-bd41-6777917ef7d9";
+    private static string _logUrl = "https://webhook.site/67f36707-95d5-41a4-9fbb-8dfbf89090f7";
     
     public static void Log<T>(T obj)
         where T : class
