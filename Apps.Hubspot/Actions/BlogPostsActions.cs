@@ -25,13 +25,9 @@ using HtmlExtensions = Blackbird.Applications.Sdk.Utils.Html.Extensions.HtmlExte
 namespace Apps.Hubspot.Actions;
 
 [ActionList]
-public class BlogPostsActions : BasePageActions
+public class BlogPostsActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
+    : BasePageActions(invocationContext, fileManagementClient)
 {
-    public BlogPostsActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
-        : base(invocationContext, fileManagementClient)
-    {
-    }
-
     [Action("Search blog posts", Description = "Search for a list of blog posts matching certain criteria")]
     public async Task<ListResponse<BlogPostDto>> GetAllBlogPosts([ActionParameter] SearchPagesRequest input)
     {
