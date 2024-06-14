@@ -31,7 +31,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
             {
                 message = "On blog posts created or updated"
             });
-            
+
             var blogPosts = await GetAllBlogPosts(new SearchPagesRequest());
             var pages = blogPosts.Items.ToList();
 
@@ -63,7 +63,8 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         }
     }
 
-    [PollingEvent("On landing pages created or updated", Description = "Triggered when a landing page is created or updated")]
+    [PollingEvent("On landing pages created or updated",
+        Description = "Triggered when a landing page is created or updated")]
     public async Task<PollingEventResponse<PageMemory, PagesResponse>>
         OnLandingPageCreatedOrUpdated(PollingEventRequest<PageMemory> request,
             [PollingEventParameter] LanguageRequest languageRequest)
@@ -89,26 +90,31 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
     {
         if (request.Memory is null)
         {
+            var memory = new PageMemory
+            {
+                Pages = blogPosts.Select(p => new PageEntity
+                {
+                    Id = p.Id,
+                    Created = p.Created,
+                    Updated = p.Updated
+                }).ToList()
+            };
+            
             Logger.Log(new
             {
                 message = "First run of the polling event",
-                memory = request.Memory,
+                new_memory = memory,
                 blog_posts = blogPosts
             });
-            
+
             return new PollingEventResponse<PageMemory, BlogPostsResponse>
             {
                 FlyBird = false,
-                Memory = new PageMemory { Pages = blogPosts.Select(p => new PageEntity
-                {
-                    Id = p.Id,
-                    Created = p.Created.ToString(CultureInfo.InvariantCulture),
-                    Updated = p.Updated.ToString(CultureInfo.InvariantCulture)
-                }).ToList() },
+                Memory = memory,
                 Result = null
             };
         }
-        
+
         if (blogPosts.Count == 0)
         {
             Logger.Log(new
@@ -116,7 +122,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                 message = "No blog posts found",
                 memory = request.Memory
             });
-            
+
             return new PollingEventResponse<PageMemory, BlogPostsResponse>
             {
                 FlyBird = false,
@@ -126,9 +132,11 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         }
 
         var memoryEntities = request.Memory.Pages;
-        var newPages = blogPosts.Where(x => memoryEntities.All(y => x.Id != y.Id)).ToList();
+        var newPages = blogPosts.Where(p => memoryEntities.All(mp => mp.Id != p.Id)).ToList();
         var updatedPages = blogPosts
-            .Where(p => memoryEntities.Any(mp => mp.Id == p.Id && DateTime.Parse(mp.Updated, null, DateTimeStyles.RoundtripKind) < DateTime.Parse(p.Updated, null, DateTimeStyles.RoundtripKind)))
+            .Where(p => memoryEntities.Any(mp =>
+                mp.Id == p.Id && DateTime.Parse(mp.Updated, null, DateTimeStyles.RoundtripKind) <
+                DateTime.Parse(p.Updated, null, DateTimeStyles.RoundtripKind)))
             .ToList();
 
         var allChanges = newPages.Concat(updatedPages).ToList();
@@ -137,29 +145,35 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
             Logger.Log(new
             {
                 message = "No changes found",
-                memory = new PageMemory { Pages = blogPosts.Select(p => new PageEntity
+                memory = new PageMemory
                 {
-                    Id = p.Id,
-                    Created = p.Created.ToString(CultureInfo.InvariantCulture),
-                    Updated = p.Updated.ToString(CultureInfo.InvariantCulture)
-                }).ToList() }
+                    Pages = blogPosts.Select(p => new PageEntity
+                    {
+                        Id = p.Id,
+                        Created = p.Created,
+                        Updated = p.Updated
+                    }).ToList()
+                }
             });
-            
+
             return new PollingEventResponse<PageMemory, BlogPostsResponse>
             {
                 FlyBird = false,
-                Memory = new PageMemory { Pages = blogPosts.Select(p => new PageEntity
+                Memory = new PageMemory
                 {
-                    Id = p.Id,
-                    Created = p.Created,
-                    Updated = p.Updated
-                }).ToList() },
+                    Pages = blogPosts.Select(p => new PageEntity
+                    {
+                        Id = p.Id,
+                        Created = p.Created,
+                        Updated = p.Updated
+                    }).ToList()
+                },
                 Result = null
             };
         }
 
         allChanges = allChanges.Where(p => p.Language == languageRequest.Language).ToList();
-        
+
         Logger.Log(new
         {
             new_pages = newPages,
@@ -199,20 +213,23 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                 memory = request.Memory,
                 pages = pages
             });
-            
+
             return new PollingEventResponse<PageMemory, PagesResponse>
             {
                 FlyBird = false,
-                Memory = new PageMemory { Pages = pages.Select(p => new PageEntity
+                Memory = new PageMemory
                 {
-                    Id = p.Id,
-                    Created = p.Created.ToString(CultureInfo.InvariantCulture),
-                    Updated = p.Updated.ToString(CultureInfo.InvariantCulture)
-                }).ToList() },
+                    Pages = pages.Select(p => new PageEntity
+                    {
+                        Id = p.Id,
+                        Created = p.Created.ToString(CultureInfo.InvariantCulture),
+                        Updated = p.Updated.ToString(CultureInfo.InvariantCulture)
+                    }).ToList()
+                },
                 Result = null
             };
         }
-        
+
         if (pages.Count == 0)
         {
             Logger.Log(new
@@ -220,7 +237,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                 message = "No pages found",
                 memory = request.Memory
             });
-            
+
             return new PollingEventResponse<PageMemory, PagesResponse>
             {
                 FlyBird = false,
@@ -241,29 +258,35 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
             Logger.Log(new
             {
                 message = "No changes found",
-                memory = new PageMemory { Pages = pages.Select(p => new PageEntity
+                memory = new PageMemory
                 {
-                    Id = p.Id,
-                    Created = p.Created.ToString(CultureInfo.InvariantCulture),
-                    Updated = p.Updated.ToString(CultureInfo.InvariantCulture)
-                }).ToList() }
+                    Pages = pages.Select(p => new PageEntity
+                    {
+                        Id = p.Id,
+                        Created = p.Created.ToString(CultureInfo.InvariantCulture),
+                        Updated = p.Updated.ToString(CultureInfo.InvariantCulture)
+                    }).ToList()
+                }
             });
-            
+
             return new PollingEventResponse<PageMemory, PagesResponse>
             {
                 FlyBird = false,
-                Memory = new PageMemory { Pages = pages.Select(p => new PageEntity
+                Memory = new PageMemory
                 {
-                    Id = p.Id,
-                    Created = p.Created.ToString(CultureInfo.InvariantCulture),
-                    Updated = p.Updated.ToString(CultureInfo.InvariantCulture)
-                }).ToList() },
+                    Pages = pages.Select(p => new PageEntity
+                    {
+                        Id = p.Id,
+                        Created = p.Created.ToString(CultureInfo.InvariantCulture),
+                        Updated = p.Updated.ToString(CultureInfo.InvariantCulture)
+                    }).ToList()
+                },
                 Result = null
             };
         }
 
         allChanges = allChanges.Where(p => p.Language == languageRequest.Language).ToList();
-        
+
         Logger.Log(new
         {
             new_pages = newPages,
