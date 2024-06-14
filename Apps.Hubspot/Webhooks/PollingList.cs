@@ -87,6 +87,28 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         LanguageRequest languageRequest,
         List<BlogPostDto> blogPosts)
     {
+        if (request.Memory is null)
+        {
+            Logger.Log(new
+            {
+                message = "First run of the polling event",
+                memory = request.Memory,
+                blog_posts = blogPosts
+            });
+            
+            return new PollingEventResponse<PageMemory, BlogPostsResponse>
+            {
+                FlyBird = false,
+                Memory = new PageMemory { Pages = blogPosts.Select(p => new PageEntity
+                {
+                    Id = p.Id,
+                    Created = p.Created.ToString(CultureInfo.InvariantCulture),
+                    Updated = p.Updated.ToString(CultureInfo.InvariantCulture)
+                }).ToList() },
+                Result = null
+            };
+        }
+        
         if (blogPosts.Count == 0)
         {
             Logger.Log(new
@@ -169,6 +191,28 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         LanguageRequest languageRequest,
         List<PageDto> pages)
     {
+        if (request.Memory is null)
+        {
+            Logger.Log(new
+            {
+                message = "First run of the polling event",
+                memory = request.Memory,
+                pages = pages
+            });
+            
+            return new PollingEventResponse<PageMemory, PagesResponse>
+            {
+                FlyBird = false,
+                Memory = new PageMemory { Pages = pages.Select(p => new PageEntity
+                {
+                    Id = p.Id,
+                    Created = p.Created.ToString(CultureInfo.InvariantCulture),
+                    Updated = p.Updated.ToString(CultureInfo.InvariantCulture)
+                }).ToList() },
+                Result = null
+            };
+        }
+        
         if (pages.Count == 0)
         {
             Logger.Log(new
