@@ -126,9 +126,9 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         }
 
         var memoryEntities = request.Memory.Pages;
-        var newPages = blogPosts.Where(p => memoryEntities.All(mp => mp.Id != p.Id)).ToList();
+        var newPages = blogPosts.Where(x => memoryEntities.All(y => x.Id != y.Id)).ToList();
         var updatedPages = blogPosts
-            .Where(p => memoryEntities.Any(mp => mp.Id == p.Id && DateTime.Parse(mp.Updated) < DateTime.Parse(p.Updated)))
+            .Where(p => memoryEntities.Any(mp => mp.Id == p.Id && DateTime.Parse(mp.Updated, null, DateTimeStyles.RoundtripKind) < DateTime.Parse(p.Updated, null, DateTimeStyles.RoundtripKind)))
             .ToList();
 
         var allChanges = newPages.Concat(updatedPages).ToList();
