@@ -46,17 +46,9 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         OnLandingPageCreatedOrUpdated(PollingEventRequest<PageMemory> request,
             [PollingEventParameter] LanguageRequest languageRequest)
     {
-        try
-        {
-            var landingPages = await GetAllLandingPages(new SearchPagesRequest());
-            var pages = landingPages.Items.ToList();
-            return HandlePagePollingEventAsync(request, languageRequest, pages);
-        }
-        catch (Exception e)
-        {
-            await Logger.LogExceptionAsync(e);
-            throw;
-        }
+        var landingPages = await GetAllLandingPages(new SearchPagesRequest());
+        var pages = landingPages.Items.ToList();
+        return HandlePagePollingEventAsync(request, languageRequest, pages);
     }
 
     private PollingEventResponse<PageMemory, BlogPostsResponse> HandleBlogPostPollingEventAsync(
@@ -142,14 +134,6 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         var updatedPages = pages
             .Where(p => DateTimeHelper.IsPageUpdated(memoryEntities, new PageEntity(p.Id, p.Created, p.Updated)))
             .ToList();
-        
-        Logger.Log(new
-        {
-            new_pages = newPages,
-            updated_pages = updatedPages,
-            memory_entities = memoryEntities,
-            pages
-        });
 
         var allChanges = newPages.Concat(updatedPages)
             .Where(p => p.Language == languageRequest.Language)
