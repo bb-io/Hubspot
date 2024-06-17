@@ -63,16 +63,16 @@ public class PageDto
     public int PageExpiryDate { get; set; }
 
     [Display("Publish date")]
-    public DateTime PublishDate { get; set; }
+    public string PublishDate { get; set; }
 
     [Display("Created")]
-    public DateTime Created { get; set; }
+    public string Created { get; set; }
 
     [Display("Updated")]
-    public DateTime Updated { get; set; }
+    public string Updated { get; set; }
 
     [Display("Archived at")]
-    public DateTime ArchivedAt { get; set; }
+    public string ArchivedAt { get; set; }
 
     [Display("Meta description")]
     public string MetaDescription { get; set; }

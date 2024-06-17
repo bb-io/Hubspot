@@ -130,6 +130,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
 
         var memoryEntities = request.Memory.Pages;
         var newPages = pages.Where(p => memoryEntities.All(mp => mp.Id != p.Id)).ToList();
+        
         var updatedPages = pages
             .Where(p => DateTimeHelper.IsPageUpdated(memoryEntities, new PageEntity(p.Id, p.Created, p.Updated)))
             .ToList();
