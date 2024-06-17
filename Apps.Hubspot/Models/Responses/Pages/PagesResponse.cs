@@ -7,4 +7,12 @@ public class PagesResponse
 {
     [Display("Pages")]
     public List<PageDto> Pages { get; set; } = new();
+    
+    public PagesResponse()
+    { }
+    
+    public PagesResponse(List<PageDto> pages)
+    {
+        Pages = pages;
+    }
 }

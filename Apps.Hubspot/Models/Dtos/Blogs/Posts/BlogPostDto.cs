@@ -1,8 +1,9 @@
-﻿using Blackbird.Applications.Sdk.Common;
+﻿using Apps.Hubspot.Webhooks.Models;
+using Blackbird.Applications.Sdk.Common;
 
 namespace Apps.Hubspot.Models.Dtos.Blogs.Posts;
 
-public class BlogPostDto : IEquatable<BlogPostDto>
+public class BlogPostDto : IEntity
 {
     [Display("Archived at")] public int ArchivedAt { get; set; }
 
@@ -73,27 +74,4 @@ public class BlogPostDto : IEquatable<BlogPostDto>
     [Display("URL")] public string Url { get; set; }
 
     [Display("Use featured image")] public bool UseFeaturedImage { get; set; }
-    
-    public bool Equals(BlogPostDto other)
-    {
-        if (other == null) return false;
-        if (ReferenceEquals(this, other)) return true;
-        return Id == other.Id;
-    }
-
-    public bool HasSignificantChanges(BlogPostDto other)
-    {
-        if (other == null) return false;
-        return HtmlTitle != other.HtmlTitle || Name != other.Name || MetaDescription != other.MetaDescription;
-    }
-
-    public override bool Equals(object obj)
-    {
-        return Equals(obj as BlogPostDto);
-    }
-
-    public override int GetHashCode()
-    {
-        return Id.GetHashCode();
-    }
 }

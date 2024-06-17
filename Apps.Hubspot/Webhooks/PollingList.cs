@@ -1,177 +1,213 @@
-﻿using Apps.Hubspot.Actions;
+﻿using System.Globalization;
+using Apps.Hubspot.Api;
+using Apps.Hubspot.Constants;
+using Apps.Hubspot.Extensions;
 using Apps.Hubspot.Invocables;
 using Apps.Hubspot.Models.Dtos.Blogs.Posts;
 using Apps.Hubspot.Models.Dtos.Pages;
 using Apps.Hubspot.Models.Requests;
+using Apps.Hubspot.Models.Responses;
 using Apps.Hubspot.Models.Responses.Pages;
+using Apps.Hubspot.Utils;
 using Apps.Hubspot.Webhooks.Models;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Polling;
+using Blackbird.Applications.Sdk.Utils.Extensions.String;
+using RestSharp;
 
 namespace Apps.Hubspot.Webhooks;
 
 [PollingEventList]
 public class PollingList(InvocationContext invocationContext) : HubSpotInvocable(invocationContext)
 {
-    [PollingEvent("On blog posts created or updated", Description = "Triggered when a blog posts is created or updated")]
-    public async Task<PollingEventResponse<BlogPostsCreatedOrUpdatedMemory, BlogPostsResponse>>
-        OnBlogPostsCreatedOrUpdated(PollingEventRequest<BlogPostsCreatedOrUpdatedMemory> request,
+    [PollingEvent("On blog posts created or updated", Description = "Triggered when a blog post is created or updated")]
+    public async Task<PollingEventResponse<PageMemory, BlogPostsResponse>>
+        OnBlogPostsCreatedOrUpdated(PollingEventRequest<PageMemory> request,
             [PollingEventParameter] LanguageRequest languageRequest)
     {
-        var blogPostActions = new BlogPostsActions(InvocationContext, null);
-        var blogPosts = await blogPostActions.GetAllBlogPosts(new SearchPagesRequest());
+        var blogPosts = await GetAllBlogPosts(new SearchPagesRequest());
         var pages = blogPosts.Items.ToList();
-            
-        if (request.Memory == null)
-        {
-            return await HandleFirstRunAsync(pages);
-        }
-
-        return await HandleSubsequentRunsAsync(request, languageRequest, pages);
+        return HandleBlogPostPollingEventAsync(request, languageRequest, pages);
     }
-    
-    [PollingEvent("On site pages created or updated",
-        Description = "Triggered when a site pages is created or updated")]
-    public async Task<PollingEventResponse<PageCreatedOrUpdatedMemory, PagesResponse>>
-        OnSitePageCreatedOrUpdated(PollingEventRequest<PageCreatedOrUpdatedMemory> request,
+
+    [PollingEvent("On site pages created or updated", Description = "Triggered when a site page is created or updated")]
+    public async Task<PollingEventResponse<PageMemory, PagesResponse>>
+        OnSitePageCreatedOrUpdated(PollingEventRequest<PageMemory> request,
             [PollingEventParameter] LanguageRequest languageRequest)
     {
-        var pageActions = new PageActions(InvocationContext, null);
-        var sitePages = await pageActions.GetAllSitePages(new SearchPagesRequest());
-        
+        var sitePages = await GetAllSitePages(new SearchPagesRequest());
         var pages = sitePages.Items.ToList();
-        if (request.Memory == null)
-        {
-            return await HandleFirstRunAsync(pages);
-        }
-
-        return await HandleSubsequentRunsAsync(request, languageRequest, pages);
+        return HandlePagePollingEventAsync(request, languageRequest, pages);
     }
 
     [PollingEvent("On landing pages created or updated",
-        Description = "Triggered when a landing pages is created or updated")]
-    public async Task<PollingEventResponse<PageCreatedOrUpdatedMemory, PagesResponse>>
-        OnLandingPageCreatedOrUpdated(PollingEventRequest<PageCreatedOrUpdatedMemory> request,
+        Description = "Triggered when a landing page is created or updated")]
+    public async Task<PollingEventResponse<PageMemory, PagesResponse>>
+        OnLandingPageCreatedOrUpdated(PollingEventRequest<PageMemory> request,
             [PollingEventParameter] LanguageRequest languageRequest)
     {
-        var landingPageActions = new LandingPageActions(InvocationContext, null);
-        var landingPages = await landingPageActions.GetAllLandingPages(new SearchPagesRequest());
-        
+        var landingPages = await GetAllLandingPages(new SearchPagesRequest());
         var pages = landingPages.Items.ToList();
-        if (request.Memory == null)
+        return HandlePagePollingEventAsync(request, languageRequest, pages);
+    }
+
+    private PollingEventResponse<PageMemory, BlogPostsResponse> HandleBlogPostPollingEventAsync(
+        PollingEventRequest<PageMemory> request,
+        LanguageRequest languageRequest,
+        List<BlogPostDto> blogPosts)
+    {
+        if (request.Memory is null)
         {
-            return await HandleFirstRunAsync(pages);
+            return new PollingEventResponse<PageMemory, BlogPostsResponse>
+            {
+                FlyBird = false,
+                Memory = new PageMemory(blogPosts),
+                Result = null
+            };
         }
 
-        return await HandleSubsequentRunsAsync(request, languageRequest, pages);
-    }
-
-    private Task<PollingEventResponse<PageCreatedOrUpdatedMemory, PagesResponse>>
-        HandleFirstRunAsync(List<PageDto> pages)
-    {
-        return Task.FromResult(new PollingEventResponse<PageCreatedOrUpdatedMemory, PagesResponse>()
+        if (blogPosts.Count == 0)
         {
-            FlyBird = false,
-            Memory = new PageCreatedOrUpdatedMemory() { Pages = pages },
-            Result = null
-        });
-    }
-
-    private Task<PollingEventResponse<PageCreatedOrUpdatedMemory, PagesResponse>>
-        HandleSubsequentRunsAsync(PollingEventRequest<PageCreatedOrUpdatedMemory> request,
-            LanguageRequest languageRequest, 
-            List<PageDto> pages)
-    {
-        if (pages.Count == 0)
-        {
-            return Task.FromResult(new PollingEventResponse<PageCreatedOrUpdatedMemory, PagesResponse>()
+            return new PollingEventResponse<PageMemory, BlogPostsResponse>
             {
                 FlyBird = false,
                 Memory = request.Memory,
                 Result = null
-            });
+            };
         }
 
-        var newPages = pages.Where(p => request.Memory.Pages.All(mp => mp.Id != p.Id)).ToList();
-        var updatedPages = pages
-            .Where(p => request.Memory.Pages.Any(mp => mp.Id == p.Id && mp.HasSignificantChanges(p))).ToList();
+        var memoryEntities = request.Memory.Pages;
+        var newPages = blogPosts.Where(p => memoryEntities.All(mp => mp.Id != p.Id)).ToList();
+        var updatedPages = blogPosts
+            .Where(p => DateTimeHelper.IsPageUpdated(memoryEntities, new PageEntity(p.Id, p.Created, p.Updated)))
+            .ToList();
 
-        var allChanges = newPages.Concat(updatedPages).ToList();
+        var allChanges = newPages.Concat(updatedPages)
+            .Where(p => p.Language == languageRequest.Language)
+            .ToList();
         if (allChanges.Count == 0)
         {
-            return Task.FromResult(new PollingEventResponse<PageCreatedOrUpdatedMemory, PagesResponse>()
+            return new PollingEventResponse<PageMemory, BlogPostsResponse>
             {
                 FlyBird = false,
-                Memory = request.Memory,
+                Memory = new PageMemory(blogPosts),
                 Result = null
-            });
-        }
-        
-        if(languageRequest.Language != null)
-        {
-            allChanges = allChanges.Where(p => p.Language == languageRequest.Language).ToList();
+            };
         }
 
-        return Task.FromResult(new PollingEventResponse<PageCreatedOrUpdatedMemory, PagesResponse>()
+        return new PollingEventResponse<PageMemory, BlogPostsResponse>
         {
             FlyBird = true,
-            Memory = new PageCreatedOrUpdatedMemory() { Pages = pages },
-            Result = new PagesResponse() { Pages = allChanges }
-        });
-    }
-    
-    
-    private Task<PollingEventResponse<BlogPostsCreatedOrUpdatedMemory, BlogPostsResponse>> HandleFirstRunAsync(
-        List<BlogPostDto> pages)
-    {
-        return Task.FromResult(new PollingEventResponse<BlogPostsCreatedOrUpdatedMemory, BlogPostsResponse>()
-        {
-            FlyBird = false,
-            Memory = new BlogPostsCreatedOrUpdatedMemory() { BlogPosts = pages },
-            Result = null
-        });
+            Memory = new PageMemory(blogPosts),
+            Result = new BlogPostsResponse(allChanges)
+        };
     }
 
-    private Task<PollingEventResponse<BlogPostsCreatedOrUpdatedMemory, BlogPostsResponse>>
-        HandleSubsequentRunsAsync(PollingEventRequest<BlogPostsCreatedOrUpdatedMemory> request, 
-            LanguageRequest languageRequest, 
-            List<BlogPostDto> pages)
+    private PollingEventResponse<PageMemory, PagesResponse> HandlePagePollingEventAsync(
+        PollingEventRequest<PageMemory> request,
+        LanguageRequest languageRequest,
+        List<PageDto> pages)
     {
+        if (request.Memory is null)
+        {
+            return new PollingEventResponse<PageMemory, PagesResponse>
+            {
+                FlyBird = false,
+                Memory = new PageMemory(pages),
+                Result = null
+            };
+        }
+
         if (pages.Count == 0)
         {
-            return Task.FromResult(new PollingEventResponse<BlogPostsCreatedOrUpdatedMemory, BlogPostsResponse>()
+            return new PollingEventResponse<PageMemory, PagesResponse>
             {
                 FlyBird = false,
                 Memory = request.Memory,
                 Result = null
-            });
+            };
         }
 
-        var newPages = pages.Where(p => request.Memory.BlogPosts.All(mp => mp.Id != p.Id)).ToList();
+        var memoryEntities = request.Memory.Pages;
+        var newPages = pages.Where(p => memoryEntities.All(mp => mp.Id != p.Id)).ToList();
+        
         var updatedPages = pages
-            .Where(p => request.Memory.BlogPosts.Any(mp => mp.Id == p.Id && mp.HasSignificantChanges(p))).ToList();
+            .Where(p => DateTimeHelper.IsPageUpdated(memoryEntities, new PageEntity(p.Id, p.Created, p.Updated)))
+            .ToList();
 
-        var allChanges = newPages.Concat(updatedPages).ToList();
+        var allChanges = newPages.Concat(updatedPages)
+            .Where(p => p.Language == languageRequest.Language)
+            .ToList();
+        
         if (allChanges.Count == 0)
         {
-            return Task.FromResult(new PollingEventResponse<BlogPostsCreatedOrUpdatedMemory, BlogPostsResponse>()
+            return new PollingEventResponse<PageMemory, PagesResponse>
             {
                 FlyBird = false,
-                Memory = request.Memory,
+                Memory = new PageMemory(pages),
                 Result = null
-            });
-        }
-        
-        if(languageRequest.Language != null)
-        {
-            allChanges = allChanges.Where(p => p.Language == languageRequest.Language).ToList();
+            };
         }
 
-        return Task.FromResult(new PollingEventResponse<BlogPostsCreatedOrUpdatedMemory, BlogPostsResponse>()
+        return new PollingEventResponse<PageMemory, PagesResponse>
         {
             FlyBird = true,
-            Memory = new BlogPostsCreatedOrUpdatedMemory() { BlogPosts = pages },
-            Result = new BlogPostsResponse() { BlogPosts = allChanges }
-        });
+            Memory = new PageMemory(pages),
+            Result = new PagesResponse(allChanges)
+        };
+    }
+
+    private async Task<ListResponse<BlogPostDto>> GetAllBlogPosts(SearchPagesRequest input)
+    {
+        var query = input.AsQuery();
+        var endpoint = ApiEndpoints.BlogPostsSegment.WithQuery(query);
+
+        var request = new HubspotRequest(endpoint, Method.Get, Creds);
+        var response = await Client.Paginate<BlogPostWithTranslationsDto>(request);
+
+        if (input.NotTranslatedInLanguage != null)
+        {
+            response = response.Where(p =>
+                p.Translations == null ||
+                p.Translations.Keys.All(key => key != input.NotTranslatedInLanguage.ToLower())).ToList();
+        }
+
+        return new(response);
+    }
+
+    private async Task<ListResponse<PageDto>> GetAllSitePages(SearchPagesRequest input)
+    {
+        var query = input.AsQuery();
+        var endpoint = ApiEndpoints.SitePages.WithQuery(query);
+
+        var request = new HubspotRequest(endpoint, Method.Get, Creds);
+        var response = await Client.Paginate<GenericPageDto>(request);
+
+        if (input.NotTranslatedInLanguage != null)
+        {
+            response = response.Where(p =>
+                p.Translations == null ||
+                p.Translations.Keys.All(key => key != input.NotTranslatedInLanguage.ToLower())).ToList();
+        }
+
+        return new(response);
+    }
+
+    private async Task<ListResponse<PageDto>> GetAllLandingPages(SearchPagesRequest input)
+    {
+        var query = input.AsQuery();
+        var endpoint = ApiEndpoints.LandingPages.WithQuery(query);
+
+        var request = new HubspotRequest(endpoint, Method.Get, Creds);
+        var response = await Client.Paginate<GenericPageDto>(request);
+
+        if (input.NotTranslatedInLanguage != null)
+        {
+            response = response.Where(p =>
+                p.Translations == null ||
+                p.Translations.Keys.All(key => key != input.NotTranslatedInLanguage.ToLower())).ToList();
+        }
+
+        return new(response);
     }
 }
