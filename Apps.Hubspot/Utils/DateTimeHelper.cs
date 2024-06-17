@@ -13,7 +13,7 @@ public static class DateTimeHelper
         {
             string format = "yyyy-MM-ddTHH:mm:ss.fffZ";
             bool updatedParsed = DateTime.TryParseExact(blogPost.Updated, format, null,
-                System.Globalization.DateTimeStyles.AssumeUniversal | System.Globalization.DateTimeStyles.AdjustToUniversal,
+                DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
                 out var updatedDateTime);
             bool memoryUpdatedParsed = DateTime.TryParse(memoryPage.Updated, out var memoryUpdatedDateTime);
 

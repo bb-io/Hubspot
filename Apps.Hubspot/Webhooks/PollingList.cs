@@ -74,32 +74,16 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
     {
         if (request.Memory is null)
         {
-            var memory = new PageMemory
-            {
-                Pages = blogPosts.Select(p => new PageEntity
-                {
-                    Id = p.Id,
-                    Created = p.Created,
-                    Updated = p.Updated
-                }).ToList()
-            };
-            
             return new PollingEventResponse<PageMemory, BlogPostsResponse>
             {
                 FlyBird = false,
-                Memory = memory,
+                Memory = new PageMemory(blogPosts),
                 Result = null
             };
         }
 
         if (blogPosts.Count == 0)
         {
-            Logger.Log(new
-            {
-                message = "No blog posts found",
-                memory = request.Memory
-            });
-
             return new PollingEventResponse<PageMemory, BlogPostsResponse>
             {
                 FlyBird = false,
@@ -113,12 +97,6 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         var updatedPages = blogPosts
             .Where(p => DateTimeHelper.IsPageUpdated(memoryEntities, p))
             .ToList();
-        
-        Logger.Log(new
-        {
-            message = "After comparing the memory with the new blog posts",
-            memory = request.Memory,
-        });
 
         var allChanges = newPages.Concat(updatedPages).ToList();
         if (allChanges.Count == 0)
@@ -126,43 +104,17 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
             return new PollingEventResponse<PageMemory, BlogPostsResponse>
             {
                 FlyBird = false,
-                Memory = new PageMemory
-                {
-                    Pages = blogPosts.Select(p => new PageEntity
-                    {
-                        Id = p.Id,
-                        Created = p.Created,
-                        Updated = p.Updated
-                    }).ToList()
-                },
+                Memory = new PageMemory(blogPosts),
                 Result = null
             };
         }
 
         allChanges = allChanges.Where(p => p.Language == languageRequest.Language).ToList();
-
-        Logger.Log(new
-        {
-            new_pages = newPages,
-            updated_pages = updatedPages
-        });
-
         return new PollingEventResponse<PageMemory, BlogPostsResponse>
         {
             FlyBird = true,
-            Memory = new PageMemory
-            {
-                Pages = blogPosts.Select(p => new PageEntity
-                {
-                    Id = p.Id,
-                    Created = p.Created,
-                    Updated = p.Updated
-                }).ToList()
-            },
-            Result = new BlogPostsResponse
-            {
-                BlogPosts = allChanges
-            }
+            Memory = new PageMemory(blogPosts),
+            Result = new BlogPostsResponse(allChanges)
         };
     }
 
