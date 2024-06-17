@@ -8,6 +8,7 @@ using Apps.Hubspot.Models.Dtos.Pages;
 using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Models.Responses;
 using Apps.Hubspot.Models.Responses.Pages;
+using Apps.Hubspot.Utils;
 using Apps.Hubspot.Webhooks.Models;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Polling;
@@ -83,12 +84,6 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                 }).ToList()
             };
             
-            Logger.Log(new
-            {
-                message = "First run of the polling event",
-                new_memory = memory
-            });
-            
             return new PollingEventResponse<PageMemory, BlogPostsResponse>
             {
                 FlyBird = false,
@@ -116,38 +111,18 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         var memoryEntities = request.Memory.Pages;
         var newPages = blogPosts.Where(p => memoryEntities.All(mp => mp.Id != p.Id)).ToList();
         var updatedPages = blogPosts
-            .Where(p =>
-            {
-                var memoryPage = memoryEntities.FirstOrDefault(mp => mp.Id == p.Id);
-                return memoryPage != null && memoryPage.Updated != p.Updated;
-            })
+            .Where(p => DateTimeHelper.IsPageUpdated(memoryEntities, p))
             .ToList();
         
         Logger.Log(new
         {
             message = "After comparing the memory with the new blog posts",
             memory = request.Memory,
-            newPages,
-            updatedPages
         });
 
         var allChanges = newPages.Concat(updatedPages).ToList();
         if (allChanges.Count == 0)
         {
-            Logger.Log(new
-            {
-                message = "No changes found",
-                memory = new PageMemory
-                {
-                    Pages = blogPosts.Select(p => new PageEntity
-                    {
-                        Id = p.Id,
-                        Created = p.Created,
-                        Updated = p.Updated
-                    }).ToList()
-                }
-            });
-
             return new PollingEventResponse<PageMemory, BlogPostsResponse>
             {
                 FlyBird = false,
@@ -169,8 +144,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         Logger.Log(new
         {
             new_pages = newPages,
-            updated_pages = updatedPages,
-            all_changes = allChanges
+            updated_pages = updatedPages
         });
 
         return new PollingEventResponse<PageMemory, BlogPostsResponse>
