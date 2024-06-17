@@ -46,9 +46,17 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         OnLandingPageCreatedOrUpdated(PollingEventRequest<PageMemory> request,
             [PollingEventParameter] LanguageRequest languageRequest)
     {
-        var landingPages = await GetAllLandingPages(new SearchPagesRequest());
-        var pages = landingPages.Items.ToList();
-        return HandlePagePollingEventAsync(request, languageRequest, pages);
+        try
+        {
+            var landingPages = await GetAllLandingPages(new SearchPagesRequest());
+            var pages = landingPages.Items.ToList();
+            return HandlePagePollingEventAsync(request, languageRequest, pages);
+        }
+        catch (Exception e)
+        {
+            await Logger.LogExceptionAsync(e);
+            throw;
+        }
     }
 
     private PollingEventResponse<PageMemory, BlogPostsResponse> HandleBlogPostPollingEventAsync(

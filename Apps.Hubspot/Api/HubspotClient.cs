@@ -35,7 +35,13 @@ public class HubspotClient : BlackBirdRestClient
             if (!string.IsNullOrEmpty(after))
                 request.Resource = baseUrl.SetQueryParameter("after", after);
 
-            response = await ExecuteWithErrorHandling<GetAllResponse<T>>(request);
+            var apiResponse = await ExecuteWithErrorHandling(request);
+            await Logger.LogAsync(new
+            {
+                content = apiResponse.Content!,
+            });
+            
+            response = JsonConvert.DeserializeObject<GetAllResponse<T>>(apiResponse.Content!)!;
             result.AddRange(response.Results);
 
             after = response.Paging?.Next?.After;
