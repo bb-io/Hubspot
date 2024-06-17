@@ -12,7 +12,6 @@ using Apps.Hubspot.Webhooks.Models;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Polling;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
-using Microsoft.Extensions.Logging;
 using RestSharp;
 
 namespace Apps.Hubspot.Webhooks;
@@ -49,18 +48,10 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         OnSitePageCreatedOrUpdated(PollingEventRequest<PageMemory> request,
             [PollingEventParameter] LanguageRequest languageRequest)
     {
-        try
-        {
-            var sitePages = await GetAllSitePages(new SearchPagesRequest());
-            var pages = sitePages.Items.ToList();
+        var sitePages = await GetAllSitePages(new SearchPagesRequest());
+        var pages = sitePages.Items.ToList();
 
-            return HandlePagePollingEventAsync(request, languageRequest, pages);
-        }
-        catch (Exception e)
-        {
-            await Logger.LogExceptionAsync(e);
-            throw;
-        }
+        return HandlePagePollingEventAsync(request, languageRequest, pages);
     }
 
     [PollingEvent("On landing pages created or updated",
@@ -69,18 +60,10 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         OnLandingPageCreatedOrUpdated(PollingEventRequest<PageMemory> request,
             [PollingEventParameter] LanguageRequest languageRequest)
     {
-        try
-        {
-            var landingPages = await GetAllLandingPages(new SearchPagesRequest());
-            var pages = landingPages.Items.ToList();
+        var landingPages = await GetAllLandingPages(new SearchPagesRequest());
+        var pages = landingPages.Items.ToList();
 
-            return HandlePagePollingEventAsync(request, languageRequest, pages);
-        }
-        catch (Exception e)
-        {
-            await Logger.LogExceptionAsync(e);
-            throw;
-        }
+        return HandlePagePollingEventAsync(request, languageRequest, pages);
     }
 
     private PollingEventResponse<PageMemory, BlogPostsResponse> HandleBlogPostPollingEventAsync(
@@ -106,7 +89,6 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                 new_memory = memory,
                 blog_posts = blogPosts
             });
-
             return new PollingEventResponse<PageMemory, BlogPostsResponse>
             {
                 FlyBird = false,
@@ -132,11 +114,13 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         }
 
         var memoryEntities = request.Memory.Pages;
-        var newPages = blogPosts.Where(p => memoryEntities.All(mp => mp.Id != p.Id)).ToList();
+        var newPages = blogPosts.Where(p => memoryEntities.All(mp => mp.Id != p.Id)).ToList(); // this logic is correct
         var updatedPages = blogPosts
-            .Where(p => memoryEntities.Any(mp =>
-                mp.Id == p.Id && DateTime.Parse(mp.Updated, null, DateTimeStyles.RoundtripKind) <
-                DateTime.Parse(p.Updated, null, DateTimeStyles.RoundtripKind)))
+            .Where(p =>
+            {
+                var memoryPage = memoryEntities.FirstOrDefault(mp => mp.Id == p.Id);
+                return memoryPage != null && memoryPage.Updated != p.Updated;
+            })
             .ToList();
 
         var allChanges = newPages.Concat(updatedPages).ToList();
@@ -207,13 +191,6 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
     {
         if (request.Memory is null)
         {
-            Logger.Log(new
-            {
-                message = "First run of the polling event",
-                memory = request.Memory,
-                pages = pages
-            });
-
             return new PollingEventResponse<PageMemory, PagesResponse>
             {
                 FlyBird = false,
@@ -232,12 +209,6 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
 
         if (pages.Count == 0)
         {
-            Logger.Log(new
-            {
-                message = "No pages found",
-                memory = request.Memory
-            });
-
             return new PollingEventResponse<PageMemory, PagesResponse>
             {
                 FlyBird = false,
@@ -255,20 +226,6 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         var allChanges = newPages.Concat(updatedPages).ToList();
         if (allChanges.Count == 0)
         {
-            Logger.Log(new
-            {
-                message = "No changes found",
-                memory = new PageMemory
-                {
-                    Pages = pages.Select(p => new PageEntity
-                    {
-                        Id = p.Id,
-                        Created = p.Created.ToString(CultureInfo.InvariantCulture),
-                        Updated = p.Updated.ToString(CultureInfo.InvariantCulture)
-                    }).ToList()
-                }
-            });
-
             return new PollingEventResponse<PageMemory, PagesResponse>
             {
                 FlyBird = false,
@@ -286,14 +243,6 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         }
 
         allChanges = allChanges.Where(p => p.Language == languageRequest.Language).ToList();
-
-        Logger.Log(new
-        {
-            new_pages = newPages,
-            updated_pages = updatedPages,
-            all_changes = allChanges
-        });
-
         return new PollingEventResponse<PageMemory, PagesResponse>
         {
             FlyBird = true,
