@@ -1,10 +1,10 @@
-﻿using Blackbird.Applications.Sdk.Common;
+﻿using Apps.Hubspot.Webhooks.Models;
+using Blackbird.Applications.Sdk.Common;
 
 namespace Apps.Hubspot.Models.Dtos.Pages;
 
-public class PageDto : IEquatable<PageDto>
+public class PageDto
 {
-    
     [Display("Page ID")]
     public string Id { get; set; }
     
@@ -88,27 +88,4 @@ public class PageDto : IEquatable<PageDto>
 
     [Display("Translated from ID")]
     public string? TranslatedFromId { get; set; }
-
-    public bool Equals(PageDto other)
-    {
-        if (other == null) return false;
-        if (ReferenceEquals(this, other)) return true;
-        return Id == other.Id;
-    }
-
-    public bool HasSignificantChanges(PageDto other)
-    {
-        if (other == null) return false;
-        return HtmlTitle != other.HtmlTitle || Name != other.Name || MetaDescription != other.MetaDescription;
-    }
-
-    public override bool Equals(object obj)
-    {
-        return Equals(obj as PageDto);
-    }
-
-    public override int GetHashCode()
-    {
-        return Id.GetHashCode();
-    }
 }
