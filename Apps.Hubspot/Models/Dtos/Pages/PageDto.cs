@@ -1,5 +1,6 @@
 ﻿using Apps.Hubspot.Webhooks.Models;
 using Blackbird.Applications.Sdk.Common;
+using Newtonsoft.Json;
 
 namespace Apps.Hubspot.Models.Dtos.Pages;
 
@@ -62,16 +63,16 @@ public class PageDto
     [Display("Page expiry date")]
     public int PageExpiryDate { get; set; }
 
-    [Display("Publish date")]
+    [Display("Publish date"), JsonProperty("publishDate")]
     public string PublishDate { get; set; }
 
-    [Display("Created")]
+    [Display("Created"), JsonProperty("createdAt")]
     public string Created { get; set; }
 
-    [Display("Updated")]
+    [Display("Updated"), JsonProperty("updatedAt")]
     public string Updated { get; set; }
 
-    [Display("Archived at")]
+    [Display("Archived at"), JsonProperty("archivedAt")]
     public string ArchivedAt { get; set; }
 
     [Display("Meta description")]
