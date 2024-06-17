@@ -82,7 +82,9 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
             .Where(p => DateTimeHelper.IsPageUpdated(memoryEntities, new PageEntity(p.Id, p.Created, p.Updated)))
             .ToList();
 
-        var allChanges = newPages.Concat(updatedPages).ToList();
+        var allChanges = newPages.Concat(updatedPages)
+            .Where(p => p.Language == languageRequest.Language)
+            .ToList();
         if (allChanges.Count == 0)
         {
             return new PollingEventResponse<PageMemory, BlogPostsResponse>
@@ -93,7 +95,6 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
             };
         }
 
-        allChanges = allChanges.Where(p => p.Language == languageRequest.Language).ToList();
         return new PollingEventResponse<PageMemory, BlogPostsResponse>
         {
             FlyBird = true,
@@ -133,7 +134,10 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
             .Where(p => DateTimeHelper.IsPageUpdated(memoryEntities, new PageEntity(p.Id, p.Created, p.Updated)))
             .ToList();
 
-        var allChanges = newPages.Concat(updatedPages).ToList();
+        var allChanges = newPages.Concat(updatedPages)
+            .Where(p => p.Language == languageRequest.Language)
+            .ToList();
+        
         if (allChanges.Count == 0)
         {
             return new PollingEventResponse<PageMemory, PagesResponse>
@@ -144,7 +148,6 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
             };
         }
 
-        allChanges = allChanges.Where(p => p.Language == languageRequest.Language).ToList();
         return new PollingEventResponse<PageMemory, PagesResponse>
         {
             FlyBird = true,
