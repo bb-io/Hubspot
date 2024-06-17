@@ -86,9 +86,9 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
             Logger.Log(new
             {
                 message = "First run of the polling event",
-                new_memory = memory,
-                blog_posts = blogPosts
+                new_memory = memory
             });
+            
             return new PollingEventResponse<PageMemory, BlogPostsResponse>
             {
                 FlyBird = false,
@@ -114,7 +114,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         }
 
         var memoryEntities = request.Memory.Pages;
-        var newPages = blogPosts.Where(p => memoryEntities.All(mp => mp.Id != p.Id)).ToList(); // this logic is correct
+        var newPages = blogPosts.Where(p => memoryEntities.All(mp => mp.Id != p.Id)).ToList();
         var updatedPages = blogPosts
             .Where(p =>
             {
@@ -122,6 +122,14 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                 return memoryPage != null && memoryPage.Updated != p.Updated;
             })
             .ToList();
+        
+        Logger.Log(new
+        {
+            message = "After comparing the memory with the new blog posts",
+            memory = request.Memory,
+            newPages,
+            updatedPages
+        });
 
         var allChanges = newPages.Concat(updatedPages).ToList();
         if (allChanges.Count == 0)
