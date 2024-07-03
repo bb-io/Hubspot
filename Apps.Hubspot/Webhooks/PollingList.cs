@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using Apps.Hubspot.Api;
+﻿using Apps.Hubspot.Api;
 using Apps.Hubspot.Constants;
 using Apps.Hubspot.Extensions;
 using Apps.Hubspot.Invocables;
@@ -8,7 +7,6 @@ using Apps.Hubspot.Models.Dtos.Pages;
 using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Models.Responses;
 using Apps.Hubspot.Models.Responses.Pages;
-using Apps.Hubspot.Utils;
 using Apps.Hubspot.Webhooks.Models;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Polling;
@@ -25,9 +23,35 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         OnBlogPostsCreatedOrUpdated(PollingEventRequest<PageMemory> request,
             [PollingEventParameter] LanguageRequest languageRequest)
     {
-        var blogPosts = await GetAllBlogPosts(new SearchPagesRequest());
-        var pages = blogPosts.Items.ToList();
-        return HandleBlogPostPollingEventAsync(request, languageRequest, pages);
+        if(request.Memory is null || request.Memory.LastPollingTime is null)
+        {
+            return new PollingEventResponse<PageMemory, BlogPostsResponse>
+            {
+                FlyBird = false,
+                Memory = new PageMemory { LastPollingTime = DateTime.UtcNow },
+                Result = null
+            };
+        }
+        
+        var createdBlogPosts = await GetAllBlogPosts(new SearchPagesRequest { CreatedAfter = request.Memory.LastPollingTime.Value });
+        var updatedBlogPosts = await GetAllBlogPosts(new SearchPagesRequest { UpdatedAfter = request.Memory.LastPollingTime.Value });
+        var blogPosts = createdBlogPosts.Items.Concat(updatedBlogPosts.Items).ToList();
+        if(blogPosts.Count == 0)
+        {
+            return new PollingEventResponse<PageMemory, BlogPostsResponse>
+            {
+                FlyBird = false,
+                Memory = new PageMemory { LastPollingTime = DateTime.UtcNow },
+                Result = null
+            };
+        }
+        
+        return new PollingEventResponse<PageMemory, BlogPostsResponse>
+        {
+            FlyBird = true,
+            Memory = new PageMemory { LastPollingTime = DateTime.UtcNow },
+            Result = new BlogPostsResponse(blogPosts)
+        };
     }
 
     [PollingEvent("On site pages created or updated", Description = "Triggered when a site page is created or updated")]
@@ -35,9 +59,35 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         OnSitePageCreatedOrUpdated(PollingEventRequest<PageMemory> request,
             [PollingEventParameter] LanguageRequest languageRequest)
     {
-        var sitePages = await GetAllSitePages(new SearchPagesRequest());
-        var pages = sitePages.Items.ToList();
-        return HandlePagePollingEventAsync(request, languageRequest, pages);
+        if(request.Memory is null || request.Memory.LastPollingTime is null)
+        {
+            return new PollingEventResponse<PageMemory, PagesResponse>
+            {
+                FlyBird = false,
+                Memory = new PageMemory { LastPollingTime = DateTime.UtcNow },
+                Result = null
+            };
+        }
+        
+        var created = await GetAllSitePages(new SearchPagesRequest() { CreatedAfter = request.Memory.LastPollingTime.Value });
+        var updated = await GetAllSitePages(new SearchPagesRequest() { UpdatedAfter = request.Memory.LastPollingTime.Value });
+        var pages = created.Items.Concat(updated.Items).ToList();
+        if(pages.Count == 0)
+        {
+            return new PollingEventResponse<PageMemory, PagesResponse>
+            {
+                FlyBird = false,
+                Memory = new PageMemory { LastPollingTime = DateTime.UtcNow },
+                Result = null
+            };
+        }
+        
+        return new PollingEventResponse<PageMemory, PagesResponse>
+        {
+            FlyBird = true,
+            Memory = new PageMemory { LastPollingTime = DateTime.UtcNow },
+            Result = new PagesResponse(pages)
+        };
     }
 
     [PollingEvent("On landing pages created or updated",
@@ -46,114 +96,34 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         OnLandingPageCreatedOrUpdated(PollingEventRequest<PageMemory> request,
             [PollingEventParameter] LanguageRequest languageRequest)
     {
-        var landingPages = await GetAllLandingPages(new SearchPagesRequest());
-        var pages = landingPages.Items.ToList();
-        return HandlePagePollingEventAsync(request, languageRequest, pages);
-    }
-
-    private PollingEventResponse<PageMemory, BlogPostsResponse> HandleBlogPostPollingEventAsync(
-        PollingEventRequest<PageMemory> request,
-        LanguageRequest languageRequest,
-        List<BlogPostDto> blogPosts)
-    {
-        if (request.Memory is null)
-        {
-            return new PollingEventResponse<PageMemory, BlogPostsResponse>
-            {
-                FlyBird = false,
-                Memory = new PageMemory(blogPosts),
-                Result = null
-            };
-        }
-
-        if (blogPosts.Count == 0)
-        {
-            return new PollingEventResponse<PageMemory, BlogPostsResponse>
-            {
-                FlyBird = false,
-                Memory = request.Memory,
-                Result = null
-            };
-        }
-
-        var memoryEntities = request.Memory.Pages;
-        var newPages = blogPosts.Where(p => memoryEntities.All(mp => mp.Id != p.Id)).ToList();
-        var updatedPages = blogPosts
-            .Where(p => DateTimeHelper.IsPageUpdated(memoryEntities, new PageEntity(p.Id, p.Created, p.Updated)))
-            .ToList();
-
-        var allChanges = newPages.Concat(updatedPages)
-            .Where(p => p.Language == languageRequest.Language)
-            .ToList();
-        if (allChanges.Count == 0)
-        {
-            return new PollingEventResponse<PageMemory, BlogPostsResponse>
-            {
-                FlyBird = false,
-                Memory = new PageMemory(blogPosts),
-                Result = null
-            };
-        }
-
-        return new PollingEventResponse<PageMemory, BlogPostsResponse>
-        {
-            FlyBird = true,
-            Memory = new PageMemory(blogPosts),
-            Result = new BlogPostsResponse(allChanges)
-        };
-    }
-
-    private PollingEventResponse<PageMemory, PagesResponse> HandlePagePollingEventAsync(
-        PollingEventRequest<PageMemory> request,
-        LanguageRequest languageRequest,
-        List<PageDto> pages)
-    {
-        if (request.Memory is null)
+        if(request.Memory is null || request.Memory.LastPollingTime is null)
         {
             return new PollingEventResponse<PageMemory, PagesResponse>
             {
                 FlyBird = false,
-                Memory = new PageMemory(pages),
+                Memory = new PageMemory { LastPollingTime = DateTime.UtcNow },
                 Result = null
             };
         }
-
-        if (pages.Count == 0)
-        {
-            return new PollingEventResponse<PageMemory, PagesResponse>
-            {
-                FlyBird = false,
-                Memory = request.Memory,
-                Result = null
-            };
-        }
-
-        var memoryEntities = request.Memory.Pages;
-        var newPages = pages.Where(p => memoryEntities.All(mp => mp.Id != p.Id)).ToList();
         
-        var updatedPages = pages
-            .Where(p => DateTimeHelper.IsPageUpdated(memoryEntities, new PageEntity(p.Id, p.Created, p.Updated)))
-            .ToList();
-
-        var allChanges = newPages.Concat(updatedPages)
-            .Where(p => p.Language == languageRequest.Language)
-            .ToList();
-        
-        if (allChanges.Count == 0)
+        var created = await GetAllLandingPages(new SearchPagesRequest { CreatedAfter = request.Memory.LastPollingTime.Value });
+        var updated = await GetAllLandingPages(new SearchPagesRequest { UpdatedAfter = request.Memory.LastPollingTime.Value });
+        var pages = created.Items.Concat(updated.Items).ToList();
+        if(pages.Count == 0)
         {
             return new PollingEventResponse<PageMemory, PagesResponse>
             {
                 FlyBird = false,
-                Memory = new PageMemory(pages),
+                Memory = new PageMemory { LastPollingTime = DateTime.UtcNow },
                 Result = null
             };
         }
-
+        
         return new PollingEventResponse<PageMemory, PagesResponse>
         {
             FlyBird = true,
-            Memory = new PageMemory(pages),
-            Result = new PagesResponse(allChanges)
+            Memory = new PageMemory { LastPollingTime = DateTime.UtcNow },
+            Result = new PagesResponse(pages)
         };
     }
 
