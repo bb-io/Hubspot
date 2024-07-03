@@ -35,7 +35,11 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         
         var createdBlogPosts = await GetAllBlogPosts(new SearchPagesRequest { CreatedAfter = request.Memory.LastPollingTime.Value });
         var updatedBlogPosts = await GetAllBlogPosts(new SearchPagesRequest { UpdatedAfter = request.Memory.LastPollingTime.Value });
-        var blogPosts = createdBlogPosts.Items.Concat(updatedBlogPosts.Items).ToList();
+        var blogPosts = createdBlogPosts.Items
+            .Concat(updatedBlogPosts.Items)
+            .Where(p => p.Language == languageRequest.Language)
+            .ToList();
+        
         if(blogPosts.Count == 0)
         {
             return new PollingEventResponse<PageMemory, BlogPostsResponse>
@@ -71,7 +75,10 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         
         var created = await GetAllSitePages(new SearchPagesRequest() { CreatedAfter = request.Memory.LastPollingTime.Value });
         var updated = await GetAllSitePages(new SearchPagesRequest() { UpdatedAfter = request.Memory.LastPollingTime.Value });
-        var pages = created.Items.Concat(updated.Items).ToList();
+        var pages = created.Items
+            .Concat(updated.Items)
+            .Where(p => p.Language == languageRequest.Language)
+            .ToList();
         if(pages.Count == 0)
         {
             return new PollingEventResponse<PageMemory, PagesResponse>
@@ -108,7 +115,10 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         
         var created = await GetAllLandingPages(new SearchPagesRequest { CreatedAfter = request.Memory.LastPollingTime.Value });
         var updated = await GetAllLandingPages(new SearchPagesRequest { UpdatedAfter = request.Memory.LastPollingTime.Value });
-        var pages = created.Items.Concat(updated.Items).ToList();
+        var pages = created.Items
+            .Concat(updated.Items)
+            .Where(p => p.Language == languageRequest.Language)
+            .ToList();
         if(pages.Count == 0)
         {
             return new PollingEventResponse<PageMemory, PagesResponse>
