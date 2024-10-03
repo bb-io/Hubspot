@@ -13,6 +13,7 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
+using Newtonsoft.Json;
 using RestSharp;
 
 namespace Apps.Hubspot.Actions;
@@ -74,10 +75,12 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
         var file = await FileManagementClient.DownloadAsync(formRequest.File);
         var bytes = await file.GetByteData();
         
-        var formId = formRequest.FormId ?? HtmlConverter.ExtractBlackbirdId(bytes)
+        var extractedFormId = HtmlConverter.ExtractBlackbirdId(bytes) ?? throw new InvalidOperationException(
+            "Could not extract form ID from HTML content. Please ensure that the form ID is present in the HTML content as meta tag with name 'blackbird-reference-id'.");
+        var formId = formRequest.FormId ?? extractedFormId
             ?? throw new InvalidOperationException(
                 "Could not extract form ID from HTML content. Please provide a Form ID in optional input of this action.");
-        var form = await GetMarketingForm(new() { FormId = formId });
+        var form = await GetMarketingForm(new() { FormId = extractedFormId });
         
         var htmlEntity = HtmlConverter.ExtractFormHtmlEntities(bytes);
         form.Name = htmlEntity.FormName;
@@ -115,6 +118,29 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
                     
                     field.Options = options;
                 }
+            }
+            else
+            {
+                return new FieldGroupDto
+                {
+                    GroupType = "default_group",
+                    RichTextType = "text",
+                    Fields = new List<FieldDto>
+                    {
+                        new()
+                        {
+                            Name = x.Name,
+                            Label = x.Properties.GetValueOrDefault("label") ?? string.Empty,
+                            Placeholder = x.Properties.GetValueOrDefault("placeholder") ?? string.Empty,
+                            Description = x.Properties.GetValueOrDefault("description") ?? string.Empty,
+                            Options = x.Options?.Select(z => new OptionDto
+                            {
+                                Value = z.Key,
+                                Label = z.Value
+                            }).ToList()
+                        }
+                    }
+                };
             }
             
             var group = form.FieldGroups.FirstOrDefault(y => y.Fields.Any(z => z.Name == x.Name))!;
