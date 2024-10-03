@@ -1,10 +1,10 @@
-﻿using Blackbird.Applications.Sdk.Utils.Sdk.DataSourceHandlers;
+﻿using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Hubspot.DataSourceHandlers
 {
-    public class LanguageHandler : EnumDataHandler
+    public class LanguageHandler : IStaticDataSourceHandler
     {
-        protected override Dictionary<string, string> EnumValues => new()
+        private static Dictionary<string, string> EnumValues => new()
         {
             { "af", "Afrikaans" },
             { "sq", "Albanian" },
@@ -187,5 +187,10 @@ namespace Apps.Hubspot.DataSourceHandlers
             { "vi", "Vietnamese" },
             { "vi-vn", "Vietnamese - Vietnam" },
         };
+
+        public Dictionary<string, string> GetData()
+        {
+            return EnumValues;
+        }
     }
 }

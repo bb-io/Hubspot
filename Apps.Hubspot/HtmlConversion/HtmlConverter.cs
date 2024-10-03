@@ -1,5 +1,6 @@
 using System.Text;
 using System.Web;
+using Apps.Hubspot.Models.Dtos.Forms;
 using Apps.Hubspot.Models.Responses.Pages;
 using HtmlAgilityPack;
 using Newtonsoft.Json.Linq;
@@ -11,7 +12,8 @@ public static class HtmlConverter
     private static readonly HashSet<string> ContentProperties = new HashSet<string>
     {
         "content", "html", "title", "value", "button_text", "quote_text", "speaker_name", "speaker_title", "heading",
-        "subheading", "price", "tab_label", "header", "subheader", "content_text", "alt", "text", "quotation", "author_name",
+        "subheading", "price", "tab_label", "header", "subheader", "content_text", "alt", "text", "quotation",
+        "author_name",
         "description"
     };
 
@@ -25,6 +27,66 @@ public static class HtmlConverter
     private const string PathAttribute = "path";
     private const string BlackbirdReferenceIdAttribute = "blackbird-reference-id";
 
+    public static byte[] ToHtml(List<FieldGroupDto> fieldGroups, string title, string language, string pageId)
+    {
+        var allFields = fieldGroups.SelectMany(group => group.Fields).ToList();
+        var (doc, bodyNode) = PrepareEmptyHtmlDocument(new JObject(), title, language, pageId);
+
+        foreach (var field in allFields)
+        {
+            if (field.Hidden)
+                continue;
+
+            var fieldDiv = doc.CreateElement("div");
+
+            var jsonPath = $"fieldGroups.{field.Name}.html";
+            fieldDiv.SetAttributeValue(PathAttribute, jsonPath);
+
+            var fieldContentBuilder = new StringBuilder();
+            if (!string.IsNullOrWhiteSpace(field.Label))
+            {
+                var label = HttpUtility.HtmlEncode(field.Label);
+                fieldContentBuilder.AppendLine($"<label data-translate=\"label\">{label}</label>");
+            }
+
+            if (!string.IsNullOrWhiteSpace(field.Placeholder))
+            {
+                var placeholder = HttpUtility.HtmlEncode(field.Placeholder);
+                fieldContentBuilder.AppendLine($"<span data-translate=\"placeholder\">{placeholder}</span>");
+            }
+
+            if (!string.IsNullOrWhiteSpace(field.Description))
+            {
+                var description = HttpUtility.HtmlEncode(field.Description);
+                fieldContentBuilder.AppendLine($"<span data-translate=\"description\">{description}</span>");
+            }
+
+            if (field.FieldType == "dropdown" && field.Options != null)
+            {
+                fieldContentBuilder.AppendLine("<select>");
+
+                foreach (var option in field.Options)
+                {
+                    if (!string.IsNullOrEmpty(option.Value))
+                    {
+                        fieldContentBuilder.AppendLine(
+                            $"<option value=\"{HttpUtility.HtmlEncode(option.Value)}\">{HttpUtility.HtmlEncode(option.Label)}</option>");
+                    }
+                }
+
+                fieldContentBuilder.AppendLine("</select>");
+            }
+
+            fieldDiv.InnerHtml = fieldContentBuilder.ToString();
+
+            fieldDiv.SetAttributeValue("data-name", field.Name);
+            bodyNode.AppendChild(fieldDiv);
+        }
+
+        Console.WriteLine(doc.DocumentNode.OuterHtml);
+        return Encoding.UTF8.GetBytes(doc.DocumentNode.OuterHtml);
+    }
+
     public static byte[] ToHtml(JObject emailContent, string title, string language, string pageId)
     {
         var htmlNodes = emailContent.Descendants()
@@ -33,7 +95,10 @@ public static class HtmlConverter
             .Select(x =>
             {
                 var jProperty = x as JProperty;
-                return (jProperty!.Path, Html: RawHtmlProperties.Contains(jProperty.Name) ? jProperty.Value.ToString() : HttpUtility.HtmlEncode(jProperty.Value.ToString()));
+                return (jProperty!.Path,
+                    Html: RawHtmlProperties.Contains(jProperty.Name)
+                        ? jProperty.Value.ToString()
+                        : HttpUtility.HtmlEncode(jProperty.Value.ToString()));
             })
             .ToList();
 
@@ -74,7 +139,8 @@ public static class HtmlConverter
         var fileString = Encoding.UTF8.GetString(fileBytes);
         var doc = new HtmlDocument();
         doc.LoadHtml(fileString);
-        var referenceId = doc.DocumentNode.SelectSingleNode("//meta[@name='blackbird-reference-id']")?.GetAttributeValue("content", null);
+        var referenceId = doc.DocumentNode.SelectSingleNode("//meta[@name='blackbird-reference-id']")
+            ?.GetAttributeValue("content", null);
 
         return referenceId;
     }
@@ -126,5 +192,100 @@ public static class HtmlConverter
             Title = doc.DocumentNode.SelectSingleNode("//title").InnerHtml,
             Language = doc.DocumentNode.SelectSingleNode("/html/body").Attributes[LanguageAttribute]?.Value
         };
+    }
+
+    public static FormHtmlEntities ExtractFormHtmlEntities(byte[] bytes)
+    {
+        var doc = new HtmlDocument();
+        var memoryStream = new MemoryStream(bytes);
+        doc.Load(memoryStream);
+
+        var title = doc.DocumentNode.SelectSingleNode("//title").InnerHtml;
+        var properties = new List<FormHtmlEntity>();
+
+        var divs = doc.DocumentNode.SelectNodes("//div[@data-name]");
+
+        if (divs != null)
+        {
+            foreach (var div in divs)
+            {
+                // Retrieve the value of the data-name attribute
+                var nameAttr = div.GetAttributeValue("data-name", null);
+                if (string.IsNullOrEmpty(nameAttr))
+                    continue; // Skip if data-name is missing
+
+                var propertiesDict = new Dictionary<string, string>();
+
+                // Find all child elements with a data-translate attribute
+                var translatableElements = div.SelectNodes(".//*[@data-translate]");
+
+                if (translatableElements != null)
+                {
+                    foreach (var elem in translatableElements)
+                    {
+                        var translateAttr = elem.GetAttributeValue("data-translate", null);
+                        if (string.IsNullOrEmpty(translateAttr))
+                            continue; // Skip if data-translate is missing
+
+                        // Decode and trim the inner text
+                        var text = HttpUtility.HtmlDecode(elem.InnerText.Trim());
+
+                        // Add to properties dictionary
+                        if (!propertiesDict.ContainsKey(translateAttr))
+                        {
+                            propertiesDict[translateAttr] = text;
+                        }
+                        else
+                        {
+                            // If the key already exists, append the text (for multiple entries like description)
+                            propertiesDict[translateAttr] += $" {text}";
+                        }
+                    }
+                }
+
+                // Check if there's a select element to extract options
+                var selectNode = div.SelectSingleNode(".//select");
+                Dictionary<string, string>? optionsDict = null;
+
+                if (selectNode != null)
+                {
+                    optionsDict = new Dictionary<string, string>();
+                    var optionNodes = selectNode.SelectNodes(".//option");
+                    if (optionNodes != null)
+                    {
+                        foreach (var option in optionNodes)
+                        {
+                            var value = option.GetAttributeValue("value", string.Empty);
+                            var text = HttpUtility.HtmlDecode(option.InnerText.Trim());
+
+                            if (!optionsDict.ContainsKey(value))
+                            {
+                                optionsDict[value] = text;
+                            }
+                            else
+                            {
+                                // Handle duplicate option values if necessary
+                                // For now, we'll overwrite with the latest occurrence
+                                optionsDict[value] = text;
+                            }
+                        }
+                    }
+                }
+
+                // Create a FormHtmlEntity with the extracted data
+                var formHtmlEntity = new FormHtmlEntity(
+                    Name: nameAttr,
+                    Properties: propertiesDict,
+                    Options: optionsDict
+                );
+
+                properties.Add(formHtmlEntity);
+            }
+        }
+
+        return new FormHtmlEntities(
+            FormName: title,
+            FieldGroups: properties
+        );
     }
 }

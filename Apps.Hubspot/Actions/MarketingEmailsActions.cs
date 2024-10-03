@@ -21,16 +21,9 @@ using RestSharp;
 namespace Apps.Hubspot.Actions;
 
 [ActionList]
-public class MarketingEmailsActions : BaseActions
+public class MarketingEmailsActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
+    : BaseActions(invocationContext, fileManagementClient)
 {
-    private readonly IFileManagementClient _fileManagementClient;
-
-    public MarketingEmailsActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) :
-        base(invocationContext, fileManagementClient)
-    {
-        _fileManagementClient = fileManagementClient;
-    }
-
     [Action("Search marketing emails", Description = "Search for marketing emails based on provided filters")]
     public async Task<ListResponse<MarketingEmailDto>> SearchMarketingEmails([ActionParameter] SearchEmailsRequest input)
     {
@@ -57,7 +50,7 @@ public class MarketingEmailsActions : BaseActions
         var email = await GetEmail(emailRequest.MarketingEmailId);
         var html = HtmlConverter.ToHtml(email.Content, email.Name, email.Language, emailRequest.MarketingEmailId);
 
-        var file = await _fileManagementClient.UploadAsync(new MemoryStream(html), MediaTypeNames.Text.Html,
+        var file = await FileManagementClient.UploadAsync(new MemoryStream(html), MediaTypeNames.Text.Html,
             $"{emailRequest}.html");
 
         return new()
@@ -71,7 +64,7 @@ public class MarketingEmailsActions : BaseActions
     public async Task UpdateMarketingEmail([ActionParameter] MarketingEmailOptionalRequest emailRequest,
         [ActionParameter] FileRequest fileRequest)
     {
-        var htmlFile = await _fileManagementClient.DownloadAsync(fileRequest.File);
+        var htmlFile = await FileManagementClient.DownloadAsync(fileRequest.File);
         var (pageInfo, json) = HtmlConverter.ToJson(htmlFile);
         
         var marketingEmailId = emailRequest.MarketingEmailId ?? pageInfo.HtmlDocument.ExtractBlackbirdReferenceId() ??

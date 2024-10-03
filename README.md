@@ -63,6 +63,16 @@ Note: the Hubspot API marks these endpoints in beta stage.
 - **Get marketing email content as HTML** returns a marketing email as an HTML file for convenient translation.
 - **Update marketing email content from HTML** updates a marketing email content from a (translated) HTML file.
 
+### Marketing forms
+
+Note: the Hubspot API marks these endpoints in beta stage.
+
+- **Search marketing forms** searches for marketing forms based on certain criteria.
+- **Get marketing form** retrieves a marketing form.
+- **Get marketing form as HTML** returns a marketing form as an HTML file for convenient translation.
+- **Update marketing form from HTML** updates a marketing form from a (translated) HTML file.
+- **Create marketing form** creates a new marketing form.
+
 ## Events
 
 - **On blog posts created or updated** triggers when a blog post is created or updated.
