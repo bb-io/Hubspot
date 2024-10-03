@@ -7,6 +7,8 @@ public static class ApiEndpoints
     private const string SitePagesSegment = "site-pages";
     
     public const string MarketingEmailsEndpoint = "https://api.hubapi.com/marketing/v3/emails/";
+    
+    public const string MarketingFormsEndpoint = "https://api.hubapi.com/marketing/v3/forms";
 
     public const string BlogPostsSegment = "/blogs/posts";
     public const string SitePages = $"{PagesSegment}/{SitePagesSegment}";

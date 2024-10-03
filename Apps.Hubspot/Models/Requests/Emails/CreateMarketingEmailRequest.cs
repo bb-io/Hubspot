@@ -1,6 +1,7 @@
 using Apps.Hubspot.DataSourceHandlers;
 using Apps.Hubspot.Utils.Converters;
 using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Newtonsoft.Json;
 
@@ -18,7 +19,7 @@ public class CreateMarketingEmailRequest
 
     [Display("Active domain")] public string? ActiveDomain { get; set; }
 
-    [DataSource(typeof(LanguageHandler))] public string? Language { get; set; }
+    [StaticDataSource(typeof(LanguageHandler))] public string? Language { get; set; }
 
     [Display("Publish date")]
     [JsonConverter(typeof(IsoDateTimeConverter))]
