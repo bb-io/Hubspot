@@ -59,7 +59,7 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
         var html = HtmlConverter.ToHtml(form.FieldGroups, form.Name, form.Configuration.Language, form.Id);
 
         var file = await FileManagementClient.UploadAsync(new MemoryStream(html), MediaTypeNames.Text.Html,
-            $"{formRequest}.html");
+            $"{formRequest.FormId}.html");
 
         return new()
         {

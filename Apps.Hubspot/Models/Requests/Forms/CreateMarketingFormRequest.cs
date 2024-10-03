@@ -15,7 +15,7 @@ public class CreateMarketingFormRequest
     public bool? Archived { get; set; }
     
     [StaticDataSource(typeof(LanguageHandler))]
-    public string? Language { get; set; }
+    public string Language { get; set; } = default!;
     
     public Dictionary<string, object> GetRequestBody()
     {
