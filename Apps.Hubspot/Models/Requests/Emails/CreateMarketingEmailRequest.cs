@@ -26,6 +26,6 @@ public class CreateMarketingEmailRequest
     public DateTime? PublishDate { get; set; }
 
     [Display("Business unit ID", Description = "Business unit ID")]
-    [StaticDataSource(typeof(BusinessUnitHandler))]
+    [DataSource(typeof(BusinessUnitHandler))]
     public string? BusinessUnitId {  get; set; } 
 }
