@@ -1,4 +1,5 @@
 ﻿using Apps.Hubspot.Constants;
+using Apps.Hubspot.Models.Requests;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -79,5 +80,28 @@ public class OAuth2TokenService : BaseInvocable, IOAuth2TokenService
         using var response = await client.PostAsync(Urls.Token, content, cancellationToken);
 
         return await response.Content.ReadAsStringAsync(cancellationToken);
+    }
+
+    /// 
+   
+    public async Task<string> GetUserIdFromAccessToken( string accessToken, CancellationToken cancellationToken)
+    {
+        using var client = new HttpClient();
+        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+
+        var url = $"https://api.hubapi.com/oauth/v1/access-tokens/{accessToken}";
+
+        var response = await client.GetAsync(url, cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            throw new Exception($"Failed to fetch user ID: {response.StatusCode} - {errorContent}");
+        }
+
+        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
+        var tokenInfo = JsonConvert.DeserializeObject<AccessTokenInfo>(responseContent);
+
+        return tokenInfo.UserId;
     }
 }
