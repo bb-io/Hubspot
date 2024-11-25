@@ -40,6 +40,12 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
     {
         var request = new HubspotRequest(ApiEndpoints.MarketingEmailsEndpoint, Method.Post, Creds)
             .WithJsonBody(input, JsonConfig.Settings);
+
+        if (!string.IsNullOrEmpty(input.BusinessUnitId))
+        {
+            request.AddQueryParameter("businessUnitId", input.BusinessUnitId);
+        }
+
         return Client.ExecuteWithErrorHandling<MarketingEmailDto>(request);
     }
 
