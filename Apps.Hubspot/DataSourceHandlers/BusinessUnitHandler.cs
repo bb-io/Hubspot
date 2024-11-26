@@ -31,10 +31,14 @@ namespace Apps.Hubspot.DataSourceHandlers
             var endpoint = $"/business-units/v3/business-units/user/{userId}";
             var request = new HubspotRequest(endpoint, RestSharp.Method.Get, Creds);
 
-            var response = await Client.ExecuteWithErrorHandling<GetAllResponse<BusinessUnitDto>>(request);
+            var response = await Client.ExecuteAsync<GetAllResponse<BusinessUnitDto>>(request);
 
-            return response.Results
-            .ToDictionary(bu => bu.BusinessUnitId, bu => bu.Name);
+            throw new Exception($"{response.ErrorMessage} : {response.Content}");
+
+            return null;
+                
+            //    .Results
+            //.ToDictionary(bu => bu.BusinessUnitId, bu => bu.Name);
         }
     }
 }
