@@ -23,6 +23,8 @@ namespace Apps.Hubspot.DataSourceHandlers
         {
             var userId = await _oAuth2TokenService.GetUserId(InvocationContext);
 
+            throw new 
+
             if (string.IsNullOrEmpty(userId))
             {
                 throw new InvalidOperationException("User ID is missing or invalid.");

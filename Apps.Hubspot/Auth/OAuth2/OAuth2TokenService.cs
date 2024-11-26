@@ -95,11 +95,19 @@ public class OAuth2TokenService : BaseInvocable, IOAuth2TokenService
         var restRequest = new HubspotRequest(string.Empty,Method.Get, invocationContext.AuthenticationCredentialsProviders);
 
         var response = await restClient.ExecuteAsync(restRequest);
-
+        throw new Exception($"SOme info {response.Content}");
         var serialized = JsonConvert.DeserializeObject<UserIdInfo>(response.Content);
 
         var userId = serialized.UserId;
 
-        return userId.ToString();
+        userId.ToString();
+
+        //if (string.IsNullOrEmpty(userId) || !userId.Any())
+        //{
+        //    throw new Exception($"User ID {userId}");
+        //}
+        
+
+        return userId;
     }
 }
