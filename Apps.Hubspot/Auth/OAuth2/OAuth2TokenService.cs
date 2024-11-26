@@ -96,7 +96,6 @@ public class OAuth2TokenService : BaseInvocable, IOAuth2TokenService
 
         var response = await restClient.ExecuteAsync(restRequest);
         var serialized = JsonConvert.DeserializeObject<UserIdInfo>(response.Content);
-
         var userId = serialized.UserId;
 
         userId.ToString();
