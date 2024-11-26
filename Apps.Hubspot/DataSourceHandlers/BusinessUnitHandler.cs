@@ -29,8 +29,7 @@ namespace Apps.Hubspot.DataSourceHandlers
             }
 
             var endpoint = $"/business-units/v3/business-units/user/{userId}";
-            var request = new HubspotRequest(endpoint, RestSharp.Method.Get, Creds)
-                .AddQueryParameter("properties", "logoMetadata");
+            var request = new HubspotRequest(endpoint, RestSharp.Method.Get, Creds);
 
             var response = await Client.ExecuteWithErrorHandling<GetAllResponse<BusinessUnitDto>>(request);
 
