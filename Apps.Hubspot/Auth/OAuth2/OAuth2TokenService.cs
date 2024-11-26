@@ -1,9 +1,12 @@
-﻿using Apps.Hubspot.Constants;
+﻿using Apps.Hubspot.Api;
+using Apps.Hubspot.Constants;
 using Apps.Hubspot.Models.Requests;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Utils.Extensions.Sdk;
 using Newtonsoft.Json;
+using RestSharp;
 using System.Threading;
 
 namespace Apps.Hubspot.Auth.OAuth2;
@@ -83,19 +86,19 @@ public class OAuth2TokenService : BaseInvocable, IOAuth2TokenService
         return await response.Content.ReadAsStringAsync(cancellationToken);
     }
 
-
-    public async Task<string> GetUserIdFromToken(Dictionary<string, string> parameters,
-        CancellationToken cancellationToken)
+    public async Task<string> GetUserId(InvocationContext invocationContext)
     {
-        var responseContent = await ExecuteTokenRequest(parameters, cancellationToken);
+        var token = invocationContext.AuthenticationCredentialsProviders.Get(CredsNames.AccessToken);
+        var restClient = new RestClient(Urls.User + "/"+token);
 
-        var responseDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseContent);
+        var restRequest = new HubspotRequest(string.Empty,Method.Get, invocationContext.AuthenticationCredentialsProviders);
 
-        if (responseDictionary != null && responseDictionary.TryGetValue("user_id", out var userId))
-        {
-            return userId;
-        }
+        var response = await restClient.ExecuteAsync(restRequest);
 
-        return null;
+        var serialized = JsonConvert.DeserializeObject<AccessTokenInfo>(response.Content);
+
+        var userId = serialized.UserId;
+
+        return userId;
     }
 }
