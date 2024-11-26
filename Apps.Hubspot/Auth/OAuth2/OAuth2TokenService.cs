@@ -1,6 +1,7 @@
 ﻿using Apps.Hubspot.Api;
 using Apps.Hubspot.Constants;
 using Apps.Hubspot.Models.Requests;
+using Apps.Hubspot.Models.Responses;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -89,13 +90,13 @@ public class OAuth2TokenService : BaseInvocable, IOAuth2TokenService
     public async Task<string> GetUserId(InvocationContext invocationContext)
     {
         var token = invocationContext.AuthenticationCredentialsProviders.Get(CredsNames.AccessToken);
-        var restClient = new RestClient(Urls.User + "/"+token);
+        var restClient = new RestClient($"{Urls.User}/{token}");
 
         var restRequest = new HubspotRequest(string.Empty,Method.Get, invocationContext.AuthenticationCredentialsProviders);
 
         var response = await restClient.ExecuteAsync(restRequest);
 
-        var serialized = JsonConvert.DeserializeObject<AccessTokenInfo>(response.Content);
+        var serialized = JsonConvert.DeserializeObject<UserIdInfo>(response.Content);
 
         var userId = serialized.UserId;
 
