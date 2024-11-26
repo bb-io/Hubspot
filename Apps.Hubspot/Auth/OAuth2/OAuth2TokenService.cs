@@ -89,7 +89,7 @@ public class OAuth2TokenService : BaseInvocable, IOAuth2TokenService
 
     public async Task<string> GetUserId(InvocationContext invocationContext)
     {
-        var token = invocationContext.AuthenticationCredentialsProviders.Get(CredsNames.AccessToken);
+        var token = invocationContext.AuthenticationCredentialsProviders.Get(CredsNames.AccessToken).Value;
         var restClient = new RestClient($"{Urls.User}/{token}");
 
         var restRequest = new HubspotRequest(string.Empty,Method.Get, invocationContext.AuthenticationCredentialsProviders);
