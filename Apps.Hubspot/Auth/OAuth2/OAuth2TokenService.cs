@@ -4,6 +4,7 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Newtonsoft.Json;
+using System.Threading;
 
 namespace Apps.Hubspot.Auth.OAuth2;
 
@@ -82,26 +83,19 @@ public class OAuth2TokenService : BaseInvocable, IOAuth2TokenService
         return await response.Content.ReadAsStringAsync(cancellationToken);
     }
 
-    /// 
-   
-    public async Task<string> GetUserIdFromAccessToken( string accessToken, CancellationToken cancellationToken)
+
+    public async Task<string> GetUserIdFromToken(Dictionary<string, string> parameters,
+        CancellationToken cancellationToken)
     {
-        using var client = new HttpClient();
-        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+        var responseContent = await ExecuteTokenRequest(parameters, cancellationToken);
 
-        var url = $"https://api.hubapi.com/oauth/v1/access-tokens/{accessToken}";
+        var responseDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseContent);
 
-        var response = await client.GetAsync(url, cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
+        if (responseDictionary != null && responseDictionary.TryGetValue("user_id", out var userId))
         {
-            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            throw new Exception($"Failed to fetch user ID: {response.StatusCode} - {errorContent}");
+            return userId;
         }
 
-        var responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
-        var tokenInfo = JsonConvert.DeserializeObject<AccessTokenInfo>(responseContent);
-
-        return tokenInfo.UserId;
+        return null;
     }
 }
