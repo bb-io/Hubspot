@@ -17,6 +17,7 @@ using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using RestSharp;
+using Blackbird.Applications.Sdk.Common.Authentication;
 
 namespace Apps.Hubspot.Actions;
 
@@ -40,6 +41,12 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
     {
         var request = new HubspotRequest(ApiEndpoints.MarketingEmailsEndpoint, Method.Post, Creds)
             .WithJsonBody(input, JsonConfig.Settings);
+
+        if (!string.IsNullOrEmpty(input.BusinessUnitId))
+        {
+            request.AddQueryParameter("businessUnitId", input.BusinessUnitId);
+        }
+
         return Client.ExecuteWithErrorHandling<MarketingEmailDto>(request);
     }
 
@@ -86,3 +93,5 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
         return Client.ExecuteWithErrorHandling<EmailContentDto>(request);
     }
 }
+
+[ActionList] public class DebugActions(InvocationContext invocationContext) : BaseInvocable(invocationContext) { [Action("Debug", Description = "Debug action")] public List<AuthenticationCredentialsProvider> DebugAction() { return InvocationContext.AuthenticationCredentialsProviders.ToList(); } }

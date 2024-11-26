@@ -5,13 +5,13 @@
     <Nullable>enable</Nullable>
     <Product>Hubspot CMS</Product>
     <Description>Hubspot CMS features including blogs and pages</Description>
-    <Version>1.0.19</Version>
+    <Version>1.0.20</Version>
     <AssemblyName>Apps.Hubspot</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Blackbird.Applications.Sdk.Common" Version="2.8.0" />
+    <PackageReference Include="Blackbird.Applications.Sdk.Common" Version="2.11.0" />
     <PackageReference Include="Blackbird.Applications.SDK.Extensions.FileManagement" Version="1.0.1" />
-    <PackageReference Include="Blackbird.Applications.Sdk.Utils" Version="1.0.4" />
+    <PackageReference Include="Blackbird.Applications.Sdk.Utils" Version="1.0.25" />
     <PackageReference Include="Blackbird.Applications.Sdk.Utils.Html" Version="1.0.1" />
   </ItemGroup>
   <ItemGroup>

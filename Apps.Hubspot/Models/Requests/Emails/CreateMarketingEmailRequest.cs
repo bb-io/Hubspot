@@ -24,4 +24,8 @@ public class CreateMarketingEmailRequest
     [Display("Publish date")]
     [JsonConverter(typeof(IsoDateTimeConverter))]
     public DateTime? PublishDate { get; set; }
+
+    [Display("Business unit ID", Description = "Business unit ID")]
+    [DataSource(typeof(BusinessUnitHandler))]
+    public string? BusinessUnitId {  get; set; } 
 }

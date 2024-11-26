@@ -18,6 +18,7 @@ public static class ApiEndpoints
     public const string PublishPage = $"{SitePages}/schedule";
     public const string PublishLandingPage = $"{LandingPages}/schedule";
     public const string CreateLandingPageTranslation = $"{LandingPages}/multi-language/create-language-variation";
+    public const string BusinessUnitsEndpoint = "https://api.hubapi.com/crm/v3/business-units";
 
     public static string ALandingPage(string landingPageId) => $"{LandingPages}/{landingPageId}";
     public static string UpdateLandingPage(string sitePageId) => $"{LandingPages}/{sitePageId}";
