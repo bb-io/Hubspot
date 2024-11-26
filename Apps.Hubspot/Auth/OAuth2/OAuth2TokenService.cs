@@ -100,6 +100,6 @@ public class OAuth2TokenService : BaseInvocable, IOAuth2TokenService
 
         var userId = serialized.UserId;
 
-        return userId;
+        return userId.ToString();
     }
 }
