@@ -1,6 +1,8 @@
 ﻿using Apps.Hubspot.Constants;
 using Apps.Hubspot.Exceptions;
 using Apps.Hubspot.Models.Responses;
+using Blackbird.Applications.Sdk.Common.Authentication;
+using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using Blackbird.Applications.Sdk.Utils.RestSharp;
 using Newtonsoft.Json;
@@ -42,5 +44,20 @@ public class HubspotClient : BlackBirdRestClient
         } while (response.Total > result.Count);
 
         return result;
+    }
+
+
+    public async Task<string> GetUserId(IEnumerable<AuthenticationCredentialsProvider> authProviders)
+    {
+
+        var accessTokenProvider = authProviders.FirstOrDefault(p => p.KeyName == CredsNames.AccessToken);
+        if (accessTokenProvider == null || string.IsNullOrEmpty(accessTokenProvider.Value))
+            throw new InvalidOperationException("Access token is missing.");
+
+        var accessToken = accessTokenProvider.Value;
+        var request = new RestRequest($"{Urls.User}/{accessToken}", Method.Get);
+
+        var response = await ExecuteWithErrorHandling<UserIdInfo>(request);
+        return response.UserId.ToString();
     }
 }

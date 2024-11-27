@@ -13,15 +13,13 @@ namespace Apps.Hubspot.DataSourceHandlers
 {
     public class BusinessUnitHandler : HubSpotInvocable, IAsyncDataSourceHandler
     {
-        private readonly OAuth2TokenService _oAuth2TokenService;
         public BusinessUnitHandler(InvocationContext invocationContext) : base(invocationContext)
         {
-            _oAuth2TokenService = new OAuth2TokenService(invocationContext);
         }
 
         public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
         {
-            var userId = await _oAuth2TokenService.GetUserId(InvocationContext);
+            var userId = await Client.GetUserId(Creds);
 
             if (string.IsNullOrEmpty(userId))
             {

@@ -86,21 +86,4 @@ public class OAuth2TokenService : BaseInvocable, IOAuth2TokenService
 
         return await response.Content.ReadAsStringAsync(cancellationToken);
     }
-
-
-    public async Task<string> GetUserId(InvocationContext invocationContext)
-    {
-        var token = invocationContext.AuthenticationCredentialsProviders.Get(CredsNames.AccessToken).Value;
-        var restClient = new RestClient($"{Urls.User}/{token}");
-
-        var restRequest = new HubspotRequest(string.Empty, Method.Get, invocationContext.AuthenticationCredentialsProviders);
-
-        var response = await restClient.ExecuteAsync(restRequest);
-        var serialized = JsonConvert.DeserializeObject<UserIdInfo>(response.Content);
-        var userId = serialized.UserId;
-
-        userId.ToString();
-        return userId;
-    }
-
 }
