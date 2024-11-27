@@ -23,7 +23,7 @@ public abstract class HubSpotInvocable : BaseInvocable
 
     public async Task<string> GetUserId()
     {
-        var accessToken = Creds.Get(CredsNames.AccessToken);
+        var accessToken = Creds.Get(CredsNames.AccessToken).Value;
         var request = new RestRequest($"{Urls.User}/{accessToken}", Method.Get);
 
         var response = await Client.ExecuteWithErrorHandling<UserIdInfo>(request);
