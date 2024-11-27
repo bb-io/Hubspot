@@ -18,6 +18,7 @@ using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using RestSharp;
 using Blackbird.Applications.Sdk.Common.Authentication;
+using Blackbird.Applications.Sdk.Utils.Html.Extensions;
 
 namespace Apps.Hubspot.Actions;
 
@@ -83,7 +84,34 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
         var request = new HubspotRequest(endpoint, Method.Patch, Creds).WithJsonBody(email, JsonConfig.Settings);
 
         await Client.ExecuteWithErrorHandling(request);
+
+       
     }
+
+    [Action("Create marketing email from content of HTML", Description ="Create email from a HTML file content")]
+    public async Task<MarketingEmailDto> CreateMarketingEmailFromHtml([ActionParameter] FileRequest fileRequest, [ActionParameter ] CreateMarketingEmailOptionalRequest input)
+    {
+        var htmlFile = await FileManagementClient.DownloadAsync(fileRequest.File);
+
+        var (pageInfo, json)= HtmlConverter.ToJson(htmlFile);
+
+        if (string.IsNullOrEmpty(pageInfo.HtmlDocument.GetTitle()))
+            throw new InvalidOperationException("The HTML file does not contain a valid title.");
+
+        var createRequest = new CreateMarketingEmailOptionalRequest
+        {
+            Name = input.Name ?? pageInfo.HtmlDocument.GetTitle(),
+            Language = input.Language ?? pageInfo.Language,
+            BusinessUnitId = input.BusinessUnitId
+        };
+
+         Console.WriteLine($"Creating marketing email with Name: {createRequest.Name}, Language: {createRequest.Language}");
+
+        var request = new HubspotRequest(ApiEndpoints.MarketingEmailsEndpoint, Method.Post, Creds)
+            .WithJsonBody(createRequest,JsonConfig.Settings);
+
+        return await Client.ExecuteWithErrorHandling<MarketingEmailDto>(request);
+    } 
 
     private Task<EmailContentDto> GetEmail(string emailId)
     {
