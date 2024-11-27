@@ -8,20 +8,23 @@ using RestSharp;
 
 namespace Apps.Hubspot.DataSourceHandlers;
 
-public class LandingPageHandler : HubSpotInvocable, IAsyncDataSourceHandler
+public class LandingPageHandler : HubSpotInvocable, IAsyncDataSourceItemHandler
 {
     public LandingPageHandler(InvocationContext invocationContext) : base(invocationContext)
     {
     }
 
-    public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
+    public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
     {
         var endpoint = $"/pages/landing-pages?name__icontains={context.SearchString}&translatedFromId__is_null&limit=20";
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
-        
+
         var landingPages = await Client.ExecuteWithErrorHandling<GetAllResponse<PageDto>>(request);
-        
-        return landingPages.Results
-            .ToDictionary(k => k.Id, v => v.Name);
+
+        return landingPages.Results.Select(lp => new DataSourceItem
+        {
+            Value = lp.Id,
+            DisplayName = lp.Name
+        });
     }
 }
