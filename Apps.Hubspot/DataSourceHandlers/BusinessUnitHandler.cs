@@ -17,12 +17,6 @@ namespace Apps.Hubspot.DataSourceHandlers
         public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
         {
             var userId = await GetUserId();
-
-            if (string.IsNullOrEmpty(userId))
-            {
-                throw new InvalidOperationException("User ID is missing or invalid.");
-            }
-
             var endpoint = $"{Urls.BusinessUnits}/{userId}";
             var request = new HubspotRequest(endpoint, RestSharp.Method.Get, Creds);
 
