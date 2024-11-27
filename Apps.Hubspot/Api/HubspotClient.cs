@@ -46,18 +46,4 @@ public class HubspotClient : BlackBirdRestClient
         return result;
     }
 
-
-    public async Task<string> GetUserId(IEnumerable<AuthenticationCredentialsProvider> authProviders)
-    {
-
-        var accessTokenProvider = authProviders.FirstOrDefault(p => p.KeyName == CredsNames.AccessToken);
-        if (accessTokenProvider == null || string.IsNullOrEmpty(accessTokenProvider.Value))
-            throw new InvalidOperationException("Access token is missing.");
-
-        var accessToken = accessTokenProvider.Value;
-        var request = new RestRequest($"{Urls.User}/{accessToken}", Method.Get);
-
-        var response = await ExecuteWithErrorHandling<UserIdInfo>(request);
-        return response.UserId.ToString();
-    }
 }

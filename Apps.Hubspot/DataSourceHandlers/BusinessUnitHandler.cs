@@ -19,7 +19,7 @@ namespace Apps.Hubspot.DataSourceHandlers
 
         public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
         {
-            var userId = await Client.GetUserId(Creds);
+            var userId = await GetUserId();
 
             if (string.IsNullOrEmpty(userId))
             {
