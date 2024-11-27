@@ -21,5 +21,7 @@ namespace Apps.Hubspot.Models.Requests.Emails
         [Display("Business unit ID", Description = "Business unit ID")]
         [DataSource(typeof(BusinessUnitHandler))]
         public string? BusinessUnitId { get; set; }
+
+        public string? Content { get; set; }  
     }
 }

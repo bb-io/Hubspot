@@ -102,7 +102,8 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
         {
             Name = input.Name ?? pageInfo.HtmlDocument.GetTitle(),
             Language = input.Language ?? pageInfo.Language,
-            BusinessUnitId = input.BusinessUnitId
+            BusinessUnitId = input.BusinessUnitId,
+            Content = json.ToString()
         };
 
          Console.WriteLine($"Creating marketing email with Name: {createRequest.Name}, Language: {createRequest.Language}");
