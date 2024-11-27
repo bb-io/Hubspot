@@ -14,11 +14,13 @@ namespace Apps.Hubspot.Models.Dtos.Business_units
         [Display("Business unit ID")]
         [JsonProperty("id")]
         public string BusinessUnitId {  get; set; }
+
         [Display("Names of business units", Description= "The names of Business Units to retrieve. If empty or not provided, then all associated Business Units will be returned.")]
         [JsonProperty("name")]
         public string Name { get; set; }
-        //[Display("Logo meta data")]
-        //public LogoMetadata LogoMetadata { get; set; }
+
+        [Display("Logo meta data")]
+        public LogoMetadata LogoMetadata { get; set; }
 
     }
 
