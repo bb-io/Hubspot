@@ -28,7 +28,7 @@ namespace Apps.Hubspot.DataSourceHandlers
                 throw new InvalidOperationException("User ID is missing or invalid.");
             }
 
-            var endpoint = $"/business-units/v3/business-units/user/{userId}";
+            var endpoint = $"{Urls.BusinessUnits}/{userId}";
             var request = new HubspotRequest(endpoint, RestSharp.Method.Get, Creds);
 
             var response = await Client.ExecuteWithErrorHandling<GetAllResponse<BusinessUnitDto>>(request);
