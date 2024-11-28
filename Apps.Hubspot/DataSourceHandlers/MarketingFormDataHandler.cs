@@ -10,10 +10,9 @@ using RestSharp;
 namespace Apps.Hubspot.DataSourceHandlers;
 
 public class MarketingFormDataHandler(InvocationContext invocationContext)
-    : HubSpotInvocable(invocationContext), IAsyncDataSourceHandler
+    : HubSpotInvocable(invocationContext), IAsyncDataSourceItemHandler
 {
-    public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context,
-        CancellationToken cancellationToken)
+    public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
     {
         var input = new SearchFormsRequest { FormTypes = new[] { "all" } };
         var request = new HubspotRequest($"{ApiEndpoints.MarketingFormsEndpoint}" + input.BuildQuery(), Method.Get, Creds);
@@ -23,6 +22,10 @@ public class MarketingFormDataHandler(InvocationContext invocationContext)
             .Where(x => context.SearchString is null ||
                         x.Name.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
             .OrderByDescending(x => x.CreatedAt)
-            .ToDictionary(x => x.Id, x => x.Name);
+            .Select(x => new DataSourceItem
+            {
+                Value=x.Id,
+                DisplayName=x.Name
+            });
     }
 }

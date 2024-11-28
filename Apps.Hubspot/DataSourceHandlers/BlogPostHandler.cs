@@ -8,21 +8,23 @@ using RestSharp;
 
 namespace Apps.Hubspot.DataSourceHandlers;
 
-public class BlogPostHandler : HubSpotInvocable, IAsyncDataSourceHandler
+public class BlogPostHandler : HubSpotInvocable, IAsyncDataSourceItemHandler
 {
     public BlogPostHandler(InvocationContext invocationContext) : base(invocationContext)
     {
     }
 
-    public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context,
-        CancellationToken cancellationToken)
+    public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
     {
         var endpoint = $"/blogs/posts?name__icontains={context.SearchString}&translatedFromId__is_null&limit=20";
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
-        
+
         var blogPosts = await Client.ExecuteWithErrorHandling<GetAllResponse<BlogPostDto>>(request);
 
-        return blogPosts.Results
-            .ToDictionary(k => k.Id, v => v.Name);
+        return blogPosts.Results.Select(bp=> new DataSourceItem
+        {
+            Value = bp.Id,
+            DisplayName = bp.Name
+        });
     }
 }

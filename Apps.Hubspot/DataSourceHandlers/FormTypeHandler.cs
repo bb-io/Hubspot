@@ -1,18 +1,20 @@
 ﻿using Blackbird.Applications.Sdk.Common.Dictionaries;
+using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Hubspot.DataSourceHandlers;
 
-public class FormTypeHandler : IStaticDataSourceHandler
+public class FormTypeHandler : IStaticDataSourceItemHandler
 {
-    public Dictionary<string, string> GetData()
+    public IEnumerable<DataSourceItem> GetData()
     {
-        return new()
+        return new List<DataSourceItem>
         {
-            { "hubspot", "Hubspot" },
-            { "captured", "Captured" },
-            { "flow", "Flow" },
-            { "blog_comment", "Blog comment" },
-            { "all", "All" }
+            new DataSourceItem("hubspot", "Hubspot"),
+            new DataSourceItem("captured", "Captured"),
+            new DataSourceItem("flow", "Flow"),
+            new DataSourceItem("blog_comment", "Blog comment"),
+            new DataSourceItem("all", "All")
         };
+        
     }
 }

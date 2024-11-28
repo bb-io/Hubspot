@@ -18,6 +18,10 @@ using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using RestSharp;
 using Blackbird.Applications.Sdk.Common.Authentication;
+using Blackbird.Applications.Sdk.Utils.Html.Extensions;
+using HtmlAgilityPack;
+using Blackbird.Applications.Sdk.Common.Exceptions;
+using Apps.Hubspot.Utils.Extensions;
 
 namespace Apps.Hubspot.Actions;
 
@@ -83,6 +87,35 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
         var request = new HubspotRequest(endpoint, Method.Patch, Creds).WithJsonBody(email, JsonConfig.Settings);
 
         await Client.ExecuteWithErrorHandling(request);
+
+       
+    }
+
+    [Action("Create marketing email from content of HTML", Description ="Create email from a HTML file content")]
+    public async Task<MarketingEmailDto> CreateMarketingEmailFromHtml([ActionParameter] FileRequest fileRequest, [ActionParameter ] CreateMarketingEmailOptionalRequest input)
+    {
+        var htmlFile = await FileManagementClient.DownloadAsync(fileRequest.File);
+        var htmlDoc = new HtmlDocument();
+        htmlDoc.Load(htmlFile);
+
+        var extractedValues = Apps.Hubspot.Utils.Extensions.HtmlExtensions.ExtractHtmlValues(htmlDoc);
+
+        var createRequest = new CreateMarketingEmailOptionalRequest
+        {
+            Name = input.Name ?? extractedValues.Name ?? extractedValues.Title,
+            Subject = input.Subject ?? extractedValues.Subject ?? "Default Subject",
+            SendOnPublish = input.SendOnPublish ?? extractedValues.SendOnPublish ?? false,
+            Archived = input.Archived ?? extractedValues.Archived ?? false,
+            ActiveDomain = input.ActiveDomain ?? extractedValues.ActiveDomain,
+            Language = input.Language ?? extractedValues.Language ?? "en",
+            PublishDate = input.PublishDate ?? extractedValues.PublishDate,
+            BusinessUnitId = input.BusinessUnitId ?? extractedValues.BusinessUnitId
+        };
+
+        var request = new HubspotRequest(ApiEndpoints.MarketingEmailsEndpoint, Method.Post, Creds)
+       .WithJsonBody(createRequest, JsonConfig.Settings);
+
+        return await Client.ExecuteWithErrorHandling<MarketingEmailDto>(request); 
     }
 
     private Task<EmailContentDto> GetEmail(string emailId)

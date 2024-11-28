@@ -1,6 +1,8 @@
 ﻿using Apps.Hubspot.Constants;
 using Apps.Hubspot.Exceptions;
 using Apps.Hubspot.Models.Responses;
+using Blackbird.Applications.Sdk.Common.Authentication;
+using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using Blackbird.Applications.Sdk.Utils.RestSharp;
 using Newtonsoft.Json;
@@ -43,4 +45,5 @@ public class HubspotClient : BlackBirdRestClient
 
         return result;
     }
+
 }

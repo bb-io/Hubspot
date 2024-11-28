@@ -9,10 +9,9 @@ using RestSharp;
 namespace Apps.Hubspot.DataSourceHandlers;
 
 public class MarketingEmailDataHandler(InvocationContext invocationContext)
-    : HubSpotInvocable(invocationContext), IAsyncDataSourceHandler
+    : HubSpotInvocable(invocationContext), IAsyncDataSourceItemHandler
 {
-    public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context,
-        CancellationToken cancellationToken)
+    public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
     {
         var request = new HubspotRequest(ApiEndpoints.MarketingEmailsEndpoint, Method.Get, Creds);
         var result = await Client.Paginate<MarketingEmailDto>(request);
@@ -22,6 +21,10 @@ public class MarketingEmailDataHandler(InvocationContext invocationContext)
                         x.Name.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
             .OrderByDescending(x => x.CreatedAt)
             .Take(30)
-            .ToDictionary(x => x.Id, x => x.Name);
+            .Select(x=> new DataSourceItem
+            {
+                Value= x.Id,
+                DisplayName= x.Name
+            });
     }
 }

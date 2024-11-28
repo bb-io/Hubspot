@@ -1,8 +1,9 @@
 ﻿using Blackbird.Applications.Sdk.Common.Dictionaries;
+using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Hubspot.DataSourceHandlers
 {
-    public class LanguageHandler : IStaticDataSourceHandler
+    public class LanguageHandler : IStaticDataSourceItemHandler
     {
         private static Dictionary<string, string> EnumValues => new()
         {
@@ -188,9 +189,14 @@ namespace Apps.Hubspot.DataSourceHandlers
             { "vi-vn", "Vietnamese - Vietnam" },
         };
 
-        public Dictionary<string, string> GetData()
+
+        IEnumerable<DataSourceItem> IStaticDataSourceItemHandler.GetData()
         {
-            return EnumValues;
+            return EnumValues.Select(e => new DataSourceItem
+            {
+                Value = e.Key,
+                DisplayName = e.Value
+            });
         }
     }
 }
