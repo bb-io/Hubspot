@@ -97,34 +97,18 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
         var htmlDoc = new HtmlDocument();
         htmlDoc.Load(htmlFile);
 
-        var titleNode = htmlDoc.DocumentNode.SelectSingleNode("//title");
-        var fileTitle = titleNode?.InnerText.Trim() ?? throw new PluginApplicationException("The HTML file does not contain a valid title.");
-
-        var bodyNode = htmlDoc.DocumentNode.SelectSingleNode("//body");
-        if (bodyNode == null)
-        {
-            throw new PluginApplicationException("The HTML file does not contain a valid body section.");
-        }
-
-        var nameNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='name']");
-        var htmlName = nameNode?.InnerText.Trim();
-
-        var subjectNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='subject']");
-        var htmlSubject = subjectNode?.InnerText.Trim();
-        
-        var name = input.Name?? htmlName?? fileTitle;
-        var subject = input.Subject ?? htmlSubject ?? "Default Subject";
+        var extractedValues = ExtractHtmlValues(htmlDoc);
 
         var createRequest = new CreateMarketingEmailOptionalRequest
         {
-            Name = name,
-            Subject = subject,
-            SendOnPublish = input.SendOnPublish,
-            Archived = input.Archived,
-            ActiveDomain = input.ActiveDomain,
-            Language = input.Language,
-            PublishDate = input.PublishDate,
-            BusinessUnitId = input.BusinessUnitId
+            Name = input.Name ?? extractedValues.Name ?? extractedValues.Title,
+            Subject = input.Subject ?? extractedValues.Subject ?? "Default Subject",
+            SendOnPublish = input.SendOnPublish ?? extractedValues.SendOnPublish ?? false,
+            Archived = input.Archived ?? extractedValues.Archived ?? false,
+            ActiveDomain = input.ActiveDomain ?? extractedValues.ActiveDomain,
+            Language = input.Language ?? extractedValues.Language ?? "en",
+            PublishDate = input.PublishDate ?? extractedValues.PublishDate,
+            BusinessUnitId = input.BusinessUnitId ?? extractedValues.BusinessUnitId
         };
 
         var request = new HubspotRequest(ApiEndpoints.MarketingEmailsEndpoint, Method.Post, Creds)
@@ -132,6 +116,44 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
 
         return await Client.ExecuteWithErrorHandling<MarketingEmailDto>(request); 
     }
+
+
+    private HtmlValues ExtractHtmlValues(HtmlDocument htmlDoc)
+    {
+        var titleNode = htmlDoc.DocumentNode.SelectSingleNode("//title");
+        var title = titleNode?.InnerText.Trim()
+            ?? throw new PluginApplicationException("The HTML file does not contain a valid title.");
+        
+        var bodyNode = htmlDoc.DocumentNode.SelectSingleNode("//body");
+        if (bodyNode == null)
+        {
+            throw new PluginApplicationException("The HTML file does not contain a valid body section.");
+        }
+
+        var nameNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='name']");
+        var subjectNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='subject']");
+        var sendOnPublishNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='sendOnPublish']");
+        var archivedNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='archived']");
+        var activeDomainNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='activeDomain']");
+        var languageNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='language']");
+        var publishDateNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='publishDate']");
+        var businessUnitIdNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='businessUnitId']");
+
+        return new HtmlValues
+        {
+            Title = title,
+            Body = bodyNode.InnerHtml,
+            Name = nameNode?.InnerText.Trim(),
+            Subject = subjectNode?.InnerText.Trim(),
+            SendOnPublish = sendOnPublishNode != null && bool.TryParse(sendOnPublishNode.InnerText.Trim(), out var sendOnPublish) ? sendOnPublish : (bool?)null,
+            Archived = archivedNode != null && bool.TryParse(archivedNode.InnerText.Trim(), out var archived) ? archived : (bool?)null,
+            ActiveDomain = activeDomainNode?.InnerText.Trim(),
+            Language = languageNode?.InnerText.Trim(),
+            PublishDate = publishDateNode != null && DateTime.TryParse(publishDateNode.InnerText.Trim(), out var publishDate) ? publishDate : (DateTime?)null,
+            BusinessUnitId = businessUnitIdNode?.InnerText.Trim()
+        };
+    }
+
 
     private Task<EmailContentDto> GetEmail(string emailId)
     {

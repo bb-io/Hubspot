@@ -62,6 +62,7 @@ Note: the Hubspot API marks these endpoints in beta stage.
 - **Create marketing email** creates a new marketing email.
 - **Get marketing email content as HTML** returns a marketing email as an HTML file for convenient translation.
 - **Update marketing email content from HTML** updates a marketing email content from a (translated) HTML file.
+- **Create marketing email from HTML** creates a marketing email by extracting content from an uploaded HTML file, using specific HTML tag IDs: `name`,`subject`, `sendOnPublish`, `archived`, `activeDomain`, `language`, `publishDate`, and `businessUnitId`. Where `name` is required.
 
 ### Marketing forms
 
@@ -72,6 +73,7 @@ Note: the Hubspot API marks these endpoints in beta stage.
 - **Get marketing form as HTML** returns a marketing form as an HTML file for convenient translation.
 - **Update marketing form from HTML** updates a marketing form from a (translated) HTML file.
 - **Create marketing form** creates a new marketing form.
+
 
 ## Events
 
