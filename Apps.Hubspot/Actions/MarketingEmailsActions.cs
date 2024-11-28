@@ -19,6 +19,8 @@ using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using RestSharp;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Utils.Html.Extensions;
+using HtmlAgilityPack;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 
 namespace Apps.Hubspot.Actions;
 
@@ -92,26 +94,44 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
     public async Task<MarketingEmailDto> CreateMarketingEmailFromHtml([ActionParameter] FileRequest fileRequest, [ActionParameter ] CreateMarketingEmailOptionalRequest input)
     {
         var htmlFile = await FileManagementClient.DownloadAsync(fileRequest.File);
+        var htmlDoc = new HtmlDocument();
+        htmlDoc.Load(htmlFile);
 
-        var (pageInfo, json)= HtmlConverter.ToJson(htmlFile);
+        var titleNode = htmlDoc.DocumentNode.SelectSingleNode("//title");
+        var fileTitle = titleNode?.InnerText.Trim() ?? throw new PluginApplicationException("The HTML file does not contain a valid title.");
 
-        if (string.IsNullOrEmpty(pageInfo.HtmlDocument.GetTitle()))
-            throw new InvalidOperationException("The HTML file does not contain a valid title.");
+        var bodyNode = htmlDoc.DocumentNode.SelectSingleNode("//body");
+        if (bodyNode == null)
+        {
+            throw new PluginApplicationException("The HTML file does not contain a valid body section.");
+        }
+
+        var nameNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='name']");
+        var htmlName = nameNode?.InnerText.Trim();
+
+        var subjectNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='subject']");
+        var htmlSubject = subjectNode?.InnerText.Trim();
+        
+        var name = input.Name?? htmlName?? fileTitle;
+        var subject = input.Subject ?? htmlSubject ?? "Default Subject";
 
         var createRequest = new CreateMarketingEmailOptionalRequest
         {
-            Name = input.Name ?? pageInfo.HtmlDocument.GetTitle(),
-            Language = input.Language ?? pageInfo.Language,
-            BusinessUnitId = input.BusinessUnitId,
+            Name = name,
+            Subject = subject,
+            SendOnPublish = input.SendOnPublish,
+            Archived = input.Archived,
+            ActiveDomain = input.ActiveDomain,
+            Language = input.Language,
+            PublishDate = input.PublishDate,
+            BusinessUnitId = input.BusinessUnitId
         };
 
-         Console.WriteLine($"Creating marketing email with Name: {createRequest.Name}, Language: {createRequest.Language}");
-
         var request = new HubspotRequest(ApiEndpoints.MarketingEmailsEndpoint, Method.Post, Creds)
-            .WithJsonBody(createRequest,JsonConfig.Settings);
+       .WithJsonBody(createRequest, JsonConfig.Settings);
 
-        return await Client.ExecuteWithErrorHandling<MarketingEmailDto>(request);
-    } 
+        return await Client.ExecuteWithErrorHandling<MarketingEmailDto>(request); 
+    }
 
     private Task<EmailContentDto> GetEmail(string emailId)
     {
