@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Apps.Hubspot.Models.Dtos.Emails
 {
-    public class HtmlValues
+    public class HtmlEmailValues
     {
         public string Title { get; set; }
         public string Body { get; set; }

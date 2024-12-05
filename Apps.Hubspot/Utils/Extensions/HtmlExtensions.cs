@@ -1,5 +1,7 @@
 ﻿using System.Web;
 using Apps.Hubspot.Models.Dtos.Emails;
+using Apps.Hubspot.Models.Dtos.Forms;
+using Apps.Hubspot.Models.Requests.Forms;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using HtmlAgilityPack;
 
@@ -25,7 +27,7 @@ public static class HtmlExtensions
         return HttpUtility.HtmlDecode(doc.DocumentNode.SelectSingleNode(xPath).InnerText);
     }
 
-    public static HtmlValues ExtractHtmlValues(HtmlDocument htmlDoc)
+    public static HtmlEmailValues ExtractHtmlValuesForEmail(HtmlDocument htmlDoc)
     {
         var titleNode = htmlDoc.DocumentNode.SelectSingleNode("//title");
         var title = titleNode?.InnerText.Trim()
@@ -46,7 +48,7 @@ public static class HtmlExtensions
         var publishDateNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='publishDate']");
         var businessUnitIdNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='businessUnitId']");
 
-        return new HtmlValues
+        return new HtmlEmailValues
         {
             Title = title,
             Body = bodyNode.InnerHtml,
@@ -59,5 +61,31 @@ public static class HtmlExtensions
             PublishDate = publishDateNode != null && DateTime.TryParse(publishDateNode.InnerText.Trim(), out var publishDate) ? publishDate : (DateTime?)null,
             BusinessUnitId = businessUnitIdNode?.InnerText.Trim()
         };
+    }
+
+
+    public static HtmlFormValues ExtractHtmlValuesForForm(HtmlDocument htmlDoc)
+    {
+        var nameNode = htmlDoc.DocumentNode.SelectSingleNode("//h1[@id='form-name']");
+        var formName = nameNode?.InnerText.Trim() ?? "Default Form Name";
+
+        var typeNode = htmlDoc.DocumentNode.SelectSingleNode("//p[@id='form-type']");
+        var formType = typeNode?.InnerText.Trim() ?? "hubspot";
+
+        var languageNode = htmlDoc.DocumentNode.SelectSingleNode("//p[@id='form-language']");
+        var language = languageNode?.InnerText.Trim() ?? "en";
+
+        var archivedNode = htmlDoc.DocumentNode.SelectSingleNode("//p[@id='form-archived']");
+        var archived = archivedNode?.InnerText.Trim().ToLower() == "true";
+
+        var createMarketingFormRequest = new HtmlFormValues
+        {
+            Name = formName,
+            FormType = formType,
+            Language = language,
+            Archived = archived
+        };
+
+        return createMarketingFormRequest;
     }
 }
