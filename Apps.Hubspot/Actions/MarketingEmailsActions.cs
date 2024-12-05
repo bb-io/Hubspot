@@ -98,7 +98,7 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
         var htmlDoc = new HtmlDocument();
         htmlDoc.Load(htmlFile);
 
-        var extractedValues = Apps.Hubspot.Utils.Extensions.HtmlExtensions.ExtractHtmlValues(htmlDoc);
+        var extractedValues = Apps.Hubspot.Utils.Extensions.HtmlExtensions.ExtractHtmlValuesForEmail(htmlDoc);
 
         var createRequest = new CreateMarketingEmailOptionalRequest
         {

@@ -15,6 +15,8 @@ using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Newtonsoft.Json;
 using RestSharp;
+using Apps.Hubspot.Models.Requests.Files;
+using HtmlAgilityPack;
 
 namespace Apps.Hubspot.Actions;
 
@@ -157,4 +159,35 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
         
         return await Client.ExecuteWithErrorHandling<MarketingFormDto>(request);
     }
+
+
+
+    [Action("Create marketing form from HTML", Description = "Create a marketing form from a HTML file content")]
+    public async Task<MarketingFormDto> CreateMarketingFormFromHtml([ActionParameter] FileRequest fileRequest,
+        [ActionParameter] CreateMarketingFormFromHtmlRequest input)
+    {
+        var htmlFile = await FileManagementClient.DownloadAsync(fileRequest.File);
+        var htmlDoc = new HtmlDocument();
+        htmlDoc.Load(htmlFile);
+
+        var extractedValues = Apps.Hubspot.Utils.Extensions.HtmlExtensions.ExtractHtmlValuesForForm(htmlDoc);
+
+
+        var createRequestBody = new CreateMarketingFormFromHtmlRequest
+        {
+            Name = input.Name ?? extractedValues.Name,
+            FormType = input.FormType ?? extractedValues.FormType,
+            Archived = input.Archived ?? extractedValues.Archived,
+            Language = input.Language ?? extractedValues.Language
+        }.GetRequestBody();
+
+        var request = new HubspotRequest(ApiEndpoints.MarketingFormsEndpoint, Method.Post, Creds)
+         .WithJsonBody(createRequestBody);
+
+        var response = await Client.ExecuteWithErrorHandling<MarketingFormDto>(request);
+
+        return response;
+
+    }
+
 }
