@@ -66,17 +66,25 @@ public static class HtmlExtensions
 
     public static HtmlFormValues ExtractHtmlValuesForForm(HtmlDocument htmlDoc)
     {
-        var nameNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='name']");
-        var formName = nameNode?.InnerText.Trim() ?? "Default Form Name";
+        var nameMetaNode = htmlDoc.DocumentNode.SelectSingleNode("//meta[@name='name']");
+        var nameNode = nameMetaNode?.GetAttributeValue("content", null)
+                       ?? htmlDoc.DocumentNode.SelectSingleNode("//*[@id='name']")?.InnerText.Trim();
+        var formName = nameNode ?? "Default Form Name";
 
-        var typeNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='type']");
-        var formType = typeNode?.InnerText.Trim() ?? "hubspot";
+        var typeMetaNode = htmlDoc.DocumentNode.SelectSingleNode("//meta[@name='type']");
+        var typeNode = typeMetaNode?.GetAttributeValue("content", null)
+                       ?? htmlDoc.DocumentNode.SelectSingleNode("//*[@id='type']")?.InnerText.Trim();
+        var formType = typeNode ?? "hubspot";
 
-        var languageNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='language']");
-        var language = languageNode?.InnerText.Trim() ?? "en";
+        var languageMetaNode = htmlDoc.DocumentNode.SelectSingleNode("//meta[@name='language']");
+        var languageNode = languageMetaNode?.GetAttributeValue("content", null)
+                           ?? htmlDoc.DocumentNode.SelectSingleNode("//*[@id='language']")?.InnerText.Trim();
+        var language = languageNode ?? "en";
 
-        var archivedNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='archived']");
-        var archived = archivedNode?.InnerText.Trim().ToLower() == "true";
+        var archivedMetaNode = htmlDoc.DocumentNode.SelectSingleNode("//meta[@name='archived']");
+        var archivedNode = archivedMetaNode?.GetAttributeValue("content", null)?.ToLower()
+                           ?? htmlDoc.DocumentNode.SelectSingleNode("//*[@id='archived']")?.InnerText.Trim().ToLower();
+        var archived = archivedNode == "true";
 
         var createMarketingFormRequest = new HtmlFormValues
         {
