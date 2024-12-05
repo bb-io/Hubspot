@@ -91,7 +91,7 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
        
     }
 
-    [Action("Create marketing email from content of HTML", Description ="Create email from a HTML file content")]
+    [Action("Create marketing email from HTML", Description ="Create email from a HTML file content")]
     public async Task<MarketingEmailDto> CreateMarketingEmailFromHtml([ActionParameter] FileRequest fileRequest, [ActionParameter ] CreateMarketingEmailOptionalRequest input)
     {
         var htmlFile = await FileManagementClient.DownloadAsync(fileRequest.File);
