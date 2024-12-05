@@ -66,16 +66,16 @@ public static class HtmlExtensions
 
     public static HtmlFormValues ExtractHtmlValuesForForm(HtmlDocument htmlDoc)
     {
-        var nameNode = htmlDoc.DocumentNode.SelectSingleNode("//h1[@id='form-name']");
+        var nameNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='name']");
         var formName = nameNode?.InnerText.Trim() ?? "Default Form Name";
 
-        var typeNode = htmlDoc.DocumentNode.SelectSingleNode("//p[@id='form-type']");
+        var typeNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='type']");
         var formType = typeNode?.InnerText.Trim() ?? "hubspot";
 
-        var languageNode = htmlDoc.DocumentNode.SelectSingleNode("//p[@id='form-language']");
+        var languageNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='language']");
         var language = languageNode?.InnerText.Trim() ?? "en";
 
-        var archivedNode = htmlDoc.DocumentNode.SelectSingleNode("//p[@id='form-archived']");
+        var archivedNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='archived']");
         var archived = archivedNode?.InnerText.Trim().ToLower() == "true";
 
         var createMarketingFormRequest = new HtmlFormValues

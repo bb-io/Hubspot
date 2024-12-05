@@ -162,7 +162,7 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
 
 
 
-    [Action("Create marketing form from content of HTML", Description = "Create a marketing form from a HTML file content")]
+    [Action("Create marketing form from HTML", Description = "Create a marketing form from a HTML file content")]
     public async Task<MarketingFormDto> CreateMarketingFormFromHtml([ActionParameter] FileRequest fileRequest,
         [ActionParameter] CreateMarketingFormRequest input)
     {
