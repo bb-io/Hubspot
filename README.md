@@ -73,7 +73,7 @@ Note: the Hubspot API marks these endpoints in beta stage.
 - **Get marketing form as HTML** returns a marketing form as an HTML file for convenient translation.
 - **Update marketing form from HTML** updates a marketing form from a (translated) HTML file.
 - **Create marketing form** creates a new marketing form.
-- **Create marketing form from HTML** create a marketing form from a HTML file content, using specific HTML tag IDs: `name`, `type`, `language`, `archived`.
+- **Create marketing form from HTML** create a marketing form from a HTML file content, using metadata IDs: `name`, `type`, `language`, `archived`. If there is no specific metadata, then it search for HTML tag IDs: `name`, `type`, `language`, `archived`.
 
 
 ## Events
