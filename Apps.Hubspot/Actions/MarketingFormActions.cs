@@ -164,7 +164,7 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
 
     [Action("Create marketing form from HTML", Description = "Create a marketing form from a HTML file content")]
     public async Task<MarketingFormDto> CreateMarketingFormFromHtml([ActionParameter] FileRequest fileRequest,
-        [ActionParameter] CreateMarketingFormRequest input)
+        [ActionParameter] CreateMarketingFormFromHtmlRequest input)
     {
         var htmlFile = await FileManagementClient.DownloadAsync(fileRequest.File);
         var htmlDoc = new HtmlDocument();
@@ -173,7 +173,7 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
         var extractedValues = Apps.Hubspot.Utils.Extensions.HtmlExtensions.ExtractHtmlValuesForForm(htmlDoc);
 
 
-        var createRequestBody = new CreateMarketingFormRequest
+        var createRequestBody = new CreateMarketingFormFromHtmlRequest
         {
             Name = input.Name ?? extractedValues.Name,
             FormType = input.FormType ?? extractedValues.FormType,
