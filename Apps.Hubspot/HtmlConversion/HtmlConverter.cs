@@ -11,7 +11,7 @@ public static class HtmlConverter
 {
     private static readonly HashSet<string> ContentProperties = new HashSet<string>
     {
-        "content", "html", "title", "value", "button_text", "quote_text", "speaker_name", "speaker_title", "heading",
+        "content", "html", "title", "value", "button_text", "quote_text", "speaker_name", "speaker_title", "heading", "richtext_field",
         "subheading", "price", "tab_label", "header", "subheader", "content_text", "alt", "text", "quotation",
         "author_name",
         "description"
@@ -19,7 +19,7 @@ public static class HtmlConverter
 
     private static readonly HashSet<string> RawHtmlProperties = new HashSet<string>
     {
-        "content", "html", "content_text"
+        "content", "html", "content_text", "richtext_field"
     };
 
     private const string OriginalContentAttribute = "original";
