@@ -1,4 +1,5 @@
 using System.Net.Mime;
+using System.Web;
 using Apps.Hubspot.Actions.Base;
 using Apps.Hubspot.Api;
 using Apps.Hubspot.Constants;
@@ -12,19 +13,16 @@ using Apps.Hubspot.Models.Responses;
 using Apps.Hubspot.Models.Responses.Files;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Authentication;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
-using RestSharp;
-using Blackbird.Applications.Sdk.Common.Authentication;
-using Blackbird.Applications.Sdk.Utils.Html.Extensions;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using HtmlAgilityPack;
-using Blackbird.Applications.Sdk.Common.Exceptions;
-using Apps.Hubspot.Utils.Extensions;
-using System.Text;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using RestSharp;
 
 namespace Apps.Hubspot.Actions;
 
@@ -59,65 +57,19 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
 
     [Action("Get marketing email content as HTML",
         Description = "Get content of a specific marketing email in HTML format")]
-    public async Task<FileResponse> GetMarketingEmailHtml2([ActionParameter] MarketingEmailRequest emailRequest)
+    public async Task<FileResponse> GetMarketingEmailHtml([ActionParameter] MarketingEmailRequest emailRequest)
     {
         var email = await GetEmail(emailRequest.MarketingEmailId);
+        var html = HtmlConverter.ToHtml(email.Content, email.Name, email.Language, emailRequest.MarketingEmailId,email.BusinessUnitId);
 
-        var html = GenerateHtmlFromEmail(email);
+        var file = await FileManagementClient.UploadAsync(new MemoryStream(html), MediaTypeNames.Text.Html,
+            $"{emailRequest}.html");
 
-        var file = await FileManagementClient.UploadAsync(
-        new MemoryStream(Encoding.UTF8.GetBytes(html)),
-        MediaTypeNames.Text.Html,
-        $"{emailRequest.MarketingEmailId}.html");
-
-        return new FileResponse
+        return new()
         {
             File = file
         };
     }
-
-
-    private static string GenerateHtmlFromEmail(MarketingEmailContentDto email)
-    {
-        var sb = new StringBuilder();
-
-        sb.AppendLine("<!DOCTYPE html>");
-        sb.AppendLine("<html lang='en'>");
-        sb.AppendLine("<head>");
-        sb.AppendLine($"<title>{email.Name}</title>");
-        sb.AppendLine("</head>");
-        sb.AppendLine("<body>");
-
-        sb.AppendLine($"<div id='id'>{email.Id}</div>");
-        sb.AppendLine($"<div id='name'>{email.Name}</div>");
-        sb.AppendLine($"<div id='subject'>{email.Subject}</div>");
-        sb.AppendLine($"<div id='sendOnPublish'>{email.SendOnPublish.ToString().ToLower()}</div>");
-        sb.AppendLine($"<div id='archived'>{email.Archived.ToString().ToLower()}</div>");
-        sb.AppendLine($"<div id='language'>{email.Language}</div>");
-        sb.AppendLine($"<div id='activeDomain'>{email.ActiveDomain}</div>");
-        sb.AppendLine($"<div id='publishDate'>{email.PublishDate:yyyy-MM-ddTHH:mm:ss}</div>");
-        sb.AppendLine($"<div id='businessUnitId'>{email.BusinessUnitId}</div>");
-
-        if (!string.IsNullOrWhiteSpace(email.HtmlVersion))
-        {
-            sb.AppendLine($"<div id='htmlContent'>{email.HtmlVersion}</div>");
-        }
-
-        if (email.Content != null)
-        {
-            sb.AppendLine("<div id='content'>");
-            sb.AppendLine(email.Content.ToString(Newtonsoft.Json.Formatting.Indented)
-                .Replace("<", "&lt;")
-                .Replace(">", "&gt;"));
-            sb.AppendLine("</div>");
-        }
-
-        sb.AppendLine("</body>");
-        sb.AppendLine("</html>");
-
-        return sb.ToString();
-    }
-
 
     [Action("Update marketing email content from HTML",
         Description = "Update content of a specific marketing email from HTML file")]
@@ -125,86 +77,92 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
         [ActionParameter] FileRequest fileRequest)
     {
         var htmlFile = await FileManagementClient.DownloadAsync(fileRequest.File);
-        var htmlDoc = new HtmlDocument();
-        htmlDoc.Load(htmlFile);
-
-        var extractedValues = Apps.Hubspot.Utils.Extensions.HtmlExtensions.ExtractHtmlValuesForEmail(htmlDoc);
+        var (pageInfo, json) = HtmlConverter.ToJson(htmlFile);
 
         var marketingEmailId = emailRequest.MarketingEmailId
-                           ?? extractedValues.Id
-                           ?? throw new PluginMisconfigurationException("Marketing email ID is required. Please provide it as optional parameter or in the HTML file.");
+                          ?? pageInfo.HtmlDocument.ExtractBlackbirdReferenceId()
+                          ?? throw new PluginMisconfigurationException("Marketing email ID is required. Please provide it as optional parameter or in the HTML file.");
+
+        var email = await GetEmail(marketingEmailId);
+
+        var updatedContent = new Content
+        {
+            FlexAreas = json["flexAreas"] as JObject,
+            Widgets = json["widgets"] as JObject,
+            StyleSettings = json["styleSettings"] as JObject,
+            TemplatePath = json["templatePath"]?.ToString(),
+            PlainTextVersion = ""
+        };
 
         var updateRequest = new MarketingEmailOptionalRequest
         {
-            MarketingEmailId = marketingEmailId,
-            Name = emailRequest.Name ?? extractedValues.Name ?? "Updated Default Name",
-            Subject = emailRequest.Subject ?? extractedValues.Subject ?? "Updated Default Subject",
-            SendOnPublish = emailRequest.SendOnPublish ?? extractedValues.SendOnPublish ?? false,
-            Archived = emailRequest.Archived ?? extractedValues.Archived ?? false,
-            ActiveDomain = emailRequest.ActiveDomain ?? extractedValues.ActiveDomain ?? null,
-            Language = emailRequest.Language ?? extractedValues.Language ?? "en",
-            PublishDate = emailRequest.PublishDate ?? extractedValues.PublishDate ?? DateTime.UtcNow,
-            BusinessUnitId = emailRequest.BusinessUnitId ?? extractedValues.BusinessUnitId
-                          ?? throw new PluginMisconfigurationException("Please enter the business ID or add it in the HTML file"),
-            Content = string.IsNullOrWhiteSpace(extractedValues.Body)? null : new Content { HtmlVersion = extractedValues.Body }
+            Name = string.IsNullOrEmpty(emailRequest.Name) ? email.Name : emailRequest.Name,
+            Language = string.IsNullOrEmpty(emailRequest.Language) ? email.Language : emailRequest.Language,
+            BusinessUnitId = string.IsNullOrEmpty(emailRequest.BusinessUnitId) ? email.BusinessUnitId : emailRequest.BusinessUnitId,
+            Content = updatedContent
         };
 
         var endpoint = $"{ApiEndpoints.MarketingEmailsEndpoint}{marketingEmailId}";
-        var request = new HubspotRequest(endpoint, Method.Patch, Creds).WithJsonBody(updateRequest, JsonConfig.Settings);
-        var response = await Client.ExecuteAsync(request);
+        var request = new HubspotRequest(endpoint, Method.Patch, Creds).WithJsonBody(email, JsonConfig.Settings);
+
+        await Client.ExecuteWithErrorHandling(request);
     }
 
-    [Action("Create marketing email from HTML", Description ="Create email from a HTML file content")]
-    public async Task<MarketingEmailDto> CreateMarketingEmailFromHtml([ActionParameter] FileRequest fileRequest, [ActionParameter ] CreateMarketingEmailOptionalRequest input)
+
+
+    [Action("Create marketing email from HTML", Description = "Create email from a HTML file content")]
+    public async Task<MarketingEmailDto> CreateMarketingEmailFromHtml([ActionParameter] FileRequest fileRequest, [ActionParameter] CreateMarketingEmailOptionalRequest input)
     {
         var htmlFile = await FileManagementClient.DownloadAsync(fileRequest.File);
         var htmlDoc = new HtmlDocument();
         htmlDoc.Load(htmlFile);
 
-        var extractedValues = Apps.Hubspot.Utils.Extensions.HtmlExtensions.ExtractHtmlValuesForEmail(htmlDoc);
+        var title = htmlDoc.DocumentNode.SelectSingleNode("//title")?.InnerHtml ?? "Default Title";
+        var businessUnitId = htmlDoc.DocumentNode
+            .SelectSingleNode("//meta[@name='business-unit-id']")
+            ?.GetAttributeValue("content", null);
+        var language = htmlDoc.DocumentNode
+            .SelectSingleNode("/html/body")
+            ?.GetAttributeValue("lang", "en");
+
+        var originalContent = htmlDoc.DocumentNode
+            .SelectSingleNode("/html/body")
+            ?.GetAttributeValue("original", null);
+
+        if (!string.IsNullOrEmpty(originalContent))
+        {
+            originalContent = HttpUtility.HtmlDecode(originalContent);
+        }
+        JObject contentJson = string.IsNullOrEmpty(originalContent) ? new JObject() : JObject.Parse(originalContent);
 
         var createRequest = new CreateMarketingEmailOptionalRequest
         {
-            Name = input.Name ?? extractedValues.Name,
-            Subject = input.Subject ?? extractedValues.Subject ?? "Default Subject",
-            SendOnPublish = input.SendOnPublish ?? extractedValues.SendOnPublish ?? false,
-            Archived = input.Archived ?? extractedValues.Archived ?? false,
-            ActiveDomain = input.ActiveDomain ?? extractedValues.ActiveDomain ?? null,
-            Language = input.Language ?? extractedValues.Language ?? "en",
-            PublishDate = input.PublishDate ?? extractedValues.PublishDate,
-            BusinessUnitId = input.BusinessUnitId ?? extractedValues.BusinessUnitId
-                         ?? throw new PluginMisconfigurationException("Please enter the business ID or add it in the HTML file"),
-            Content = string.IsNullOrWhiteSpace(extractedValues.Body) ? null : new Content { HtmlVersion = extractedValues.Body }
+            Name = input.Name ?? title,
+            Language = input.Language ?? language ?? "en",
+            BusinessUnitId = input.BusinessUnitId ?? businessUnitId ?? throw new PluginMisconfigurationException("Business Unit ID is required."),
+            Content = new Content
+            {
+                FlexAreas = contentJson["flexAreas"] as JObject,
+                Widgets = contentJson["widgets"] as JObject,
+                StyleSettings = contentJson["styleSettings"] as JObject,
+                TemplatePath = contentJson["templatePath"]?.ToString(),
+                PlainTextVersion = ""
+            }
         };
 
         var request = new HubspotRequest(ApiEndpoints.MarketingEmailsEndpoint, Method.Post, Creds)
-       .WithJsonBody(createRequest, JsonConfig.Settings);
+        .WithJsonBody(createRequest, JsonConfig.Settings);
 
-        return await Client.ExecuteWithErrorHandling<MarketingEmailDto>(request); 
+        var response = await Client.ExecuteWithErrorHandling<MarketingEmailDto>(request);
+        return response;
     }
 
-    private async Task<MarketingEmailContentDto> GetEmail(string emailId)
+    private Task<EmailContentDto> GetEmail(string emailId)
     {
         var endpoint = $"{ApiEndpoints.MarketingEmailsEndpoint}{emailId}";
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
 
-        var response = await Client.ExecuteWithErrorHandling<JObject>(request);
-
-
-        return new MarketingEmailContentDto
-        {
-            Id = response["id"]?.ToString(),
-            Name = response["name"]?.ToString(),
-            Subject = response["subject"]?.ToString(),
-            SendOnPublish = response["sendOnPublish"]?.ToObject<bool>() ?? false,
-            Archived = response["archived"]?.ToObject<bool>() ?? false,
-            Language = response["language"]?.ToString(),
-            ActiveDomain = response["activeDomain"]?.ToString(),
-            PublishDate = response["publishDate"]?.ToObject<DateTime?>(),
-            BusinessUnitId = response["businessUnitId"]?.ToString(),
-            Content = response["content"] as JObject,
-            HtmlVersion = response["content"]?["htmlVersion"]?.ToString()
-        };
+        return Client.ExecuteWithErrorHandling<EmailContentDto>(request);
     }
 }
 

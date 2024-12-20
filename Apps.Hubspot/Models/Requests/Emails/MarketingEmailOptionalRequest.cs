@@ -16,28 +16,9 @@ public class MarketingEmailOptionalRequest
     [JsonProperty("name")]
     public string? Name { get; set; }
 
-    [JsonProperty("subject")]
-    public string? Subject { get; set; }
-
-    [JsonProperty("sendOnPublish")]
-    [Display("Send on publish")]
-    public bool? SendOnPublish { get; set; }
-
-    [JsonProperty("archived")]
-    public bool? Archived { get; set; }
-
-    [JsonProperty("activeDomain")]
-    [Display("Active domain")]
-    public string? ActiveDomain { get; set; }
-
     [JsonProperty("language")]
     [StaticDataSource(typeof(LanguageHandler))]
     public string? Language { get; set; }
-
-    [JsonProperty("publishDate")]
-    [Display("Publish date")]
-    [JsonConverter(typeof(IsoDateTimeConverter))]
-    public DateTime? PublishDate { get; set; }
 
     [JsonProperty("businessUnitId")]
     [Display("Business unit ID", Description = "Business unit ID")]

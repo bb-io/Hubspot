@@ -11,6 +11,7 @@ using Blackbird.Applications.Sdk.Common.Dynamic;
 using Apps.Hubspot.Utils.Converters;
 using Newtonsoft.Json;
 using System.Reflection.Metadata;
+using Newtonsoft.Json.Linq;
 
 namespace Apps.Hubspot.Models.Requests.Emails
 {
@@ -19,25 +20,8 @@ namespace Apps.Hubspot.Models.Requests.Emails
         [JsonProperty("name")]
         public string? Name { get; set; }
 
-        [JsonProperty("subject")]
-        public string? Subject { get; set; }
-
-        [JsonProperty("sendOnPublish")]
-        [Display("Send on publish")] public bool? SendOnPublish { get; set; }
-
-        [JsonProperty("archived")]
-        public bool? Archived { get; set; }
-
-        [JsonProperty("activeDomain")]
-        [Display("Active domain")] public string? ActiveDomain { get; set; }
-
         [JsonProperty("language")]
         [StaticDataSource(typeof(LanguageHandler))] public string? Language { get; set; }
-
-        [JsonProperty("publishDate")]
-        [Display("Publish date")]
-        [JsonConverter(typeof(IsoDateTimeConverter))]
-        public DateTime? PublishDate { get; set; }
 
         [JsonProperty("businessUnitId")]
         [Display("Business unit ID", Description = "Business unit ID")]
@@ -47,9 +31,22 @@ namespace Apps.Hubspot.Models.Requests.Emails
         [JsonProperty("content")]
         public Content? Content { get; set; }
     }
+
     public class Content
     {
-        [JsonProperty("htmlVersion")]
-        public string? HtmlVersion { get; set; }
+        [JsonProperty("plainTextVersion")]
+        public string? PlainTextVersion { get; set; }
+
+        [JsonProperty("templatePath")]
+        public string? TemplatePath { get; set; }
+
+        [JsonProperty("styleSettings")]
+        public JObject? StyleSettings { get; set; }
+
+        [JsonProperty("flexAreas")]
+        public JObject? FlexAreas { get; set; }
+
+        [JsonProperty("widgets")]
+        public JObject? Widgets { get; set; }
     }
 }
