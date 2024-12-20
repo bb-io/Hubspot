@@ -45,5 +45,5 @@ public class MarketingEmailOptionalRequest
     public string? BusinessUnitId { get; set; }
 
     [JsonProperty("content")]
-    public Content Content { get; set; }
+    public Content? Content { get; set; }
 }
