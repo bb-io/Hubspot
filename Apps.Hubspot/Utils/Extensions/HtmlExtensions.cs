@@ -39,6 +39,7 @@ public static class HtmlExtensions
             throw new PluginApplicationException("The HTML file does not contain a valid body section.");
         }
 
+        var idNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='id']");
         var nameNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='name']");
         var subjectNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='subject']");
         var sendOnPublishNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='sendOnPublish']");
@@ -47,18 +48,29 @@ public static class HtmlExtensions
         var languageNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='language']");
         var publishDateNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='publishDate']");
         var businessUnitIdNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='businessUnitId']");
+        var htmlContentNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='htmlContent']");
 
         return new HtmlEmailValues
         {
             Title = title,
-            Body = bodyNode.InnerHtml,
+            Body = htmlContentNode?.InnerHtml,
+            Id = idNode?.InnerText.Trim(),
             Name = nameNode?.InnerText.Trim(),
             Subject = subjectNode?.InnerText.Trim(),
-            SendOnPublish = sendOnPublishNode != null && bool.TryParse(sendOnPublishNode.InnerText.Trim(), out var sendOnPublish) ? sendOnPublish : (bool?)null,
-            Archived = archivedNode != null && bool.TryParse(archivedNode.InnerText.Trim(), out var archived) ? archived : (bool?)null,
+            SendOnPublish = sendOnPublishNode != null
+                        && bool.TryParse(sendOnPublishNode.InnerText.Trim(), out var sendOnPublish)
+                        ? sendOnPublish
+                        : (bool?)null,
+            Archived = archivedNode != null
+                   && bool.TryParse(archivedNode.InnerText.Trim(), out var archived)
+                   ? archived
+                   : (bool?)null,
             ActiveDomain = activeDomainNode?.InnerText.Trim(),
             Language = languageNode?.InnerText.Trim(),
-            PublishDate = publishDateNode != null && DateTime.TryParse(publishDateNode.InnerText.Trim(), out var publishDate) ? publishDate : (DateTime?)null,
+            PublishDate = publishDateNode != null
+                      && DateTime.TryParse(publishDateNode.InnerText.Trim(), out var publishDate)
+                      ? publishDate
+                      : (DateTime?)null,
             BusinessUnitId = businessUnitIdNode?.InnerText.Trim()
         };
     }
