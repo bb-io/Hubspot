@@ -76,11 +76,25 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
     public async Task UpdateMarketingEmail([ActionParameter] MarketingEmailOptionalRequest emailRequest,
         [ActionParameter] FileRequest fileRequest)
     {
-        var htmlFile = await FileManagementClient.DownloadAsync(fileRequest.File);
-        var (pageInfo, json) = HtmlConverter.ToJson(htmlFile);
+        var htmlStream = await FileManagementClient.DownloadAsync(fileRequest.File);
+        byte[] fileBytes;
+
+        using (var memoryStream = new MemoryStream())
+        {
+            await htmlStream.CopyToAsync(memoryStream);
+            fileBytes = memoryStream.ToArray();
+        }
+
+        var titleText = HtmlConverter.ExtractTitle(fileBytes); 
+        var language = HtmlConverter.ExtractLanguage(fileBytes);
+        var businessUnitId = HtmlConverter.ExtractBusinessUnitId(fileBytes);
+
+        using var stringStream = new MemoryStream(fileBytes);
+        var (pageInfo, json) = HtmlConverter.ToJson(stringStream);
 
         var marketingEmailId = emailRequest.MarketingEmailId
-                          ?? throw new PluginMisconfigurationException("Marketing email ID is required. Please provide it as optional parameter or in the HTML file.");
+                              ?? titleText
+                              ?? throw new PluginMisconfigurationException("Marketing email ID is required. Please provide it as optional parameter or in the HTML file.");
 
         var email = await GetEmail(marketingEmailId);
 
@@ -95,16 +109,21 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
 
         var updateRequest = new MarketingEmailOptionalRequest
         {
-            Name = string.IsNullOrEmpty(emailRequest.Name) ? email.Name : emailRequest.Name,
-            Language = string.IsNullOrEmpty(emailRequest.Language) ? email.Language : emailRequest.Language,
-            BusinessUnitId = string.IsNullOrEmpty(emailRequest.BusinessUnitId) ? email.BusinessUnitId : emailRequest.BusinessUnitId,
+            Name = string.IsNullOrEmpty(emailRequest.Name)
+                ? (string.IsNullOrEmpty(titleText) ? email.Name : titleText)
+                : emailRequest.Name,
+            Language = string.IsNullOrEmpty(emailRequest.Language)
+                ? (string.IsNullOrEmpty(language) ? email.Language : language)
+                : emailRequest.Language,
+            BusinessUnitId = string.IsNullOrEmpty(emailRequest.BusinessUnitId)
+                ? (string.IsNullOrEmpty(businessUnitId) ? email.BusinessUnitId : businessUnitId)
+                : emailRequest.BusinessUnitId,
             Content = updatedContent
         };
-
         var endpoint = $"{ApiEndpoints.MarketingEmailsEndpoint}{marketingEmailId}";
-        var request = new HubspotRequest(endpoint, Method.Patch, Creds).WithJsonBody(email, JsonConfig.Settings);
+        var request = new HubspotRequest(endpoint, Method.Patch, Creds).WithJsonBody(updateRequest, JsonConfig.Settings);
 
-        await Client.ExecuteWithErrorHandling(request);
+        var response = await Client.ExecuteWithErrorHandling(request);
     }
 
 

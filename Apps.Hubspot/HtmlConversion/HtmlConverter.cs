@@ -145,6 +145,36 @@ public static class HtmlConverter
 
         return referenceId;
     }
+    public static string? ExtractBusinessUnitId(byte[] fileBytes)
+    {
+        var fileString = Encoding.UTF8.GetString(fileBytes);
+        var doc = new HtmlDocument();
+        doc.LoadHtml(fileString);
+        var referenceId = doc.DocumentNode.SelectSingleNode("//meta[@name='business-unit-id']")
+            ?.GetAttributeValue("content", null);
+
+        return referenceId;
+    }
+
+    public static string? ExtractTitle(byte[] fileBytes)
+    {
+        var fileString = Encoding.UTF8.GetString(fileBytes);
+        var doc = new HtmlDocument();
+        doc.LoadHtml(fileString);
+        var titleNode = doc.DocumentNode.SelectSingleNode("//title");
+        return titleNode?.InnerText?.Trim();
+    }
+
+    public static string? ExtractLanguage(byte[] fileBytes)
+    {
+        var fileString = Encoding.UTF8.GetString(fileBytes);
+        var doc = new HtmlDocument();
+        doc.LoadHtml(fileString);
+        var language = doc.DocumentNode.SelectSingleNode("//body")
+            ?.GetAttributeValue("lang", null);
+
+        return language;
+    }
 
     private static void AddContentToHtml(string path, string html, HtmlNode bodyNode, HtmlNode elementNode)
     {
@@ -190,7 +220,7 @@ public static class HtmlConverter
         return (htmlDoc, bodyNode);
     }
 
-    private static PageInfoResponse ExtractPageInfo(Stream file)
+    public static PageInfoResponse ExtractPageInfo(Stream file)
     {
         var doc = new HtmlDocument();
         doc.Load(file);
