@@ -45,7 +45,7 @@ namespace Apps.Hubspot.Models.Requests.Emails
         public string? BusinessUnitId { get; set; }
 
         [JsonProperty("content")]
-        public Content Content { get; set; }
+        public Content? Content { get; set; }
     }
     public class Content
     {
