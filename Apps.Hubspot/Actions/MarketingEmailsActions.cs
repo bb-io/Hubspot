@@ -141,7 +141,7 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
             Subject = emailRequest.Subject ?? extractedValues.Subject ?? "Updated Default Subject",
             SendOnPublish = emailRequest.SendOnPublish ?? extractedValues.SendOnPublish ?? false,
             Archived = emailRequest.Archived ?? extractedValues.Archived ?? false,
-            ActiveDomain = emailRequest.ActiveDomain ?? extractedValues.ActiveDomain ?? "default-domain.com",
+            ActiveDomain = emailRequest.ActiveDomain ?? extractedValues.ActiveDomain ?? null,
             Language = emailRequest.Language ?? extractedValues.Language ?? "en",
             PublishDate = emailRequest.PublishDate ?? extractedValues.PublishDate ?? DateTime.UtcNow,
             BusinessUnitId = emailRequest.BusinessUnitId ?? extractedValues.BusinessUnitId
@@ -169,15 +169,12 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
             Subject = input.Subject ?? extractedValues.Subject ?? "Default Subject",
             SendOnPublish = input.SendOnPublish ?? extractedValues.SendOnPublish ?? false,
             Archived = input.Archived ?? extractedValues.Archived ?? false,
-            ActiveDomain = input.ActiveDomain ?? extractedValues.ActiveDomain,
+            ActiveDomain = input.ActiveDomain ?? extractedValues.ActiveDomain ?? null,
             Language = input.Language ?? extractedValues.Language ?? "en",
             PublishDate = input.PublishDate ?? extractedValues.PublishDate,
             BusinessUnitId = input.BusinessUnitId ?? extractedValues.BusinessUnitId
-                         ?? throw new PluginMisconfigurationException("Please specify the business id"),
-            Content = new Content
-            {
-                HtmlVersion= extractedValues.Body
-            }
+                         ?? throw new PluginMisconfigurationException("Please enter the business ID or add it in the HTML file"),
+            Content = string.IsNullOrWhiteSpace(extractedValues.Body) ? null : new Content { HtmlVersion = extractedValues.Body }
         };
 
         var request = new HubspotRequest(ApiEndpoints.MarketingEmailsEndpoint, Method.Post, Creds)

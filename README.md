@@ -60,9 +60,9 @@ Note: the Hubspot API marks these endpoints in beta stage.
 
 - **Search marketing emails** searches for marketing emails based on certain criteria.
 - **Create marketing email** creates a new marketing email.
-- **Get marketing email content as HTML** returns a marketing email as an HTML file for convenient translation.
-- **Update marketing email content from HTML** updates a marketing email content from a (translated) HTML file.
-- **Create marketing email from HTML** creates a marketing email by extracting content from an uploaded HTML file, using specific HTML tag IDs: `name`,`subject`, `sendOnPublish`, `archived`, `activeDomain`, `language`, `publishDate`, and `businessUnitId`. Where `name` is required.
+- **Get marketing email content as HTML** returns a marketing email content from a (translated) HTML file using specific HTML tag IDs: `id` `name`,`subject`, `sendOnPublish`, `archived`, `activeDomain`, `language`, `publishDate`, `content` and `businessUnitId`.
+- **Update marketing email content from HTML** updates a marketing email content from a (translated) HTML file using specific HTML tag IDs: `id` `name`,`subject`, `sendOnPublish`, `archived`, `activeDomain`, `language`, `publishDate`, and `businessUnitId`. Where `name` and `businessUnitId` is required. If those tags are not specified in HTML file you can pass it in input, but the priority is the HTML file extracted values
+- **Create marketing email from HTML** creates a marketing email by extracting content from an uploaded HTML file, using specific HTML tag IDs: `name`,`subject`, `sendOnPublish`, `archived`, `activeDomain`, `language`, `publishDate`, and `businessUnitId`. Where `name` is required.If those tags are not specified in HTML file you can pass it in input, but the priority is the HTML file extracted values
 
 ### Marketing forms
 
