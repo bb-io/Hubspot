@@ -41,12 +41,12 @@ namespace Apps.Hubspot.Models.Requests.Emails
         public string? TemplatePath { get; set; }
 
         [JsonProperty("styleSettings")]
-        public JObject? StyleSettings { get; set; }
+        public object? StyleSettings { get; set; }
 
         [JsonProperty("flexAreas")]
-        public JObject? FlexAreas { get; set; }
+        public object? FlexAreas { get; set; }
 
         [JsonProperty("widgets")]
-        public JObject? Widgets { get; set; }
+        public object? Widgets { get; set; }
     }
 }

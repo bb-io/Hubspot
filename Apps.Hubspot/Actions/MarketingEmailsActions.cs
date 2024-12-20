@@ -80,7 +80,6 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
         var (pageInfo, json) = HtmlConverter.ToJson(htmlFile);
 
         var marketingEmailId = emailRequest.MarketingEmailId
-                          ?? pageInfo.HtmlDocument.ExtractBlackbirdReferenceId()
                           ?? throw new PluginMisconfigurationException("Marketing email ID is required. Please provide it as optional parameter or in the HTML file.");
 
         var email = await GetEmail(marketingEmailId);
