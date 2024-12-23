@@ -105,7 +105,7 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
             Widgets = json["widgets"] as JObject,
             StyleSettings = json["styleSettings"] as JObject,
             TemplatePath = json["templatePath"]?.ToString(),
-            PlainTextVersion = ""
+            PlainTextVersion = json["plainTextVersion"]?.ToString() ?? ""
         };
 
         var updateRequest = new MarketingEmailOptionalRequest
