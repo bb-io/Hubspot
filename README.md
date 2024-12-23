@@ -60,8 +60,8 @@ Note: the Hubspot API marks these endpoints in beta stage.
 
 - **Search marketing emails** searches for marketing emails based on certain criteria.
 - **Create marketing email** creates a new marketing email.
-- **Get marketing email content as HTML** returns a marketing email content from a (translated) HTML file 
-- **Update marketing email content from HTML** updates a marketing email content from a (translated) HTML file 
+- **Get marketing email content as HTML** returns a marketing email content from a (translated) HTML file. Field `Marketing Email ID` is required 
+- **Update marketing email content from HTML** updates a marketing email content from a (translated) HTML file. Fields `File` and `Marketing Email ID` is required.
 - **Create marketing email from HTML** creates a marketing email by extracting content from an uploaded HTML file
 
 ### Marketing forms

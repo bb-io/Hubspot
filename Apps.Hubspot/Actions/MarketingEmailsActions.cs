@@ -85,17 +85,18 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
             fileBytes = memoryStream.ToArray();
         }
 
+        var blackbirdId = HtmlConverter.ExtractBlackbirdId(fileBytes);
+        var marketingEmailId = emailRequest.MarketingEmailId
+         ?? blackbirdId
+         ?? throw new PluginMisconfigurationException("Marketing email ID is required. Please provide it as an optional parameter or include it in the HTML file.");
+
         var titleText = HtmlConverter.ExtractTitle(fileBytes); 
         var language = HtmlConverter.ExtractLanguage(fileBytes);
         var businessUnitId = HtmlConverter.ExtractBusinessUnitId(fileBytes);
 
         using var stringStream = new MemoryStream(fileBytes);
         var (pageInfo, json) = HtmlConverter.ToJson(stringStream);
-
-        var marketingEmailId = emailRequest.MarketingEmailId
-                              ?? titleText
-                              ?? throw new PluginMisconfigurationException("Marketing email ID is required. Please provide it as optional parameter or in the HTML file.");
-
+      
         var email = await GetEmail(marketingEmailId);
 
         var updatedContent = new Content
