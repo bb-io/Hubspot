@@ -26,6 +26,7 @@ public static class HtmlConverter
     private const string LanguageAttribute = "lang";
     private const string PathAttribute = "path";
     private const string BlackbirdReferenceIdAttribute = "blackbird-reference-id";
+    private const string BusinessUnitId = "business-unit-id";
 
     public static byte[] ToHtml(List<FieldGroupDto> fieldGroups, string title, string language, string pageId)
     {
@@ -87,7 +88,7 @@ public static class HtmlConverter
         return Encoding.UTF8.GetBytes(doc.DocumentNode.OuterHtml);
     }
 
-    public static byte[] ToHtml(JObject emailContent, string title, string language, string pageId)
+    public static byte[] ToHtml(JObject emailContent, string title, string language, string pageId, string? businessUnitId = null)
     {
         var htmlNodes = emailContent.Descendants()
             .Where(x => x is JProperty { Value.Type: JTokenType.String } jProperty &&
@@ -102,7 +103,7 @@ public static class HtmlConverter
             })
             .ToList();
 
-        var (doc, bodyNode) = PrepareEmptyHtmlDocument(emailContent, title, language, pageId);
+        var (doc, bodyNode) = PrepareEmptyHtmlDocument(emailContent, title, language, pageId, businessUnitId);
 
         htmlNodes.ForEach(x => AddContentToHtml(x.Path, x.Html, bodyNode, doc.CreateElement("div")));
 
@@ -144,6 +145,36 @@ public static class HtmlConverter
 
         return referenceId;
     }
+    public static string? ExtractBusinessUnitId(byte[] fileBytes)
+    {
+        var fileString = Encoding.UTF8.GetString(fileBytes);
+        var doc = new HtmlDocument();
+        doc.LoadHtml(fileString);
+        var referenceId = doc.DocumentNode.SelectSingleNode("//meta[@name='business-unit-id']")
+            ?.GetAttributeValue("content", null);
+
+        return referenceId;
+    }
+
+    public static string? ExtractTitle(byte[] fileBytes)
+    {
+        var fileString = Encoding.UTF8.GetString(fileBytes);
+        var doc = new HtmlDocument();
+        doc.LoadHtml(fileString);
+        var titleNode = doc.DocumentNode.SelectSingleNode("//title");
+        return titleNode?.InnerText?.Trim();
+    }
+
+    public static string? ExtractLanguage(byte[] fileBytes)
+    {
+        var fileString = Encoding.UTF8.GetString(fileBytes);
+        var doc = new HtmlDocument();
+        doc.LoadHtml(fileString);
+        var language = doc.DocumentNode.SelectSingleNode("//body")
+            ?.GetAttributeValue("lang", null);
+
+        return language;
+    }
 
     private static void AddContentToHtml(string path, string html, HtmlNode bodyNode, HtmlNode elementNode)
     {
@@ -154,7 +185,7 @@ public static class HtmlConverter
     }
 
     private static (HtmlDocument document, HtmlNode bodyNode) PrepareEmptyHtmlDocument(JObject emailContent,
-        string title, string language, string pageId)
+        string title, string language, string pageId, string? businessUnitId=null)
     {
         var htmlDoc = new HtmlDocument();
         var htmlNode = htmlDoc.CreateElement("html");
@@ -172,6 +203,14 @@ public static class HtmlConverter
         metaNode.SetAttributeValue("content", pageId);
         headNode.AppendChild(metaNode);
 
+        if (!string.IsNullOrWhiteSpace(businessUnitId))
+        {
+            var metaBusinessUnitNode = htmlDoc.CreateElement("meta");
+            metaBusinessUnitNode.SetAttributeValue("name", BusinessUnitId);
+            metaBusinessUnitNode.SetAttributeValue("content", businessUnitId);
+            headNode.AppendChild(metaBusinessUnitNode);
+        }
+
         var bodyNode = htmlDoc.CreateElement("body");
         htmlNode.AppendChild(bodyNode);
 
@@ -181,7 +220,7 @@ public static class HtmlConverter
         return (htmlDoc, bodyNode);
     }
 
-    private static PageInfoResponse ExtractPageInfo(Stream file)
+    public static PageInfoResponse ExtractPageInfo(Stream file)
     {
         var doc = new HtmlDocument();
         doc.Load(file);

@@ -9,4 +9,5 @@ public class EmailContentDto
     public string Language { get; set; }
     
     public JObject Content { get; set; }
+    public string BusinessUnitId { get; set; }
 }
