@@ -99,7 +99,7 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
       
         var email = await GetEmail(marketingEmailId);
 
-        var updatedContent = new Content
+        var updatedContent = new Models.Requests.Emails.Content
         {
             FlexAreas = json["flexAreas"] as JObject,
             Widgets = json["widgets"] as JObject,
@@ -159,7 +159,7 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
             Name = input.Name ?? title,
             Language = input.Language ?? language ?? "en",
             BusinessUnitId = input.BusinessUnitId ?? businessUnitId ?? throw new PluginMisconfigurationException("Business Unit ID is required."),
-            Content = new Content
+            Content = new Models.Requests.Emails.Content
             {
                 FlexAreas = contentJson["flexAreas"] as JObject,
                 Widgets = contentJson["widgets"] as JObject,

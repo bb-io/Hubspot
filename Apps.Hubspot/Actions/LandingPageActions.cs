@@ -21,13 +21,9 @@ using Blackbird.Applications.Sdk.Utils.Extensions.String;
 namespace Apps.Hubspot.Actions;
 
 [ActionList]
-public class LandingPageActions : BasePageActions
+public class LandingPageActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
+    : BasePageActions(invocationContext, fileManagementClient)
 {
-    public LandingPageActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
-        : base(invocationContext, fileManagementClient)
-    {
-    }
-
     [Action("Search landing pages", Description = "Search for a list of site pages that match a certain criteria")]
     public async Task<ListResponse<PageDto>> GetAllLandingPages([ActionParameter] SearchPagesRequest input)
     {

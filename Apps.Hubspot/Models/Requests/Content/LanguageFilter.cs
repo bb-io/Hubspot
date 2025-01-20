@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Apps.Hubspot.Models.Requests.Content;
 public class LanguageFilter
 {
-    [Display("Language")]
+    [Display("Language ID")]
     [StaticDataSource(typeof(LanguageHandler))]
-    public string ContentTypes { get; set; }
+    public string? Language { get; set; } 
 }

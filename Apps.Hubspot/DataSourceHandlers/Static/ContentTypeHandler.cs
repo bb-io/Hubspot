@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Apps.Hubspot.Constants;
 
 namespace Apps.Hubspot.DataSourceHandlers.Static;
 
@@ -14,11 +15,11 @@ internal class ContentTypeHandler : IStaticDataSourceItemHandler
     {
         return new List<DataSourceItem>
         {
-            new DataSourceItem("blog", "Blog posts"),
-            new DataSourceItem("landing_page", "Landing pages"),
-            new DataSourceItem("site_page", "Site pages"),
-            new DataSourceItem("email", "Marketing emails"),
-            new DataSourceItem("form", "Marketing forms")
+            new(ContentTypes.Blog, "Blog posts"),
+            new(ContentTypes.LandingPage, "Landing pages"),
+            new(ContentTypes.SitePage, "Site pages"),
+            new(ContentTypes.Email, "Marketing emails"),
+            new(ContentTypes.Form, "Marketing forms")
         };
 
     }
