@@ -10,10 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{93C81E1F-206A-4D2E-81A2-8BAF8FD776B8}"
-	ProjectSection(ProjectDependencies) = postProject
-		{483D78DA-0409-4D48-BE76-6933F2AC8793} = {483D78DA-0409-4D48-BE76-6933F2AC8793}
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.Hubspot", "Tests.Hubspot\Tests.Hubspot.csproj", "{B144D7F5-AC2C-4A3C-8F63-7C9B02639B88}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,10 +22,10 @@ Global
 		{483D78DA-0409-4D48-BE76-6933F2AC8793}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{483D78DA-0409-4D48-BE76-6933F2AC8793}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{483D78DA-0409-4D48-BE76-6933F2AC8793}.Release|Any CPU.Build.0 = Release|Any CPU
-		{93C81E1F-206A-4D2E-81A2-8BAF8FD776B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{93C81E1F-206A-4D2E-81A2-8BAF8FD776B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{93C81E1F-206A-4D2E-81A2-8BAF8FD776B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{93C81E1F-206A-4D2E-81A2-8BAF8FD776B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B144D7F5-AC2C-4A3C-8F63-7C9B02639B88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B144D7F5-AC2C-4A3C-8F63-7C9B02639B88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B144D7F5-AC2C-4A3C-8F63-7C9B02639B88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B144D7F5-AC2C-4A3C-8F63-7C9B02639B88}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
