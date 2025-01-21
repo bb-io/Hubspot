@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Apps.Hubspot.Constants;
 using Tests.Hubspot.Base;
 
 namespace Tests.Hubspot;
@@ -21,6 +22,16 @@ public class DataSourceTests : TestBase
 
         data.Should().NotBeNull();
 
+        Console.WriteLine(JsonConvert.SerializeObject(data, Formatting.Indented));
+    }
+    
+    [TestMethod]
+    public async Task ContentDataHandler_GetLandingPages_ShouldNotNullCollection()
+    {
+        var dataSource = new ContentDataHandler(InvocationContext, new() { ContentType = ContentTypes.LandingPage});
+        var data = await dataSource.GetDataAsync(new(), default);
+
+        data.Should().NotBeNull();
         Console.WriteLine(JsonConvert.SerializeObject(data, Formatting.Indented));
     }
 }

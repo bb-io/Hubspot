@@ -6,8 +6,8 @@ namespace Apps.Hubspot.Models.Responses.Files;
 public class FileLanguageResponse
 {
     [Display("File")]
-    public FileReference File { get; set; }
+    public FileReference File { get; set; } = default!;
 
     [Display("File language")]
-    public string FileLanguage { get; set; }
+    public string FileLanguage { get; set; } = default!;
 }

@@ -1,5 +1,7 @@
 ﻿using Apps.Hubspot.Constants;
 using Apps.Hubspot.Services.ContentServices;
+using Apps.Hubspot.Services.ContentServices.Abstract;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 
 namespace Apps.Hubspot.Services;
@@ -26,7 +28,7 @@ public class ContentServicesFactory(InvocationContext invocationContext)
             ContentTypes.Email => new MarketingEmailService(invocationContext),
             ContentTypes.Form => new MarketingFormService(invocationContext),
             ContentTypes.SitePage => new SitePageService(invocationContext),
-            _ => throw new Exception($"Unexpected content type received: {contentType}")
+            _ => throw new PluginApplicationException($"Unexpected content type received: {contentType}")
         };
     }
 }

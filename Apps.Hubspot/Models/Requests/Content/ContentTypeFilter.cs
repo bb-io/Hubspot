@@ -4,8 +4,8 @@ using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Hubspot.Models.Requests.Content;
 
-public class ContentTypesFilter
+public class ContentTypeFilter
 {
-    [Display("Content types"), StaticDataSource(typeof(ContentTypeHandler))]
-    public IEnumerable<string> ContentTypes { get; set; } = default!;
+    [Display("Content type"), StaticDataSource(typeof(ContentTypeHandler))]
+    public string ContentType { get; set; } = default!;
 }

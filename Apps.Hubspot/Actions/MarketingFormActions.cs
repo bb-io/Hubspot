@@ -13,7 +13,6 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
-using Newtonsoft.Json;
 using RestSharp;
 using Apps.Hubspot.Models.Requests.Files;
 using HtmlAgilityPack;
@@ -159,8 +158,6 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
         
         return await Client.ExecuteWithErrorHandling<MarketingFormDto>(request);
     }
-
-
 
     [Action("Create marketing form from HTML", Description = "Create a marketing form from a HTML file content")]
     public async Task<MarketingFormDto> CreateMarketingFormFromHtml([ActionParameter] FileRequest fileRequest,

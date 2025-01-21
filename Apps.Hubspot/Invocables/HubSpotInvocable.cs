@@ -1,10 +1,13 @@
 ﻿using Apps.Hubspot.Api;
 using Apps.Hubspot.Constants;
+using Apps.Hubspot.Models.Dtos;
+using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Models.Responses;
 using Apps.Hubspot.Services;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.Sdk.Utils.Extensions.Sdk;
 using RestSharp;
 

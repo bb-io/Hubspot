@@ -88,7 +88,7 @@ public static class HtmlConverter
         return Encoding.UTF8.GetBytes(doc.DocumentNode.OuterHtml);
     }
 
-    public static byte[] ToHtml(JObject emailContent, string title, string language, string pageId, string? businessUnitId = null)
+    public static byte[] ToHtml(JObject emailContent, string title, string language, string pageId, string contentType, string? businessUnitId = null)
     {
         var htmlNodes = emailContent.Descendants()
             .Where(x => x is JProperty { Value.Type: JTokenType.String } jProperty &&
