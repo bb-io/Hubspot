@@ -70,6 +70,8 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
         memoryStream.Position = 0;
         
         var fileBytes = await memoryStream.GetByteData();
+        memoryStream.Position = 0;
+        
         var fileString = Encoding.UTF8.GetString(fileBytes);
         var document = fileString.AsHtmlDocument();
         var contentType = document.ExtractContentType();
