@@ -57,7 +57,7 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
     public async Task<FileResponse> GetMarketingFormAsHtml([ActionParameter] MarketingFormRequest formRequest)
     {
         var form = await GetMarketingForm(formRequest);
-        var html = HtmlConverter.ToHtml(form.FieldGroups, form.Name, form.Configuration.Language, form.Id);
+        var html = HtmlConverter.ToHtml(form.FieldGroups, form.Name, form.Configuration.Language, form.Id, ContentTypes.Form);
 
         var file = await FileManagementClient.UploadAsync(new MemoryStream(html), MediaTypeNames.Text.Html,
             $"{formRequest.FormId}.html");

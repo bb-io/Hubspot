@@ -58,7 +58,7 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
         var form = await Client.ExecuteWithErrorHandling<MarketingFormDto>(request);
         
-        var htmlBytes = HtmlConverter.ToHtml(form.FieldGroups, form.Name, form.Configuration.Language, form.Id);
+        var htmlBytes = HtmlConverter.ToHtml(form.FieldGroups, form.Name, form.Configuration.Language, form.Id, ContentTypes.Form);
         return new MemoryStream(htmlBytes);
     }
 

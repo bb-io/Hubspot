@@ -69,7 +69,7 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
         await fileMemory.CopyToAsync(memoryStream);
         memoryStream.Position = 0;
         
-        var fileBytes = await fileMemory.GetByteData();
+        var fileBytes = await memoryStream.GetByteData();
         var fileString = Encoding.UTF8.GetString(fileBytes);
         var document = fileString.AsHtmlDocument();
         var contentType = document.ExtractContentType();

@@ -95,4 +95,19 @@ public class MetaActionsTests : TestBase
             Title = originalContent.Title
         });
     }
+    
+    [TestMethod]
+    public async Task UpdateContentFromHtml_WithBlogPostContentType_ShouldNotFail()
+    {
+        var actions = new MetaActions(InvocationContext, FileManager);
+        await actions.UpdateContentFromHtml(new()
+        {
+            File = new()
+            {
+                Name = "Random sentences.html",
+                ContentType = "text/html"
+            },
+            TargetLanguage = "de"
+        });
+    }
 }

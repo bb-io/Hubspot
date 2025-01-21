@@ -26,12 +26,13 @@ public static class HtmlConverter
     private const string LanguageAttribute = "lang";
     private const string PathAttribute = "path";
     private const string BlackbirdReferenceIdAttribute = "blackbird-reference-id";
+    private const string BlackbirdContentTypeAttribute = "blackbird-content-type";
     private const string BusinessUnitId = "business-unit-id";
 
-    public static byte[] ToHtml(List<FieldGroupDto> fieldGroups, string title, string language, string pageId)
+    public static byte[] ToHtml(List<FieldGroupDto> fieldGroups, string title, string language, string pageId, string contentType)
     {
         var allFields = fieldGroups.SelectMany(group => group.Fields).ToList();
-        var (doc, bodyNode) = PrepareEmptyHtmlDocument(new JObject(), title, language, pageId);
+        var (doc, bodyNode) = PrepareEmptyHtmlDocument(new JObject(), title, language, pageId, contentType);
 
         foreach (var field in allFields)
         {
@@ -103,10 +104,8 @@ public static class HtmlConverter
             })
             .ToList();
 
-        var (doc, bodyNode) = PrepareEmptyHtmlDocument(emailContent, title, language, pageId, businessUnitId);
-
+        var (doc, bodyNode) = PrepareEmptyHtmlDocument(emailContent, title, language, pageId, contentType, businessUnitId);
         htmlNodes.ForEach(x => AddContentToHtml(x.Path, x.Html, bodyNode, doc.CreateElement("div")));
-
         return Encoding.UTF8.GetBytes(doc.DocumentNode.OuterHtml);
     }
 
@@ -185,7 +184,7 @@ public static class HtmlConverter
     }
 
     private static (HtmlDocument document, HtmlNode bodyNode) PrepareEmptyHtmlDocument(JObject emailContent,
-        string title, string language, string pageId, string? businessUnitId=null)
+        string title, string language, string pageId, string contentType, string? businessUnitId=null)
     {
         var htmlDoc = new HtmlDocument();
         var htmlNode = htmlDoc.CreateElement("html");
@@ -202,6 +201,11 @@ public static class HtmlConverter
         metaNode.SetAttributeValue("name", BlackbirdReferenceIdAttribute);
         metaNode.SetAttributeValue("content", pageId);
         headNode.AppendChild(metaNode);
+        
+        var contentTypeMetaNode = htmlDoc.CreateElement("meta");
+        metaNode.SetAttributeValue("name", BlackbirdContentTypeAttribute); 
+        metaNode.SetAttributeValue("content", contentType);
+        headNode.AppendChild(contentTypeMetaNode);
 
         if (!string.IsNullOrWhiteSpace(businessUnitId))
         {
