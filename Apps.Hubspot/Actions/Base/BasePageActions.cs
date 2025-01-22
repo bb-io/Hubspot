@@ -8,6 +8,7 @@ using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using RestSharp;
 using Apps.Hubspot.Models.Dtos;
+using Newtonsoft.Json;
 
 namespace Apps.Hubspot.Actions.Base;
 
@@ -51,6 +52,7 @@ public abstract class BasePageActions : BaseActions
 
     protected Task<RestResponse> UpdateTranslatedPage(string url, UpdateTranslatedPageRequest page)
     {
+        var json = JsonConvert.SerializeObject(page, JsonConfig.Settings);
         var request = new HubspotRequest(url, Method.Patch, Creds)
             .WithJsonBody(page, JsonConfig.Settings);
 

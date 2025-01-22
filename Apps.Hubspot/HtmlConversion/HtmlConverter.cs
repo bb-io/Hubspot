@@ -9,15 +9,20 @@ namespace Apps.Hubspot.HtmlConversion;
 
 public static class HtmlConverter
 {
-    private static readonly HashSet<string> ContentProperties = new HashSet<string>
+    private static readonly HashSet<string> ContentProperties = new()
     {
-        "content", "html", "title", "value", "button_text", "quote_text", "speaker_name", "speaker_title", "heading", "richtext_field",
+        "content", "html", "title", "value", "button_text", "quote_text", "speaker_name", "speaker_title", "heading",
+        "richtext_field",
         "subheading", "price", "tab_label", "header", "subheader", "content_text", "alt", "text", "quotation",
-        "author_name",
-        "description"
+        "author_name", "description"
+    };
+    
+    private static readonly HashSet<string> ExcludeCustomModulesProperties = new()
+    {
+        "size_type", "loading", "src"
     };
 
-    private static readonly HashSet<string> RawHtmlProperties = new HashSet<string>
+    private static readonly HashSet<string> RawHtmlProperties = new()
     {
         "content", "html", "content_text", "richtext_field"
     };
@@ -29,7 +34,8 @@ public static class HtmlConverter
     private const string BlackbirdContentTypeAttribute = "blackbird-content-type";
     private const string BusinessUnitId = "business-unit-id";
 
-    public static byte[] ToHtml(List<FieldGroupDto> fieldGroups, string title, string language, string pageId, string contentType)
+    public static byte[] ToHtml(List<FieldGroupDto> fieldGroups, string title, string language, string pageId,
+        string contentType)
     {
         var allFields = fieldGroups.SelectMany(group => group.Fields).ToList();
         var (doc, bodyNode) = PrepareEmptyHtmlDocument(new JObject(), title, language, pageId, contentType);
@@ -88,24 +94,35 @@ public static class HtmlConverter
         Console.WriteLine(doc.DocumentNode.OuterHtml);
         return Encoding.UTF8.GetBytes(doc.DocumentNode.OuterHtml);
     }
-
+    
     public static byte[] ToHtml(JObject emailContent, string title, string language, string pageId, string contentType, string? businessUnitId = null)
     {
         var htmlNodes = emailContent.Descendants()
-            .Where(x => x is JProperty { Value.Type: JTokenType.String } jProperty &&
-                        ContentProperties.Contains(jProperty.Name))
+            .Where(x => x is JProperty { Value.Type: JTokenType.String } jProperty
+                        && (
+                            ContentProperties.Contains(jProperty.Name)
+                            // is it somewhere under a custom_widget?
+                            || (jProperty.Ancestors()
+                                .OfType<JObject>()
+                                .Any(o => o["type"]?.Value<string>() == "custom_widget") 
+                                && !ExcludeCustomModulesProperties.Contains(jProperty.Name))
+                        )
+            )
             .Select(x =>
             {
                 var jProperty = x as JProperty;
-                return (jProperty!.Path,
+                return (
+                    jProperty!.Path,
                     Html: RawHtmlProperties.Contains(jProperty.Name)
                         ? jProperty.Value.ToString()
-                        : HttpUtility.HtmlEncode(jProperty.Value.ToString()));
+                        : HttpUtility.HtmlEncode(jProperty.Value.ToString())
+                );
             })
             .ToList();
 
         var (doc, bodyNode) = PrepareEmptyHtmlDocument(emailContent, title, language, pageId, contentType, businessUnitId);
         htmlNodes.ForEach(x => AddContentToHtml(x.Path, x.Html, bodyNode, doc.CreateElement("div")));
+
         return Encoding.UTF8.GetBytes(doc.DocumentNode.OuterHtml);
     }
 
@@ -144,6 +161,7 @@ public static class HtmlConverter
 
         return referenceId;
     }
+
     public static string? ExtractBusinessUnitId(byte[] fileBytes)
     {
         var fileString = Encoding.UTF8.GetString(fileBytes);
@@ -184,7 +202,7 @@ public static class HtmlConverter
     }
 
     private static (HtmlDocument document, HtmlNode bodyNode) PrepareEmptyHtmlDocument(JObject emailContent,
-        string title, string language, string pageId, string contentType, string? businessUnitId=null)
+        string title, string language, string pageId, string contentType, string? businessUnitId = null)
     {
         var htmlDoc = new HtmlDocument();
         var htmlNode = htmlDoc.CreateElement("html");
@@ -201,10 +219,10 @@ public static class HtmlConverter
         metaNode.SetAttributeValue("name", BlackbirdReferenceIdAttribute);
         metaNode.SetAttributeValue("content", pageId);
         headNode.AppendChild(metaNode);
-        
+
         var contentTypeMetaNode = htmlDoc.CreateElement("meta");
-        metaNode.SetAttributeValue("name", BlackbirdContentTypeAttribute); 
-        metaNode.SetAttributeValue("content", contentType);
+        contentTypeMetaNode.SetAttributeValue("name", BlackbirdContentTypeAttribute);
+        contentTypeMetaNode.SetAttributeValue("content", contentType);
         headNode.AppendChild(contentTypeMetaNode);
 
         if (!string.IsNullOrWhiteSpace(businessUnitId))
