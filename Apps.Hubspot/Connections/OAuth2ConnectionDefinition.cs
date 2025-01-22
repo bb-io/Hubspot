@@ -11,7 +11,6 @@ public class OAuth2ConnectionDefinition : IConnectionDefinition
         {
             Name = "OAuth2",
             AuthenticationType = ConnectionAuthenticationType.OAuth2,
-            ConnectionUsage = ConnectionUsage.Actions,
             ConnectionProperties = new List<ConnectionProperty>()
         }
     };
@@ -20,7 +19,6 @@ public class OAuth2ConnectionDefinition : IConnectionDefinition
     {
         return values.Select(x =>
             new AuthenticationCredentialsProvider(
-                AuthenticationCredentialsRequestLocation.None,
                 x.Key,
                 x.Value));
     }

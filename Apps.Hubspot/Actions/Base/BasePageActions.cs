@@ -8,6 +8,7 @@ using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using RestSharp;
 using Apps.Hubspot.Models.Dtos;
+using Newtonsoft.Json;
 
 namespace Apps.Hubspot.Actions.Base;
 

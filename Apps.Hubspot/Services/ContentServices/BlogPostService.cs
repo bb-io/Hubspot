@@ -1,0 +1,128 @@
+﻿using System.Text;
+using Apps.Hubspot.Api;
+using Apps.Hubspot.Constants;
+using Apps.Hubspot.Extensions;
+using Apps.Hubspot.Models.Dtos.Blogs.Posts;
+using Apps.Hubspot.Models.Requests.BlogPosts;
+using Apps.Hubspot.Models.Requests.Content;
+using Apps.Hubspot.Models.Responses.Content;
+using Apps.Hubspot.Services.ContentServices.Abstract;
+using Apps.Hubspot.Utils.Converters;
+using Apps.Hubspot.Utils.Extensions;
+using Blackbird.Applications.Sdk.Common.Exceptions;
+using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Utils.Extensions.Files;
+using Blackbird.Applications.Sdk.Utils.Extensions.Http;
+using Blackbird.Applications.Sdk.Utils.Extensions.String;
+using Blackbird.Applications.Sdk.Utils.Html.Extensions;
+using RestSharp;
+
+namespace Apps.Hubspot.Services.ContentServices;
+
+public class BlogPostService(InvocationContext invocationContext) : BaseContentService(invocationContext)
+{
+    public override async Task<List<Metadata>> SearchContentAsync(Dictionary<string, string> query)
+    {
+        var blogEndpoint = ApiEndpoints.BlogPostsSegment.WithQuery(query);
+
+        var request = new HubspotRequest(blogEndpoint, Method.Get, Creds);
+        var blogPosts = await Client.Paginate<BlogPostDto>(request);
+
+        return blogPosts.Select(x => new Metadata
+        {
+            Id = x.Id,
+            Title = x.Name,
+            Type = ContentTypes.Blog,
+            Language = x.Language!,
+            CreatedAt = StringToDateTimeConverter.ToDateTime(x.Created),
+            UpdatedAt = StringToDateTimeConverter.ToDateTime(x.Updated)
+        }).ToList();
+    }
+
+    public override async Task<Metadata> GetContentAsync(string id)
+    {        
+        var endpoint = $"{ApiEndpoints.BlogPostsSegment}/{id}";
+        var request = new HubspotRequest(endpoint, Method.Get, Creds);
+        var blogPost = await Client.ExecuteWithErrorHandling<BlogPostDto>(request);
+
+        return new()
+        {
+            Id = blogPost.Id,
+            Title = blogPost.Name,
+            Language = blogPost.Language!,
+            Type = ContentTypes.Blog,
+            CreatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Created),
+            UpdatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Updated)
+        };
+    }
+
+    public override async Task<Stream> DownloadContentAsync(string id)
+    {
+        var endpoint = $"{ApiEndpoints.BlogPostsSegment}/{id}";
+        var request = new HubspotRequest(endpoint, Method.Get, Creds);
+        var blogPost = await Client.ExecuteWithErrorHandling<BlogPostDto>(request);
+        var htmlFile = (blogPost.Name, blogPost.MetaDescription, blogPost.PostBody, id, ContentTypes.Blog).AsHtml();
+        return new MemoryStream(Encoding.UTF8.GetBytes(htmlFile));
+    }
+
+    public override async Task UpdateContentFromHtmlAsync(string targetLanguage, Stream stream)
+    {
+        var fileBytes = await stream.GetByteData();
+        var fileString = Encoding.UTF8.GetString(fileBytes);
+        var document = fileString.AsHtmlDocument();
+        
+        var blogPostId = document.ExtractBlackbirdReferenceId() ?? throw new PluginMisconfigurationException("Blog post ID not found in the file. Please, make sure you generated HTML file with our app");
+        
+        var title = document.GetTitle();
+        var metaDescription = document.GetNodeFromHead("description");
+        var body = document.DocumentNode.SelectSingleNode("/html/body").InnerHtml;
+
+        var translationId = await GetOrCreateTranslationId(ApiEndpoints.BlogPostsSegment, blogPostId, targetLanguage);
+        var blogPost = await UpdateFullBlogPostObjectAsync(new()
+        {
+            BlogPostId = translationId
+        }, new()
+        {
+            Name = title,
+            PostBody = body,
+            MetaDescription = metaDescription
+        });
+    }
+
+    public override async Task<Metadata> UpdateContentAsync(string id, UpdateContentRequest updateContentRequest)
+    {
+        var endpoint = $"{ApiEndpoints.BlogPostsSegment}/{id}";
+        var request = new HubspotRequest(endpoint, Method.Patch, Creds)
+            .WithJsonBody(new
+            {
+                name = updateContentRequest.Title
+            }, JsonConfig.Settings);
+
+        var blogPost = await Client.ExecuteWithErrorHandling<BlogPostDto>(request);
+        return new()
+        {
+            Id = blogPost.Id,
+            Title = blogPost.Name,
+            Language = blogPost.Language!,
+            Type = ContentTypes.Blog,
+            CreatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Created),
+            UpdatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Updated)
+        };
+    }
+
+    public override Task DeleteContentAsync(string id)
+    {
+        var endpoint = $"{ApiEndpoints.BlogPostsSegment}/{id}";
+        var request = new HubspotRequest(endpoint, Method.Delete, Creds);
+        return Client.ExecuteWithErrorHandling(request);
+    }
+    
+    private Task<BlogPostDto> UpdateFullBlogPostObjectAsync(BlogPostRequest blogPost, ManageBlogPostRequest input)
+    {
+        var endpoint = $"{ApiEndpoints.BlogPostsSegment}/{blogPost.BlogPostId}";
+        var request = new HubspotRequest(endpoint, Method.Patch, Creds)
+            .WithJsonBody(input, JsonConfig.Settings);
+
+        return Client.ExecuteWithErrorHandling<BlogPostDto>(request);
+    }
+}

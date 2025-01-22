@@ -21,13 +21,9 @@ using RestSharp;
 namespace Apps.Hubspot.Actions;
 
 [ActionList]
-public class PageActions : BasePageActions
+public class PageActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
+    : BasePageActions(invocationContext, fileManagementClient)
 {
-    public PageActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
-        : base(invocationContext, fileManagementClient)
-    {
-    }
-
     [Action("Search site pages", Description = "Search for a list of site pages that match a certain criteria")]
     public async Task<ListResponse<PageDto>> GetAllSitePages([ActionParameter] SearchPagesRequest input)
     {
@@ -55,7 +51,7 @@ public class PageActions : BasePageActions
     {
         var result = await GetPage<GenericPageDto>(ApiEndpoints.ASitePage(input.PageId));
         var htmlFile =
-            HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language, input.PageId);
+            HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language, input.PageId, ContentTypes.SitePage);
 
         FileReference file;
         using (var stream = new MemoryStream(htmlFile))

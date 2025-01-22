@@ -60,7 +60,7 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
     public async Task<FileResponse> GetMarketingEmailHtml([ActionParameter] MarketingEmailRequest emailRequest)
     {
         var email = await GetEmail(emailRequest.MarketingEmailId);
-        var html = HtmlConverter.ToHtml(email.Content, email.Name, email.Language, emailRequest.MarketingEmailId,email.BusinessUnitId);
+        var html = HtmlConverter.ToHtml(email.Content, email.Name, email.Language, emailRequest.MarketingEmailId, ContentTypes.Email,email.BusinessUnitId);
 
         var file = await FileManagementClient.UploadAsync(new MemoryStream(html), MediaTypeNames.Text.Html,
             $"{emailRequest}.html");
@@ -99,13 +99,13 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
       
         var email = await GetEmail(marketingEmailId);
 
-        var updatedContent = new Content
+        var updatedContent = new Models.Requests.Emails.Content
         {
             FlexAreas = json["flexAreas"] as JObject,
             Widgets = json["widgets"] as JObject,
             StyleSettings = json["styleSettings"] as JObject,
             TemplatePath = json["templatePath"]?.ToString(),
-            PlainTextVersion = ""
+            PlainTextVersion = json["plainTextVersion"]?.ToString() ?? ""
         };
 
         var updateRequest = new MarketingEmailOptionalRequest
@@ -126,8 +126,6 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
 
         var response = await Client.ExecuteWithErrorHandling(request);
     }
-
-
 
     [Action("Create marketing email from HTML", Description = "Create email from a HTML file content")]
     public async Task<MarketingEmailDto> CreateMarketingEmailFromHtml([ActionParameter] FileRequest fileRequest, [ActionParameter] CreateMarketingEmailOptionalRequest input)
@@ -159,7 +157,7 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
             Name = input.Name ?? title,
             Language = input.Language ?? language ?? "en",
             BusinessUnitId = input.BusinessUnitId ?? businessUnitId ?? throw new PluginMisconfigurationException("Business Unit ID is required."),
-            Content = new Content
+            Content = new Models.Requests.Emails.Content
             {
                 FlexAreas = contentJson["flexAreas"] as JObject,
                 Widgets = contentJson["widgets"] as JObject,

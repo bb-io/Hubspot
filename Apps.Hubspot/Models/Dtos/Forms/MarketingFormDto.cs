@@ -1,5 +1,4 @@
-﻿using Apps.Hubspot.Models.Requests.Forms;
-using Blackbird.Applications.Sdk.Common;
+﻿using Blackbird.Applications.Sdk.Common;
 
 namespace Apps.Hubspot.Models.Dtos.Forms;
 

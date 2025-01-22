@@ -4,5 +4,5 @@ namespace Apps.Hubspot.Models.Responses.Files;
 
 public class FileResponse
 {
-    public FileReference File { get; set; }
+    public FileReference File { get; set; } = default!;
 }

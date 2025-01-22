@@ -92,7 +92,7 @@ public class BlogPostsActions(InvocationContext invocationContext, IFileManageme
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
 
         var blogPost = await Client.ExecuteWithErrorHandling<BlogPostDto>(request);
-        var htmlFile = (blogPost.Name, blogPost.MetaDescription, blogPost.PostBody, input.BlogPost).AsHtml();
+        var htmlFile = (blogPost.Name, blogPost.MetaDescription, blogPost.PostBody, input.BlogPost, ContentTypes.Blog).AsHtml();
 
         FileReference file;
         using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(htmlFile)))
@@ -133,7 +133,6 @@ public class BlogPostsActions(InvocationContext invocationContext, IFileManageme
             PostBody = body,
             MetaDescription = metaDescription
         });
-
     }
 
     [Action("Schedule a blog post for publishing",

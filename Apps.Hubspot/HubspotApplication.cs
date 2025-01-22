@@ -8,7 +8,6 @@ namespace Apps.Hubspot;
 
 public class HubspotApplication : BaseInvocable, IApplication, ICategoryProvider
 {
-    private string _name;
     private readonly Dictionary<Type, object> _typesInstances;
 
     public IEnumerable<ApplicationCategory> Categories
@@ -18,14 +17,7 @@ public class HubspotApplication : BaseInvocable, IApplication, ICategoryProvider
     }
     public HubspotApplication(InvocationContext invocationContext) : base(invocationContext)
     {
-        _name = "Hubspot";
         _typesInstances = CreateTypesInstances();
-    }
-
-    public string Name
-    {
-        get => _name;
-        set => _name = value;
     }
 
     public T GetInstance<T>()
