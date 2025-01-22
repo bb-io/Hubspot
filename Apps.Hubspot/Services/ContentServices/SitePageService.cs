@@ -2,7 +2,6 @@
 using Apps.Hubspot.Constants;
 using Apps.Hubspot.Extensions;
 using Apps.Hubspot.HtmlConversion;
-using Apps.Hubspot.Invocables;
 using Apps.Hubspot.Models.Dtos.Pages;
 using Apps.Hubspot.Models.Requests.Content;
 using Apps.Hubspot.Models.Responses.Content;
@@ -28,6 +27,7 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
         return response.Select(x => new Metadata
         {
             Id = x.Id,
+            Title = x.Name,
             Language = x.Language!,
             Type = ContentTypes.Form,
             CreatedAt = StringToDateTimeConverter.ToDateTime(x.Created),

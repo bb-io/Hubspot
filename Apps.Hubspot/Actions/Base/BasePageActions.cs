@@ -52,7 +52,6 @@ public abstract class BasePageActions : BaseActions
 
     protected Task<RestResponse> UpdateTranslatedPage(string url, UpdateTranslatedPageRequest page)
     {
-        var json = JsonConvert.SerializeObject(page, JsonConfig.Settings);
         var request = new HubspotRequest(url, Method.Patch, Creds)
             .WithJsonBody(page, JsonConfig.Settings);
 
