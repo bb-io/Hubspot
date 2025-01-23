@@ -10,9 +10,11 @@ using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Models.Requests.Emails;
 using Apps.Hubspot.Models.Requests.Forms;
 using Apps.Hubspot.Models.Responses;
+using Apps.Hubspot.Models.Responses.Content;
 using Apps.Hubspot.Models.Responses.Emails;
 using Apps.Hubspot.Models.Responses.Forms;
 using Apps.Hubspot.Models.Responses.Pages;
+using Apps.Hubspot.Utils.Converters;
 using Apps.Hubspot.Webhooks.Models;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -25,6 +27,102 @@ namespace Apps.Hubspot.Webhooks;
 [PollingEventList]
 public class PollingList(InvocationContext invocationContext) : HubSpotInvocable(invocationContext)
 {
+    [PollingEvent("On content created or updated",
+        Description =
+            "Triggered at specified time intervals and returns all blog posts, landing pages, site pages, emails, and forms that were updated or created during the specified time interval.")]
+    public async Task<PollingEventResponse<PageMemory, SearchMetadataResponse>> OnContentCreatedOrUpdated(PollingEventRequest<PageMemory> request, 
+        [PollingEventParameter] LanguageRequest languageRequest)
+    {
+        if(request.Memory is null || request.Memory.LastPollingTime is null)
+        {
+            return new PollingEventResponse<PageMemory, SearchMetadataResponse>
+            {
+                FlyBird = false,
+                Memory = new PageMemory { LastPollingTime = DateTime.UtcNow },
+                Result = null
+            };
+        }
+        
+        var metadata = new List<Metadata>();
+        
+        var blogPosts = await OnBlogPostsCreatedOrUpdated(request, languageRequest);
+        if (blogPosts.FlyBird && blogPosts.Result != null)
+        {
+            metadata.AddRange(blogPosts.Result?.BlogPosts.Select(x => new Metadata()
+            {
+                Id = x.Id,
+                Language = x.Language,
+                Title = x.Name,
+                CreatedAt = StringToDateTimeConverter.ToDateTime(x.Created),
+                UpdatedAt = StringToDateTimeConverter.ToDateTime(x.Updated),
+                Type = ContentTypes.Blog
+            }));
+        }
+        
+        var sitePages = await OnSitePageCreatedOrUpdated(request, languageRequest);
+        if (sitePages.FlyBird && sitePages.Result != null)
+        {
+            metadata.AddRange(sitePages.Result.Pages.Select(x => new Metadata()
+            {
+                Id = x.Id,
+                Language = x.Language,
+                Title = x.Name,
+                CreatedAt = StringToDateTimeConverter.ToDateTime(x.Created),
+                UpdatedAt = StringToDateTimeConverter.ToDateTime(x.Updated),
+                Type = ContentTypes.SitePage
+            }));
+        }
+        
+        var landingPages = await OnLandingPageCreatedOrUpdated(request, languageRequest);
+        if (landingPages.FlyBird && landingPages.Result != null)
+        {
+            metadata.AddRange(landingPages.Result.Pages.Select(x => new Metadata()
+            {
+                Id = x.Id,
+                Language = x.Language,
+                Title = x.Name,
+                CreatedAt = StringToDateTimeConverter.ToDateTime(x.Created),
+                UpdatedAt = StringToDateTimeConverter.ToDateTime(x.Updated),
+                Type = ContentTypes.LandingPage
+            }));
+        }
+        
+        var marketingForms = await OnMarketingFormsCreatedOrUpdated(request, languageRequest);
+        if (marketingForms.FlyBird && marketingForms.Result != null)
+        {
+            metadata.AddRange(marketingForms.Result.Forms.Select(x => new Metadata()
+            {
+                Id = x.Id,
+                Language = x.Configuration.Language,
+                Title = x.Name,
+                CreatedAt = x.CreatedAt,
+                UpdatedAt = x.UpdatedAt,
+                Type = ContentTypes.LandingPage
+            }));
+        }
+        
+        var marketingEmails = await OnMarketingEmailsCreatedOrUpdated(request, languageRequest);
+        if (marketingEmails.FlyBird && marketingEmails.Result != null)
+        {
+            metadata.AddRange(marketingEmails.Result.Emails.Select(x => new Metadata()
+            {
+                Id = x.Id,
+                Language = x.Language,
+                Title = x.Name,
+                CreatedAt = x.CreatedAt,
+                UpdatedAt = x.UpdatedAt ?? DateTime.MinValue,
+                Type = ContentTypes.LandingPage
+            }));
+        }
+
+        return new()
+        {
+            FlyBird = metadata.Any(),
+            Memory = new PageMemory { LastPollingTime = DateTime.UtcNow },
+            Result = new(metadata)
+        };
+    }
+    
     [PollingEvent("On blog posts created or updated", Description = "Triggered when a blog post is created or updated")]
     public async Task<PollingEventResponse<PageMemory, BlogPostsResponse>>
         OnBlogPostsCreatedOrUpdated(PollingEventRequest<PageMemory> request,
@@ -45,6 +143,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         var blogPosts = createdBlogPosts.Items
             .Concat(updatedBlogPosts.Items)
             .Where(p => p.Language == languageRequest.Language)
+            .DistinctBy(x => x.Id)
             .ToList();
         
         if(blogPosts.Count == 0)
@@ -85,7 +184,9 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         var pages = created.Items
             .Concat(updated.Items)
             .Where(p => p.Language == languageRequest.Language)
+            .DistinctBy(x => x.Id)
             .ToList();
+        
         if(pages.Count == 0)
         {
             return new PollingEventResponse<PageMemory, PagesResponse>
@@ -125,7 +226,9 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         var pages = created.Items
             .Concat(updated.Items)
             .Where(p => p.Language == languageRequest.Language)
+            .DistinctBy(x => x.Id)
             .ToList();
+        
         if(pages.Count == 0)
         {
             return new PollingEventResponse<PageMemory, PagesResponse>
@@ -165,6 +268,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         var forms = created.Items
             .Concat(updated.Items)
             .Where(p => p.Configuration.Language == languageRequest.Language)
+            .DistinctBy(x => x.Id)
             .ToList();
         
         if(forms.Count == 0)
@@ -188,7 +292,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
     [PollingEvent("On marketing emails created or updated",
         Description = "Triggered when a marketing emails is created or updated")]
     public async Task<PollingEventResponse<PageMemory, MarketingEmailsResponse>>
-        OnLMarketingEmailsCreatedOrUpdated(PollingEventRequest<PageMemory> request,
+        OnMarketingEmailsCreatedOrUpdated(PollingEventRequest<PageMemory> request,
             [PollingEventParameter] LanguageRequest languageRequest)
     {
         if(request.Memory is null || request.Memory.LastPollingTime is null)
@@ -206,6 +310,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         var emails = created.Items
             .Concat(updated.Items)
             .Where(p => p.Language == languageRequest.Language)
+            .DistinctBy(x => x.Id)
             .ToList();
         
         if(emails.Count == 0)
