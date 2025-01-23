@@ -105,4 +105,8 @@ All actions that work with HTML files will add a meta tag to the HTML. This meta
 
 This example uses a polling event to check for new blog posts. When a new blog post is created, the event triggers and the blog post is translated into a different language.
 
+![Generic example](image/README/generic-bird.png)
+
+This example demonstrates how you can work with the `Hubspot CMS` app in a generic way. This bird will pick up all updated or created content within a specified time interval and translate it into a specific language. Using this approach, you don't need to create five different birds; you can just create one for this purpose
+
 <!-- end docs -->
