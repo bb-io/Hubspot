@@ -7,6 +7,7 @@ using Apps.Hubspot.Models.Dtos.Emails;
 using Apps.Hubspot.Models.Dtos.Forms;
 using Apps.Hubspot.Models.Dtos.Pages;
 using Apps.Hubspot.Models.Requests;
+using Apps.Hubspot.Models.Requests.Content;
 using Apps.Hubspot.Models.Requests.Emails;
 using Apps.Hubspot.Models.Requests.Forms;
 using Apps.Hubspot.Models.Responses;
@@ -31,7 +32,8 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         Description =
             "Triggered at specified time intervals and returns all blog posts, landing pages, site pages, emails, and forms that were updated or created during the specified time interval")]
     public async Task<PollingEventResponse<PageMemory, SearchMetadataResponse>> OnContentCreatedOrUpdated(PollingEventRequest<PageMemory> request, 
-        [PollingEventParameter] LanguageRequest languageRequest)
+        [PollingEventParameter] LanguageRequest languageRequest,
+        [PollingEventParameter] ContentTypesOptionalFilter contentTypesFilter)
     {
         if(request.Memory is null || request.Memory.LastPollingTime is null)
         {
@@ -48,71 +50,86 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         var blogPosts = await OnBlogPostsCreatedOrUpdated(request, languageRequest);
         if (blogPosts.FlyBird && blogPosts.Result != null)
         {
-            metadata.AddRange(blogPosts.Result?.BlogPosts.Select(x => new Metadata
+            if(contentTypesFilter.ContentTypes == null || contentTypesFilter.ContentTypes.Contains(ContentTypes.Blog))
             {
-                Id = x.Id,
-                Language = x.Language,
-                Title = x.Name,
-                CreatedAt = StringToDateTimeConverter.ToDateTime(x.Created),
-                UpdatedAt = StringToDateTimeConverter.ToDateTime(x.Updated),
-                Type = ContentTypes.Blog
-            }));
+                metadata.AddRange(blogPosts.Result?.BlogPosts.Select(x => new Metadata
+                {
+                    Id = x.Id,
+                    Language = x.Language,
+                    Title = x.Name,
+                    CreatedAt = StringToDateTimeConverter.ToDateTime(x.Created),
+                    UpdatedAt = StringToDateTimeConverter.ToDateTime(x.Updated),
+                    Type = ContentTypes.Blog
+                }));
+            }
         }
         
         var sitePages = await OnSitePageCreatedOrUpdated(request, languageRequest);
         if (sitePages.FlyBird && sitePages.Result != null)
         {
-            metadata.AddRange(sitePages.Result.Pages.Select(x => new Metadata
+            if(contentTypesFilter.ContentTypes == null || contentTypesFilter.ContentTypes.Contains(ContentTypes.SitePage))
             {
-                Id = x.Id,
-                Language = x.Language,
-                Title = x.Name,
-                CreatedAt = StringToDateTimeConverter.ToDateTime(x.Created),
-                UpdatedAt = StringToDateTimeConverter.ToDateTime(x.Updated),
-                Type = ContentTypes.SitePage
-            }));
+                metadata.AddRange(sitePages.Result.Pages.Select(x => new Metadata
+                {
+                    Id = x.Id,
+                    Language = x.Language,
+                    Title = x.Name,
+                    CreatedAt = StringToDateTimeConverter.ToDateTime(x.Created),
+                    UpdatedAt = StringToDateTimeConverter.ToDateTime(x.Updated),
+                    Type = ContentTypes.SitePage
+                }));
+            }
         }
         
         var landingPages = await OnLandingPageCreatedOrUpdated(request, languageRequest);
         if (landingPages.FlyBird && landingPages.Result != null)
         {
-            metadata.AddRange(landingPages.Result.Pages.Select(x => new Metadata()
+            if(contentTypesFilter.ContentTypes == null || contentTypesFilter.ContentTypes.Contains(ContentTypes.LandingPage))
             {
-                Id = x.Id,
-                Language = x.Language,
-                Title = x.Name,
-                CreatedAt = StringToDateTimeConverter.ToDateTime(x.Created),
-                UpdatedAt = StringToDateTimeConverter.ToDateTime(x.Updated),
-                Type = ContentTypes.LandingPage
-            }));
+                metadata.AddRange(landingPages.Result.Pages.Select(x => new Metadata
+                {
+                    Id = x.Id,
+                    Language = x.Language,
+                    Title = x.Name,
+                    CreatedAt = StringToDateTimeConverter.ToDateTime(x.Created),
+                    UpdatedAt = StringToDateTimeConverter.ToDateTime(x.Updated),
+                    Type = ContentTypes.LandingPage
+                }));
+            }
         }
         
         var marketingForms = await OnMarketingFormsCreatedOrUpdated(request, languageRequest);
         if (marketingForms.FlyBird && marketingForms.Result != null)
         {
-            metadata.AddRange(marketingForms.Result.Forms.Select(x => new Metadata()
+            if(contentTypesFilter.ContentTypes == null || contentTypesFilter.ContentTypes.Contains(ContentTypes.Form))
             {
-                Id = x.Id,
-                Language = x.Configuration.Language,
-                Title = x.Name,
-                CreatedAt = x.CreatedAt,
-                UpdatedAt = x.UpdatedAt,
-                Type = ContentTypes.Form
-            }));
+                metadata.AddRange(marketingForms.Result.Forms.Select(x => new Metadata
+                {
+                    Id = x.Id,
+                    Language = x.Configuration.Language,
+                    Title = x.Name,
+                    CreatedAt = x.CreatedAt,
+                    UpdatedAt = x.UpdatedAt,
+                    Type = ContentTypes.Form
+                }));
+            }
         }
         
         var marketingEmails = await OnMarketingEmailsCreatedOrUpdated(request, languageRequest);
         if (marketingEmails.FlyBird && marketingEmails.Result != null)
         {
-            metadata.AddRange(marketingEmails.Result.Emails.Select(x => new Metadata()
+            if(contentTypesFilter.ContentTypes == null || contentTypesFilter.ContentTypes.Contains(ContentTypes.Email))
             {
-                Id = x.Id,
-                Language = x.Language,
-                Title = x.Name,
-                CreatedAt = x.CreatedAt,
-                UpdatedAt = x.UpdatedAt ?? DateTime.MinValue,
-                Type = ContentTypes.Email
-            }));
+                metadata.AddRange(marketingEmails.Result.Emails.Select(x => new Metadata
+                {
+                    Id = x.Id,
+                    Language = x.Language,
+                    Title = x.Name,
+                    CreatedAt = x.CreatedAt,
+                    UpdatedAt = x.UpdatedAt ?? DateTime.MinValue,
+                    Type = ContentTypes.Email
+                }));
+            }
         }
 
         return new()
