@@ -8,24 +8,19 @@ using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using RestSharp;
 using Apps.Hubspot.Models.Dtos;
-using Newtonsoft.Json;
 
 namespace Apps.Hubspot.Actions.Base;
 
-public abstract class BasePageActions : BaseActions
+public abstract class BasePageActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
+    : BaseActions(invocationContext, fileManagementClient)
 {
-    protected BasePageActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
-        : base(invocationContext, fileManagementClient)
-    {
-    }
-
     protected Task<T> GetPage<T>(string url) where T : PageDto
     {
         var request = new HubspotRequest(url, Method.Get, Creds);
         return Client.ExecuteWithErrorHandling<T>(request);
     }
 
-    protected async Task<string> GetOrCreateTranslationId(string resourceUrlPart, string resourceId, string targetLanguage, string primaryLanguage = null)
+    protected async Task<string> GetOrCreateTranslationId(string resourceUrlPart, string resourceId, string targetLanguage, string? primaryLanguage = null)
     {
         var request = new HubspotRequest($"{resourceUrlPart}/{resourceId}", Method.Get, Creds);
         var response = await Client.ExecuteWithErrorHandling<ObjectWithTranslations>(request);

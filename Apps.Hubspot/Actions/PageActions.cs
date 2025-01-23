@@ -38,6 +38,11 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
             response = response.Where(p => p.Translations == null || p.Translations.Keys.All(key => key != input.NotTranslatedInLanguage.ToLower())).ToList();
         }
 
+        if (!string.IsNullOrEmpty(input.Language))
+        {
+            response = response.Where(x => x.Language == input.Language).ToList();
+        }
+
         return new(response);
     }
 

@@ -37,6 +37,11 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
 
         var result = await Client.Paginate<MarketingEmailDto>(request);
+        if (!string.IsNullOrEmpty(input.Language))
+        {
+            result = result.Where(x => x.Language == input.Language).ToList();
+        }
+        
         return new(result);
     }
 

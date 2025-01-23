@@ -41,6 +41,11 @@ public class BlogPostsActions(InvocationContext invocationContext, IFileManageme
         {
             response = response.Where(p => p.Translations == null || p.Translations.Keys.All(key => key != input.NotTranslatedInLanguage.ToLower())).ToList();
         }
+        
+        if (!string.IsNullOrEmpty(input.Language))
+        {
+            response = response.Where(x => x.Language == input.Language).ToList();
+        }
 
         return new(response);
     }
@@ -122,7 +127,7 @@ public class BlogPostsActions(InvocationContext invocationContext, IFileManageme
         var metaDescription = doc.GetNodeFromHead("description");
         var body = doc.DocumentNode.SelectSingleNode("/html/body").InnerHtml;
 
-        var translationId = await GetOrCreateTranslationId(ApiEndpoints.BlogPostsSegment, blogPostId, input.Language);
+        var translationId = await GetOrCreateTranslationId(ApiEndpoints.BlogPostsSegment, blogPostId, input.Language, input.PrimaryLanguage);
 
         return await UpdateBlogPost(new()
         {
