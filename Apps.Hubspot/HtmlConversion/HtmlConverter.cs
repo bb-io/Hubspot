@@ -13,7 +13,7 @@ public static class HtmlConverter
     {
         "content", "html", "title", "value", "button_text", "quote_text", "speaker_name", "speaker_title", "heading",
         "richtext_field", "subheading", "price", "tab_label", "header", "subheader", "content_text", "alt", "text", "quotation",
-        "author_name", "description", "company", "job_title", "testimonial", "writer_name"
+        "author_name", "description"
     };
     
     private static readonly HashSet<string> ExcludeCustomModulesProperties = new()
@@ -100,13 +100,21 @@ public static class HtmlConverter
             .Where(x => x is JProperty { Value.Type: JTokenType.String } jProperty
                         && (
                             ContentProperties.Contains(jProperty.Name)
+                            || (
+                                jProperty.Ancestors()
+                                    .OfType<JObject>()
+                                    .Any(o => o["type"]?.Value<string>() == "custom_widget")
+                                && jProperty.Path.Contains(".params.content.")
+                                && !jProperty.Path.Contains(".params.content.quote_icon.")
+                                && !ExcludeCustomModulesProperties.Contains(jProperty.Name)
+                            )
                         )
             )
             .Select(x =>
             {
-                var jProperty = x as JProperty;
+                var jProperty = (JProperty)x;
                 return (
-                    jProperty!.Path,
+                    jProperty.Path,
                     Html: RawHtmlProperties.Contains(jProperty.Name)
                         ? jProperty.Value.ToString()
                         : HttpUtility.HtmlEncode(jProperty.Value.ToString())

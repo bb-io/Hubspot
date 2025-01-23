@@ -12,9 +12,11 @@ public class TranslateBlogPostFromHtmlRequest
     [Display("Post ID")]
     public string? BlogPostId { get; set; }
 
-    [Display("Target language")]
-    [StaticDataSource(typeof(LanguageHandler))]
+    [Display("Target language"), StaticDataSource(typeof(LanguageHandler))]
     public string Language { get; set; }
+    
+    [Display("Primary language"), StaticDataSource(typeof(LanguageHandler))]
+    public string? PrimaryLanguage { get; set; }
 
     public FileReference File { get; set; }
 }

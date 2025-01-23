@@ -30,6 +30,12 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
 
         var result = await Client.Paginate<MarketingFormDto>(request);
+        
+        if (!string.IsNullOrEmpty(input.Language))
+        {
+            result = result.Where(x => x.Configuration.Language == input.Language).ToList();
+        }
+        
         return new(result);
     }
 

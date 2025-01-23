@@ -13,6 +13,9 @@ public class SearchFormsRequest
     [Display("Form types", Description = "The form types to be included in the results."), StaticDataSource(typeof(FormTypeHandler))]
     public IEnumerable<string>? FormTypes { get; set; }
     
+    [StaticDataSource(typeof(LanguageHandler))]
+    public string? Language { get; set; }
+    
     public string BuildQuery()
     {
         var query = new List<KeyValuePair<string, string>>();

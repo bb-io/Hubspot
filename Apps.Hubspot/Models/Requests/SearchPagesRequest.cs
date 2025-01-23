@@ -10,4 +10,7 @@ public class SearchPagesRequest : TimeFilterRequest
     [Display("Not translated in language")]
     [StaticDataSource(typeof(LanguageHandler))]
     public string? NotTranslatedInLanguage { get; set; }
+
+    [Display("Language"), StaticDataSource(typeof(LanguageHandler))]
+    public string? Language { get; set; }
 }
