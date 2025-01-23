@@ -97,7 +97,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                 Title = x.Name,
                 CreatedAt = x.CreatedAt,
                 UpdatedAt = x.UpdatedAt,
-                Type = ContentTypes.LandingPage
+                Type = ContentTypes.Form
             }));
         }
         
@@ -111,7 +111,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                 Title = x.Name,
                 CreatedAt = x.CreatedAt,
                 UpdatedAt = x.UpdatedAt ?? DateTime.MinValue,
-                Type = ContentTypes.LandingPage
+                Type = ContentTypes.Email
             }));
         }
 
