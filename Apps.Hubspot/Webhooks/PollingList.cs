@@ -48,7 +48,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         var blogPosts = await OnBlogPostsCreatedOrUpdated(request, languageRequest);
         if (blogPosts.FlyBird && blogPosts.Result != null)
         {
-            metadata.AddRange(blogPosts.Result?.BlogPosts.Select(x => new Metadata()
+            metadata.AddRange(blogPosts.Result?.BlogPosts.Select(x => new Metadata
             {
                 Id = x.Id,
                 Language = x.Language,
@@ -62,7 +62,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         var sitePages = await OnSitePageCreatedOrUpdated(request, languageRequest);
         if (sitePages.FlyBird && sitePages.Result != null)
         {
-            metadata.AddRange(sitePages.Result.Pages.Select(x => new Metadata()
+            metadata.AddRange(sitePages.Result.Pages.Select(x => new Metadata
             {
                 Id = x.Id,
                 Language = x.Language,
@@ -179,8 +179,8 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
             };
         }
         
-        var created = await GetAllSitePages(new SearchPagesRequest() { CreatedAfter = request.Memory.LastPollingTime.Value });
-        var updated = await GetAllSitePages(new SearchPagesRequest() { UpdatedAfter = request.Memory.LastPollingTime.Value });
+        var created = await GetAllSitePages(new SearchPagesRequest { CreatedAfter = request.Memory.LastPollingTime.Value });
+        var updated = await GetAllSitePages(new SearchPagesRequest { UpdatedAfter = request.Memory.LastPollingTime.Value });
         var pages = created.Items
             .Concat(updated.Items)
             .Where(p => p.Language == languageRequest.Language)

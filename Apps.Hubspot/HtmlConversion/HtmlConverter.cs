@@ -12,9 +12,8 @@ public static class HtmlConverter
     private static readonly HashSet<string> ContentProperties = new()
     {
         "content", "html", "title", "value", "button_text", "quote_text", "speaker_name", "speaker_title", "heading",
-        "richtext_field",
-        "subheading", "price", "tab_label", "header", "subheader", "content_text", "alt", "text", "quotation",
-        "author_name", "description"
+        "richtext_field", "subheading", "price", "tab_label", "header", "subheader", "content_text", "alt", "text", "quotation",
+        "author_name", "description", "company", "job_title", "testimonial", "writer_name"
     };
     
     private static readonly HashSet<string> ExcludeCustomModulesProperties = new()
@@ -101,11 +100,6 @@ public static class HtmlConverter
             .Where(x => x is JProperty { Value.Type: JTokenType.String } jProperty
                         && (
                             ContentProperties.Contains(jProperty.Name)
-                            // is it somewhere under a custom_widget?
-                            || (jProperty.Ancestors()
-                                .OfType<JObject>()
-                                .Any(o => o["type"]?.Value<string>() == "custom_widget") 
-                                && !ExcludeCustomModulesProperties.Contains(jProperty.Name))
                         )
             )
             .Select(x =>
