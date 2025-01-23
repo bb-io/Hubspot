@@ -31,9 +31,20 @@ Before you can connect you need to make sure that:
 
 ## Actions
 
+### Content actions
+
+> "Content" refers to all content types available in our app, including Landing & pages, blog posts, marketing emails, and marketing forms. These objects are unified under a single content class that includes the following properties: Content ID, Title, Language, Created At, Updated At, and Content Type (blog, landing_page, site_page, email, or form).
+
+- **Search content**: Search for any type of content.
+- **Get content**: Retrieve metadata for a specific content type based on its ID.
+- **Download content**: Download content as HTML for a specific content type based on its ID.
+- **Update content from HTML**: Update content from an HTML file.
+- **Update content**: Update content based on specified criteria using its ID.
+- **Delete content**: Delete content based on its ID.
+
 ### Landing & site pages
 
-Note: the actions for landing and site pages are the same, but have separate actions for each.
+> Note: the actions for landing and site pages are the same, but have separate actions for each.
 
 A site page is a more general and versatile page on Hubspot CMS website that can contain various types of content and is part of your site's overall navigation and structure. A landing page in HubSpot CMS is a standalone page typically designed for a specific marketing campaign, with a clear call-to-action (CTA) to capture leads.
 
@@ -75,14 +86,14 @@ Note: the Hubspot API marks these endpoints in beta stage.
 - **Create marketing form** creates a new marketing form.
 - **Create marketing form from HTML** create a marketing form from a HTML file content, using metadata IDs: `name`, `type`, `language`, `archived`. If there is no specific metadata, then it search for HTML tag IDs: `name`, `type`, `language`, `archived`.
 
-
 ## Events
 
-- **On blog posts created or updated** triggers when a blog post is created or updated.
-- **On landing pages created or updated** triggers when a landing page is created or updated.
-- **On site pages created or updated** triggers when a site page is created or updated.
+- **On content created or updated** (polling): Triggered at specified time intervals and returns all blog posts, landing pages, site pages, emails, and forms that were updated or created during the specified time interval.
+- **On blog posts created or updated** (polling): Triggered at specified time intervals and returns all blog posts was created or updated.
+- **On landing pages created or updated** (polling): Triggered at specified time intervals and returns all landing pages was created or updated.
+- **On site pages created or updated** (polling): Triggered at specified time intervals and returns all site pages was created or updated.
 
-This events are working on polling mechanism, so you won't be immediately notified about the changes. You can configure the polling interval starting from 5 minutes to 7 days.
+> This events are working on polling mechanism, so you won't be immediately notified about the changes. You can configure the polling interval starting from 5 minutes to 7 days.
 
 ## Useful tips
 

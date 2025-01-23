@@ -39,14 +39,14 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
         return new(metadata);
     }
     
-    [Action("Get content", Description = "Get content for specific type based on ID")]
+    [Action("Get content", Description = "Retrieve metadata for a specific content type based on its ID")]
     public async Task<Metadata> GetContent([ActionParameter] GetContentRequest contentRequest)
     {
         var contentService = _factory.GetContentService(contentRequest.ContentType);
         return await contentService.GetContentAsync(contentRequest.ContentId);
     }
     
-    [Action("Download content", Description = "Download content as HTML for specific type based on ID")]
+    [Action("Download content", Description = "Download content as HTML for a specific content type based on its ID")]
     public async Task<FileLanguageResponse> DownloadContent([ActionParameter] GetContentRequest contentRequest)
     {
         var content = await GetContent(contentRequest); 
@@ -61,7 +61,7 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
         };
     }
     
-    [Action("Update content from HTML", Description = "Update content from HTML file")]
+    [Action("Update content from HTML", Description = "Update content from an HTML file")]
     public async Task UpdateContentFromHtml([ActionParameter] LanguageFileRequest languageFileRequest)
     {
         var fileMemory = await fileManagementClient.DownloadAsync(languageFileRequest.File);
@@ -80,7 +80,7 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
         await contentService.UpdateContentFromHtmlAsync(languageFileRequest.TargetLanguage, memoryStream);
     }
 
-    [Action("Update content", Description = "Update content with specified criteria based on ID")]
+    [Action("Update content", Description = "Update content based on specified criteria using its ID")]
     public async Task<Metadata> UpdateContent([ActionParameter] GetContentRequest contentRequest, 
         [ActionParameter] UpdateContentRequest updateRequest)
     {
@@ -88,7 +88,7 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
         return await contentService.UpdateContentAsync(contentRequest.ContentId, updateRequest);
     }
     
-    [Action("Delete content", Description = "Delete content based on ID")]
+    [Action("Delete content", Description = "Delete content based on its ID")]
     public async Task DeleteContent([ActionParameter] GetContentRequest contentRequest)
     {
         var contentService = _factory.GetContentService(contentRequest.ContentType);

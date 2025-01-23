@@ -29,7 +29,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
 {
     [PollingEvent("On content created or updated",
         Description =
-            "Triggered at specified time intervals and returns all blog posts, landing pages, site pages, emails, and forms that were updated or created during the specified time interval.")]
+            "Triggered at specified time intervals and returns all blog posts, landing pages, site pages, emails, and forms that were updated or created during the specified time interval")]
     public async Task<PollingEventResponse<PageMemory, SearchMetadataResponse>> OnContentCreatedOrUpdated(PollingEventRequest<PageMemory> request, 
         [PollingEventParameter] LanguageRequest languageRequest)
     {
