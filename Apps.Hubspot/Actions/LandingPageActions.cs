@@ -80,7 +80,8 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
         var file = await FileManagementClient.DownloadAsync(request.File);
         var (pageInfo, json) = HtmlConverter.ToJson(file);
 
-        var sourcePageId = request.SourcePageId ?? pageInfo.HtmlDocument.ExtractBlackbirdReferenceId() ?? throw new Exception("The Source page ID is missing");
+        var sourcePageId = request.SourcePageId ?? pageInfo.HtmlDocument.ExtractBlackbirdReferenceId() 
+            ?? throw new Exception("Landing page ID not found. Please provide it in optional input");
         var primaryLanguage = string.IsNullOrEmpty(pageInfo.Language) ? request.PrimaryLanguage : pageInfo.Language;
         if (string.IsNullOrEmpty(primaryLanguage))
         {

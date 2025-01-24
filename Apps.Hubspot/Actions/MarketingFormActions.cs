@@ -15,6 +15,7 @@ using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using RestSharp;
 using Apps.Hubspot.Models.Requests.Files;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using HtmlAgilityPack;
 
 namespace Apps.Hubspot.Actions;
@@ -82,10 +83,10 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
         var file = await FileManagementClient.DownloadAsync(formRequest.File);
         var bytes = await file.GetByteData();
         
-        var extractedFormId = HtmlConverter.ExtractBlackbirdId(bytes) ?? throw new InvalidOperationException(
+        var extractedFormId = HtmlConverter.ExtractBlackbirdId(bytes) ?? throw new PluginApplicationException(
             "Could not extract form ID from HTML content. Please ensure that the form ID is present in the HTML content as meta tag with name 'blackbird-reference-id'.");
         var formId = formRequest.FormId ?? extractedFormId
-            ?? throw new InvalidOperationException(
+            ?? throw new PluginMisconfigurationException(
                 "Could not extract form ID from HTML content. Please provide a Form ID in optional input of this action.");
         var form = await GetMarketingForm(new() { FormId = extractedFormId });
         
