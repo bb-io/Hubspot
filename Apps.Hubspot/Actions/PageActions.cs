@@ -12,6 +12,7 @@ using Apps.Hubspot.Models.Requests.SitePages;
 using Apps.Hubspot.Models.Responses;
 using Apps.Hubspot.Models.Responses.Files;
 using Apps.Hubspot.Models.Responses.Translations;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
@@ -81,7 +82,12 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
 
         var sourcePageId = request.SourcePageId ?? pageInfo.HtmlDocument.ExtractBlackbirdReferenceId() ?? throw new Exception("The source page ID is missing. Provide it as an optional input or add it to the HTML file");
         var primaryLanguage = string.IsNullOrEmpty(pageInfo.Language) ? request.PrimaryLanguage : pageInfo.Language;
-        if (string.IsNullOrEmpty(primaryLanguage)) throw new Exception("You are creating a new multi-language variation of a page that has no primary language configured. Please select the primary language optional value");
+        if (string.IsNullOrEmpty(primaryLanguage))
+        {
+            throw new PluginMisconfigurationException(
+                "You are creating a new multi-language variation of a page that has no primary language configured. Please select the primary language optional value");
+        }        
+        
         var translationId = await GetOrCreateTranslationId(ApiEndpoints.SitePages, sourcePageId, request.TargetLanguage, primaryLanguage);
 
         await UpdateTranslatedPage(ApiEndpoints.UpdatePage(translationId), new()

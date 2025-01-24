@@ -21,7 +21,7 @@ public static class ApiEndpoints
     public const string BusinessUnitsEndpoint = "https://api.hubapi.com/crm/v3/business-units";
 
     public static string ALandingPage(string landingPageId) => $"{LandingPages}/{landingPageId}";
-    public static string UpdateLandingPage(string sitePageId) => $"{LandingPages}/{sitePageId}";
+    public static string UpdateLandingPage(string landingPageId) => $"{LandingPages}/{landingPageId}";
     public static string ASitePage(string sitePageId) => $"{SitePages}/{sitePageId}";
     public static string UpdatePage(string sitePageId) => $"{SitePages}/{sitePageId}";
 }
