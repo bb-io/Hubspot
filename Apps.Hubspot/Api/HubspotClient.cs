@@ -2,26 +2,60 @@
 using Apps.Hubspot.Exceptions;
 using Apps.Hubspot.Models.Responses;
 using Blackbird.Applications.Sdk.Common.Authentication;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using Blackbird.Applications.Sdk.Utils.RestSharp;
+using HtmlAgilityPack;
 using Newtonsoft.Json;
 using RestSharp;
 
 namespace Apps.Hubspot.Api;
 
-public class HubspotClient : BlackBirdRestClient
+public class HubspotClient() : BlackBirdRestClient(new()
 {
-    public HubspotClient() : base(new()
-    {
-        BaseUrl = Urls.Api.ToUri()
-    })
-    {
-    }
-
+    BaseUrl = Urls.Api.ToUri()
+})
+{
     protected override Exception ConfigureErrorException(RestResponse response)
     {
-        var error = JsonConvert.DeserializeObject<Error>(response.Content);
+        if (response.ContentType != null && response.ContentType.Contains("text/html"))
+        {
+            if (response.ContentType != null && response.ContentType.Contains("text/html"))
+            {
+                var htmlDoc = new HtmlDocument();
+                htmlDoc.LoadHtml(response.Content);
+
+                var statusCodeNode = htmlDoc.DocumentNode.SelectSingleNode("//h2[contains(text(), 'HTTP ERROR')]");
+                var statusCode = 0;
+                if (statusCodeNode != null)
+                {
+                    var statusText = statusCodeNode.InnerText;
+                    var parts = statusText.Split(' ');
+                    if (parts.Length >= 3 && int.TryParse(parts[2], out int code))
+                    {
+                        statusCode = code;
+                    }
+                }
+
+                var messageNode = htmlDoc.DocumentNode.SelectSingleNode("//p");
+                var errorMessage = messageNode != null ? messageNode.InnerText : "Unknown error";
+
+                return new PluginApplicationException($"Error {statusCode}: {errorMessage}");
+            }
+        }
+
+        if (string.IsNullOrEmpty(response.Content))
+        {
+            if (string.IsNullOrEmpty(response.ErrorMessage))
+            {
+                return new PluginApplicationException($"Request was failed with the status: {response.StatusCode}");
+            }
+            
+            return new PluginApplicationException(response.ErrorMessage);
+        }
+        
+        var error = JsonConvert.DeserializeObject<Error>(response.Content)!;
         return new HubspotException(error);
     }
 
@@ -45,5 +79,4 @@ public class HubspotClient : BlackBirdRestClient
 
         return result;
     }
-
 }
