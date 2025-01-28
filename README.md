@@ -26,7 +26,9 @@ Before you can connect you need to make sure that:
 3. Name your connection for future reference e.g. 'My organization'.
 4. Click _Authorize connection_.
 5. Follow the instructions that HubSpot CMS gives you, authorizing Blackbird.io to act on your behalf.
-6. When you return to Blackbird, confirm that the connection has appeared and the status is _Connected_.
+6. At the last stage, Hubspot will most likely redirect you to our service without the need to press the 'Connect app' button. <b>Please wait a few seconds for this to happen and avoid pressing the button</b>, as it will duplicate the request that Hubspot has already sent and could cause a UI bug on the connection page. The new connection may appear as 'Not Connected,' but after updating the app page, the status will change to 'Connected.' If Hubspot doesn't redirect you to our service within 5-7 seconds, you can click the 'Connect app' button manually
+![connect-app-button.png](image/README/connect-app-button.png)
+7. When you return to Blackbird, confirm that the connection has appeared and the status is _Connected_.
    ![Connected](image/README/connected.png)
 
 ## Actions
