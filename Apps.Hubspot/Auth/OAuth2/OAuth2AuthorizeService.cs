@@ -6,20 +6,18 @@ using Microsoft.AspNetCore.WebUtilities;
 
 namespace Apps.Hubspot.Auth.OAuth2;
 
-public class OAuth2AuthorizeService : BaseInvocable, IOAuth2AuthorizeService
+public class OAuth2AuthorizeService(InvocationContext invocationContext)
+    : BaseInvocable(invocationContext), IOAuth2AuthorizeService
 {
-    public OAuth2AuthorizeService(InvocationContext invocationContext) : base(invocationContext)
-    {
-    }
-
     public string GetAuthorizationUrl(Dictionary<string, string> values)
     {
-        string bridgeOauthUrl = $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}/oauth";
+        var bridgeOauthUrl = $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}/oauth";
         var parameters = new Dictionary<string, string>
         {
             { "client_id", ApplicationConstants.ClientId },
             { "redirect_uri", $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}/AuthorizationCode" },
             { "scope", ApplicationConstants.Scope },
+            { "optional_scope", ApplicationConstants.OptionalScope },
             { "state", values["state"] },
             { "authorization_url", Urls.OAuth},
             { "actual_redirect_uri", InvocationContext.UriInfo.AuthorizationCodeRedirectUri.ToString() },

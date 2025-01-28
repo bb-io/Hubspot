@@ -15,7 +15,8 @@ public class OAuth2ConnectionDefinition : IConnectionDefinition
         }
     };
 
-    public IEnumerable<AuthenticationCredentialsProvider> CreateAuthorizationCredentialsProviders(Dictionary<string, string> values)
+    public IEnumerable<AuthenticationCredentialsProvider> CreateAuthorizationCredentialsProviders(
+        Dictionary<string, string> values)
     {
         return values.Select(x =>
             new AuthenticationCredentialsProvider(

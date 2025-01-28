@@ -60,9 +60,10 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
             HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language, input.PageId, ContentTypes.SitePage);
 
         FileReference file;
+        var title = result.HtmlTitle ?? result.Name;
         using (var stream = new MemoryStream(htmlFile))
         {
-            file = await FileManagementClient.UploadAsync(stream, MediaTypeNames.Text.Html, $"{result.HtmlTitle}.html");
+            file = await FileManagementClient.UploadAsync(stream, MediaTypeNames.Text.Html, $"{title}.html");
         }
 
         return new()
@@ -80,7 +81,7 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
         var file = await FileManagementClient.DownloadAsync(request.File);
         var (pageInfo, json) = HtmlConverter.ToJson(file);
 
-        var sourcePageId = request.SourcePageId ?? pageInfo.HtmlDocument.ExtractBlackbirdReferenceId() ?? throw new Exception("The source page ID is missing. Provide it as an optional input or add it to the HTML file");
+        var sourcePageId = request.SourcePageId ?? pageInfo.HtmlDocument.ExtractBlackbirdReferenceId() ?? throw new PluginMisconfigurationException("The source page ID is missing. Provide it as an optional input");
         var primaryLanguage = string.IsNullOrEmpty(pageInfo.Language) ? request.PrimaryLanguage : pageInfo.Language;
         if (string.IsNullOrEmpty(primaryLanguage))
         {

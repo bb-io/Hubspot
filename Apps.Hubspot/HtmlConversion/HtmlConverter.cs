@@ -213,9 +213,12 @@ public static class HtmlConverter
         var headNode = htmlDoc.CreateElement("head");
         htmlNode.AppendChild(headNode);
 
-        var titleNode = htmlDoc.CreateElement("title");
-        headNode.AppendChild(titleNode);
-        titleNode.InnerHtml = title;
+        if (!string.IsNullOrEmpty(title))
+        {
+            var titleNode = htmlDoc.CreateElement("title");
+            headNode.AppendChild(titleNode);
+            titleNode.InnerHtml = title;
+        }
 
         var metaNode = htmlDoc.CreateElement("meta");
         metaNode.SetAttributeValue("name", BlackbirdReferenceIdAttribute);
