@@ -60,9 +60,10 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
             HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language, input.PageId, ContentTypes.SitePage);
 
         FileReference file;
+        var title = result.HtmlTitle ?? result.Name;
         using (var stream = new MemoryStream(htmlFile))
         {
-            file = await FileManagementClient.UploadAsync(stream, MediaTypeNames.Text.Html, $"{result.HtmlTitle}.html");
+            file = await FileManagementClient.UploadAsync(stream, MediaTypeNames.Text.Html, $"{title}.html");
         }
 
         return new()
