@@ -255,7 +255,7 @@ public static class HtmlConverter
         return new()
         {
             HtmlDocument = doc,
-            Title = doc.DocumentNode.SelectSingleNode("//title").InnerHtml,
+            Title = doc.DocumentNode.SelectSingleNode("//title")?.InnerHtml ?? string.Empty,
             Language = doc.DocumentNode.SelectSingleNode("/html/body").Attributes[LanguageAttribute]?.Value
         };
     }
