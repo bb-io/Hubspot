@@ -22,6 +22,8 @@ public class MarketingEmailDto
     
     public string Language { get; set; }
     
+    public string State { get; set; }
+    
     public string Type { get; set; }
     
     [Display("Is published")]

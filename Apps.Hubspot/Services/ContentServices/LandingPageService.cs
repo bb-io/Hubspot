@@ -29,6 +29,8 @@ public class LandingPageService(InvocationContext invocationContext) : BaseConte
             Id = x.Id,
             Title = x.Name,
             Language = x.Language!,
+            State = x.CurrentState,
+            Published = x.Published,
             Type = ContentTypes.LandingPage,
             CreatedAt = StringToDateTimeConverter.ToDateTime(x.Created),
             UpdatedAt = StringToDateTimeConverter.ToDateTime(x.Updated)
@@ -45,6 +47,8 @@ public class LandingPageService(InvocationContext invocationContext) : BaseConte
         {
             Id = page.Id,
             Title = page.Name,
+            State = page.CurrentState,
+            Published = page.Published,
             Language = page.Language!,
             Type = ContentTypes.LandingPage,
             CreatedAt = StringToDateTimeConverter.ToDateTime(page.Created),
@@ -99,6 +103,8 @@ public class LandingPageService(InvocationContext invocationContext) : BaseConte
             Id = page.Id,
             Title = page.Name,
             Language = page.Language!,
+            State = page.CurrentState,
+            Published = page.Published,
             Type = ContentTypes.LandingPage,
             CreatedAt = StringToDateTimeConverter.ToDateTime(page.Created),
             UpdatedAt = StringToDateTimeConverter.ToDateTime(page.Updated)
