@@ -18,6 +18,9 @@ public class PageDto
     [Display("Currently published")]
     public bool CurrentlyPublished { get; set; }
     
+    [Display("Published")]
+    public bool Published { get; set; }
+    
     [Display("Current state")]
     public string CurrentState { get; set; }
     

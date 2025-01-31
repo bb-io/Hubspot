@@ -31,6 +31,8 @@ public class MarketingEmailService(InvocationContext invocationContext) : BaseCo
             Id = x.Id,
             Title = x.Name,
             Language = x.Language,
+            State = x.State,
+            Published = x.IsPublished,
             Type = ContentTypes.Email,
             CreatedAt = x.CreatedAt,
             UpdatedAt = x.UpdatedAt ?? DateTime.MinValue
@@ -48,6 +50,8 @@ public class MarketingEmailService(InvocationContext invocationContext) : BaseCo
             Id = email.Id,
             Title = email.Name,
             Language = email.Language!,
+            State = email.State,
+            Published = email.IsPublished,
             Type = ContentTypes.Email,
             CreatedAt = email.CreatedAt,
             UpdatedAt = email.UpdatedAt ?? DateTime.MinValue
@@ -118,7 +122,9 @@ public class MarketingEmailService(InvocationContext invocationContext) : BaseCo
         {
             Id = email.Id,
             Title = email.Name,
-            Language = email.Language!,
+            Language = email.Language,
+            State = email.State,
+            Published = email.IsPublished,
             Type = ContentTypes.Email,
             CreatedAt = email.CreatedAt,
             UpdatedAt = email.UpdatedAt ?? DateTime.MinValue

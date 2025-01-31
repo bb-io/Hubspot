@@ -15,6 +15,11 @@ public class Metadata
     [Display("Language")]
     public string Language { get; set; } = string.Empty;
 
+    [Display("Published")]
+    public bool Published { get; set; }
+    
+    public string State { get; set; } = string.Empty;
+
     [Display("Created at")]
     public DateTime CreatedAt { get; set; }
 

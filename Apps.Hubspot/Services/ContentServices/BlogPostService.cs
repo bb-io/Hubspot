@@ -34,6 +34,8 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
             Title = x.Name,
             Type = ContentTypes.Blog,
             Language = x.Language!,
+            State = x.CurrentState,
+            Published = x.CurrentlyPublished,
             CreatedAt = StringToDateTimeConverter.ToDateTime(x.Created),
             UpdatedAt = StringToDateTimeConverter.ToDateTime(x.Updated)
         }).ToList();
@@ -50,6 +52,8 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
             Id = blogPost.Id,
             Title = blogPost.Name,
             Language = blogPost.Language!,
+            State = blogPost.CurrentState,
+            Published = blogPost.CurrentlyPublished,
             Type = ContentTypes.Blog,
             CreatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Created),
             UpdatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Updated)
@@ -78,7 +82,7 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
         var body = document.DocumentNode.SelectSingleNode("/html/body").InnerHtml;
 
         var translationId = await GetOrCreateTranslationId(ApiEndpoints.BlogPostsSegment, blogPostId, targetLanguage);
-        var blogPost = await UpdateFullBlogPostObjectAsync(new()
+        await UpdateFullBlogPostObjectAsync(new()
         {
             BlogPostId = translationId
         }, new()
@@ -104,6 +108,8 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
             Id = blogPost.Id,
             Title = blogPost.Name,
             Language = blogPost.Language!,
+            State = blogPost.CurrentState,
+            Published = blogPost.CurrentlyPublished,
             Type = ContentTypes.Blog,
             CreatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Created),
             UpdatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Updated)

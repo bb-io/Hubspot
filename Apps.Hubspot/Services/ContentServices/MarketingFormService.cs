@@ -29,6 +29,8 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
             Id = x.Id,
             Title = x.Name,
             Language = x.Configuration?.Language ?? string.Empty,
+            State = "PUBLISHED",
+            Published = true,
             Type = ContentTypes.Form,
             CreatedAt = x.CreatedAt,
             UpdatedAt = x.UpdatedAt
@@ -46,6 +48,8 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
             Id = form.Id,
             Title = form.Name,
             Language = form.Configuration?.Language ?? string.Empty,
+            State = "PUBLISHED",
+            Published = true,
             Type = ContentTypes.Form,
             CreatedAt = form.CreatedAt,
             UpdatedAt = form.UpdatedAt
@@ -162,6 +166,8 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
             Id = form.Id,
             Title = form.Name,
             Language = form.Configuration?.Language ?? string.Empty,
+            State = "PUBLISHED",
+            Published = true,
             Type = ContentTypes.Form,
             CreatedAt = form.CreatedAt,
             UpdatedAt = form.UpdatedAt

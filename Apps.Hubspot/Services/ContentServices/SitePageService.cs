@@ -29,6 +29,8 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
             Id = x.Id,
             Title = x.Name,
             Language = x.Language!,
+            State = x.CurrentState,
+            Published = x.Published,
             Type = ContentTypes.Form,
             CreatedAt = StringToDateTimeConverter.ToDateTime(x.Created),
             UpdatedAt = StringToDateTimeConverter.ToDateTime(x.Updated)
@@ -46,6 +48,8 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
             Id = page.Id,
             Title = page.Name,
             Language = page.Language!,
+            State = page.CurrentState,
+            Published = page.Published,
             Type = ContentTypes.SitePage,
             CreatedAt = StringToDateTimeConverter.ToDateTime(page.Created),
             UpdatedAt = StringToDateTimeConverter.ToDateTime(page.Updated)
@@ -99,6 +103,8 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
             Id = page.Id,
             Title = page.Name,
             Language = page.Language!,
+            State = page.CurrentState,
+            Published = page.Published,
             Type = ContentTypes.SitePage,
             CreatedAt = StringToDateTimeConverter.ToDateTime(page.Created),
             UpdatedAt = StringToDateTimeConverter.ToDateTime(page.Updated)

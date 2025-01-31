@@ -9,7 +9,6 @@ using Apps.Hubspot.Models.Dtos.Pages;
 using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Models.Requests.Content;
 using Apps.Hubspot.Models.Requests.Emails;
-using Apps.Hubspot.Models.Requests.Forms;
 using Apps.Hubspot.Models.Responses;
 using Apps.Hubspot.Models.Responses.Content;
 using Apps.Hubspot.Models.Responses.Emails;
@@ -17,7 +16,6 @@ using Apps.Hubspot.Models.Responses.Forms;
 using Apps.Hubspot.Models.Responses.Pages;
 using Apps.Hubspot.Utils.Converters;
 using Apps.Hubspot.Webhooks.Models;
-using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Polling;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
@@ -57,6 +55,8 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                     Id = x.Id,
                     Language = x.Language,
                     Title = x.Name,
+                    State = x.CurrentState,
+                    Published = x.CurrentlyPublished,
                     CreatedAt = StringToDateTimeConverter.ToDateTime(x.Created),
                     UpdatedAt = StringToDateTimeConverter.ToDateTime(x.Updated),
                     Type = ContentTypes.Blog
@@ -74,6 +74,8 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                     Id = x.Id,
                     Language = x.Language,
                     Title = x.Name,
+                    State = x.CurrentState,
+                    Published = x.Published,
                     CreatedAt = StringToDateTimeConverter.ToDateTime(x.Created),
                     UpdatedAt = StringToDateTimeConverter.ToDateTime(x.Updated),
                     Type = ContentTypes.SitePage
@@ -91,6 +93,8 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                     Id = x.Id,
                     Language = x.Language,
                     Title = x.Name,
+                    State = x.CurrentState,
+                    Published = x.Published,
                     CreatedAt = StringToDateTimeConverter.ToDateTime(x.Created),
                     UpdatedAt = StringToDateTimeConverter.ToDateTime(x.Updated),
                     Type = ContentTypes.LandingPage
@@ -108,6 +112,8 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                     Id = x.Id,
                     Language = x.Configuration.Language,
                     Title = x.Name,
+                    State = "PUBLISHED",
+                    Published = true,
                     CreatedAt = x.CreatedAt,
                     UpdatedAt = x.UpdatedAt,
                     Type = ContentTypes.Form
@@ -125,11 +131,18 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                     Id = x.Id,
                     Language = x.Language,
                     Title = x.Name,
+                    State = x.State,
+                    Published = x.IsPublished,
                     CreatedAt = x.CreatedAt,
                     UpdatedAt = x.UpdatedAt ?? DateTime.MinValue,
                     Type = ContentTypes.Email
                 }));
             }
+        }
+
+        if (contentTypesFilter.Published == true)
+        {
+            metadata = metadata.Where(x => x.Published).ToList();
         }
 
         return new()
