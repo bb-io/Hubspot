@@ -78,6 +78,16 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
     public async Task<TranslationResponse> TranslateSitePageFromFile(
         [ActionParameter] TranslateSitePageFromFileRequest request)
     {
+        if (request.File == null)
+        {
+            throw new PluginMisconfigurationException("The file input is not found. Please check the input and try again");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.TargetLanguage))
+        {
+            throw new PluginMisconfigurationException("The target language is not found. Please check the input and try again");
+        }
+
         var file = await FileManagementClient.DownloadAsync(request.File);
         var (pageInfo, json) = HtmlConverter.ToJson(file);
 
