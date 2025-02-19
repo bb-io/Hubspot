@@ -2,6 +2,7 @@ using System.Text;
 using System.Web;
 using Apps.Hubspot.Models.Dtos.Forms;
 using Apps.Hubspot.Models.Responses.Pages;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using HtmlAgilityPack;
 using Newtonsoft.Json.Linq;
 
@@ -134,6 +135,12 @@ public static class HtmlConverter
         var doc = pageInfo.HtmlDocument;
 
         var bodyNode = doc.DocumentNode.SelectSingleNode("/html/body");
+
+        var originalAttr = bodyNode.Attributes[OriginalContentAttribute];
+        if (originalAttr == null)
+        {
+            throw new PluginMisconfigurationException($"The file is missing key atributes. Please check your input file and try again.");
+        }
 
         var originalAttributeValue = HttpUtility.HtmlDecode(bodyNode.Attributes[OriginalContentAttribute].Value);
         var originalJson = JObject.Parse(originalAttributeValue);
