@@ -14,7 +14,7 @@ public static class HtmlConverter
     {
         "content", "html", "title", "value", "button_text", "quote_text", "speaker_name", "speaker_title", "heading",
         "richtext_field", "subheading", "price", "tab_label", "header", "subheader", "content_text", "alt", "text", "quotation",
-        "author_name", "description", "speaker", "status", "event_time", "custom_cta_text", "short_description"
+        "author_name", "description", "speaker", "status", "event_time", "custom_cta_text", "short_description", "top_label"
     };
     
     private static readonly HashSet<string> ExcludeCustomModulesProperties = new()
