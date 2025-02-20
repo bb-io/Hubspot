@@ -14,13 +14,28 @@ With multilingual content management, global content modules, and content person
 
 Before you can connect you need to make sure that:
 
-- You have a HubSpot CMS account and [Set up your HubSpot account](https://knowledge.hubspot.com/get-started/set-up-your-account).
+- You have a HubSpot CMS account and [set up your HubSpot account](https://knowledge.hubspot.com/get-started/set-up-your-account).
 - You have a [project created](https://app.hubspot.com/academy/43682681/lessons/1054824/5082).
 - After creating your account, you'll automatically be logged in. [Learn more about logging](https://knowledge.hubspot.com/account/why-can-t-i-log-into-hubspot) in to HubSpot and [troubleshooting password issues](https://knowledge.hubspot.com/account/reset-user-passwords).
+- Your account has sufficient permissions. See below.
+
+## Hubspot permissions required
+
+The app makes use of the `content` and `forms` OAuth scopes. You account needs to have access to these scopes. Your account has sufficient permissions if you are a superadmin _or_ your account has **all** of the following permissions:
+
+- Marketing
+   - Forms
+   - Marketing email (view/edit/publish)
+   - Blog, landing pages, website pages (view/edit/publish)
+   - Design tools
+   - Content staging
+- Account > Settings access
+   - App marketplace access
+   - Website settings
 
 ## Connecting
 
-1. Navigate to apps and search for **Hubspot (CMS)**. If you cannot find Hubspot (CMS) then click _Add App_ in the top right corner, select Hubspot (CMS) and add the app to your Blackbird environment.
+1. Navigate to apps and search for **Hubspot (CMS)**.
 2. Click _Add Connection_.
    ![Add Connection](image/README/connection.png)
 3. Name your connection for future reference e.g. 'My organization'.
@@ -46,7 +61,7 @@ Before you can connect you need to make sure that:
 
 ### Landing & site pages
 
-> Note: the actions for landing and site pages are the same, but have separate actions for each.
+> Note: the actions for landing and site pages are the same, but have separate actions for each. It is preferable that you use the content actions as outlined above as they are set to replace these individual actions below.
 
 A site page is a more general and versatile page on Hubspot CMS website that can contain various types of content and is part of your site's overall navigation and structure. A landing page in HubSpot CMS is a standalone page typically designed for a specific marketing campaign, with a clear call-to-action (CTA) to capture leads.
 
