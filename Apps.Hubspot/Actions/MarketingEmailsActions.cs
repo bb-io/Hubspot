@@ -7,6 +7,7 @@ using Apps.Hubspot.Extensions;
 using Apps.Hubspot.HtmlConversion;
 using Apps.Hubspot.Models.Dtos;
 using Apps.Hubspot.Models.Dtos.Emails;
+using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Models.Requests.Emails;
 using Apps.Hubspot.Models.Requests.Files;
 using Apps.Hubspot.Models.Responses;
@@ -61,10 +62,10 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
 
     [Action("Get marketing email content as HTML",
         Description = "Get content of a specific marketing email in HTML format")]
-    public async Task<FileResponse> GetMarketingEmailHtml([ActionParameter] MarketingEmailRequest emailRequest)
+    public async Task<FileResponse> GetMarketingEmailHtml([ActionParameter] MarketingEmailRequest emailRequest, [ActionParameter] LocalizablePropertiesRequest Properties)
     {
         var email = await GetEmail(emailRequest.MarketingEmailId);
-        var html = HtmlConverter.ToHtml(email.Content, email.Name, email.Language, emailRequest.MarketingEmailId, ContentTypes.Email,email.BusinessUnitId);
+        var html = HtmlConverter.ToHtml(email.Content, email.Name, email.Language, emailRequest.MarketingEmailId, ContentTypes.Email, Properties, email.BusinessUnitId);
 
         var file = await FileManagementClient.UploadAsync(new MemoryStream(html), MediaTypeNames.Text.Html,
             $"{emailRequest}.html");

@@ -62,7 +62,7 @@ public class LandingPageService(InvocationContext invocationContext) : BaseConte
         var request = new HubspotRequest(url, Method.Get, Creds);
         var result = await Client.ExecuteWithErrorHandling<GenericPageDto>(request);
         
-        var htmlFile = HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language!, id, ContentTypes.LandingPage);
+        var htmlFile = HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language!, id, ContentTypes.LandingPage, null);
         return new MemoryStream(htmlFile);
     }
 

@@ -53,11 +53,11 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
 
     [Action("Get a site page as HTML file",
         Description = "Get information of a specific page and return an HTML file of its content")]
-    public async Task<FileLanguageResponse> GetSitePageAsHtml([ActionParameter] SitePageRequest input)
+    public async Task<FileLanguageResponse> GetSitePageAsHtml([ActionParameter] SitePageRequest input, [ActionParameter] LocalizablePropertiesRequest Properties)
     {
         var result = await GetPage<GenericPageDto>(ApiEndpoints.ASitePage(input.PageId));
         var htmlFile =
-            HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language, input.PageId, ContentTypes.SitePage);
+            HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language, input.PageId, ContentTypes.SitePage, Properties);
 
         FileReference file;
         var title = result.HtmlTitle ?? result.Name;

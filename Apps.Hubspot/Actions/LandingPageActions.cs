@@ -53,11 +53,12 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
 
     [Action("Get a landing page as HTML file",
         Description = "Get information of a specific landing page and return an HTML file of its content")]
-    public async Task<FileLanguageResponse> GetLandingPageAsHtml([ActionParameter] LandingPageRequest input)
+    public async Task<FileLanguageResponse> GetLandingPageAsHtml([ActionParameter] LandingPageRequest input, 
+        [ActionParameter] LocalizablePropertiesRequest Properties)
     {
         var result = await GetPage<GenericPageDto>(ApiEndpoints.ALandingPage(input.PageId));
 
-        var htmlFile = HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language, input.PageId, ContentTypes.LandingPage);
+        var htmlFile = HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language, input.PageId, ContentTypes.LandingPage, Properties);
 
         FileReference file;
         using (var stream = new MemoryStream(htmlFile))
