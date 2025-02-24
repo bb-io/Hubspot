@@ -25,7 +25,7 @@ public static class HtmlConverter
 
     private static readonly HashSet<string> RawHtmlProperties = new()
     {
-        "content", "html", "content_text", "richtext_field"
+        "content", "html", "content_text", "richtext_field", "description", "short_description"
     };
 
     private const string OriginalContentAttribute = "original";
@@ -131,9 +131,7 @@ public static class HtmlConverter
                 var jProperty = (JProperty)x;
                 return (
                     jProperty.Path,
-                    Html: RawHtmlProperties.Contains(jProperty.Name)
-                        ? jProperty.Value.ToString()
-                        : HttpUtility.HtmlEncode(jProperty.Value.ToString())
+                    Html: jProperty.Value.ToString()
                 );
             })
             .ToList();
