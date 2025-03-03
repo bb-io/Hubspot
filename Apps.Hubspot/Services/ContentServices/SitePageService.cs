@@ -43,7 +43,7 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
     {
         var url = ApiEndpoints.ASitePage(id);
         var request = new HubspotRequest(url, Method.Get, Creds);
-        var page = await Client.ExecuteWithErrorHandling<PageDto>(request);
+        var page = await Client.ExecuteWithErrorHandling<PageWithTranslationsDto>(request);
         return await GetTranslatedLocalesResponse(page.Language ?? string.Empty, page.Translations);    
     }
 

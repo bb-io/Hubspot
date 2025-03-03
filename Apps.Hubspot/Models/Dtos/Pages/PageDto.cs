@@ -92,7 +92,4 @@ public class PageDto
 
     [Display("Translated from ID")]
     public string? TranslatedFromId { get; set; }
-    
-    [DefinitionIgnore]
-    public Dictionary<string, ObjectWithId> Translations { get; set; } = new();
 }
