@@ -3,8 +3,10 @@ using Apps.Hubspot.Constants;
 using Apps.Hubspot.HtmlConversion;
 using Apps.Hubspot.Models.Dtos;
 using Apps.Hubspot.Models.Dtos.Emails;
+using Apps.Hubspot.Models.Dtos.Pages;
 using Apps.Hubspot.Models.Requests.Content;
 using Apps.Hubspot.Models.Requests.Emails;
+using Apps.Hubspot.Models.Responses;
 using Apps.Hubspot.Models.Responses.Content;
 using Apps.Hubspot.Services.ContentServices.Abstract;
 using Blackbird.Applications.Sdk.Common.Exceptions;
@@ -30,6 +32,7 @@ public class MarketingEmailService(InvocationContext invocationContext) : BaseCo
         {
             Id = x.Id,
             Title = x.Name,
+            Domain = x.ActiveDomain,
             Language = x.Language,
             State = x.State,
             Published = x.IsPublished,
@@ -49,6 +52,7 @@ public class MarketingEmailService(InvocationContext invocationContext) : BaseCo
         {
             Id = email.Id,
             Title = email.Name,
+            Domain = email.ActiveDomain,
             Language = email.Language!,
             State = email.State,
             Published = email.IsPublished,
@@ -56,6 +60,11 @@ public class MarketingEmailService(InvocationContext invocationContext) : BaseCo
             CreatedAt = email.CreatedAt,
             UpdatedAt = email.UpdatedAt ?? DateTime.MinValue
         };
+    }
+    
+    public override Task<TranslatedLocalesResponse> GetTranslationLanguageCodesAsync(string id)
+    {
+        throw new PluginMisconfigurationException("This operation is not supported for marketing email content type. The Hubspot API does not provide translations for email content type.");
     }
 
     public override async Task<Stream> DownloadContentAsync(string id)
@@ -122,6 +131,7 @@ public class MarketingEmailService(InvocationContext invocationContext) : BaseCo
         {
             Id = email.Id,
             Title = email.Name,
+            Domain = email.ActiveDomain,
             Language = email.Language,
             State = email.State,
             Published = email.IsPublished,

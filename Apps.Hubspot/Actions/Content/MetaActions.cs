@@ -19,14 +19,16 @@ using Blackbird.Applications.Sdk.Utils.Html.Extensions;
 namespace Apps.Hubspot.Actions.Content;
 
 [ActionList]
-public class MetaActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) : HubSpotInvocable(invocationContext)
+public class MetaActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
+    : HubSpotInvocable(invocationContext)
 {
     private readonly ContentServicesFactory _factory = new(invocationContext);
-    
+
     [Action("Search content", Description = "Search for any type of content")]
-    public async Task<ListResponse<Metadata>> SearchContent([ActionParameter] ContentTypesFilter typesFilter, 
-        [ActionParameter] LanguageFilter languageFilter, 
-        [ActionParameter] TimeFilterRequest timeFilter)
+    public async Task<ListResponse<Metadata>> SearchContent([ActionParameter] ContentTypesFilter typesFilter,
+        [ActionParameter] LanguageFilter languageFilter,
+        [ActionParameter] TimeFilterRequest timeFilter,
+        [ActionParameter] SearchContentRequest searchContentRequest)
     {
         var contentServices = _factory.GetContentServices(typesFilter.ContentTypes);
         var query = timeFilter.AsQuery();
@@ -35,32 +37,52 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
         {
             metadata = metadata.Where(x => x.Language == languageFilter.Language).ToList();
         }
-        
+
+        if (!string.IsNullOrEmpty(searchContentRequest.Domain))
+        {
+            metadata = metadata.Where(x => x.Domain == searchContentRequest.Domain).ToList();
+        }
+
+        if (!string.IsNullOrEmpty(searchContentRequest.CurrentState))
+        {
+            metadata = metadata.Where(x => x.State == searchContentRequest.CurrentState).ToList();
+        }
+
         return new(metadata);
     }
-    
+
+    [Action("Get translation language codes",
+        Description = "Returns list of translated locales for specific content based on ID")]
+    public async Task<TranslatedLocalesResponse> GetTranslationLanguageCodes(
+        [ActionParameter] GetContentForTranslationLanguageCodesRequest contentRequest)
+    {
+        var contentService = _factory.GetContentService(contentRequest.ContentType);
+        return await contentService.GetTranslationLanguageCodesAsync(contentRequest.ContentId);
+    }
+
     [Action("Get content", Description = "Retrieve metadata for a specific content type based on its ID")]
     public async Task<Metadata> GetContent([ActionParameter] GetContentRequest contentRequest)
     {
         var contentService = _factory.GetContentService(contentRequest.ContentType);
         return await contentService.GetContentAsync(contentRequest.ContentId);
     }
-    
+
     [Action("Download content", Description = "Download content as HTML for a specific content type based on its ID")]
     public async Task<FileLanguageResponse> DownloadContent([ActionParameter] GetContentRequest contentRequest)
     {
-        var content = await GetContent(contentRequest); 
+        var content = await GetContent(contentRequest);
         var contentService = _factory.GetContentService(contentRequest.ContentType);
         var stream = await contentService.DownloadContentAsync(contentRequest.ContentId);
-        var fileReference = await fileManagementClient.UploadAsync(stream, MediaTypeNames.Text.Html, $"{content.Title}.html");
-        
+        var fileReference =
+            await fileManagementClient.UploadAsync(stream, MediaTypeNames.Text.Html, $"{content.Title}.html");
+
         return new()
         {
             File = fileReference,
             FileLanguage = content.Language
         };
     }
-    
+
     [Action("Update content from HTML", Description = "Update content from an HTML file")]
     public async Task UpdateContentFromHtml([ActionParameter] LanguageFileRequest languageFileRequest)
     {
@@ -68,26 +90,26 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
         var memoryStream = new MemoryStream();
         await fileMemory.CopyToAsync(memoryStream);
         memoryStream.Position = 0;
-        
+
         var fileBytes = await memoryStream.GetByteData();
         memoryStream.Position = 0;
-        
+
         var fileString = Encoding.UTF8.GetString(fileBytes);
         var document = fileString.AsHtmlDocument();
         var contentType = document.ExtractContentType();
-        
+
         var contentService = _factory.GetContentService(contentType);
         await contentService.UpdateContentFromHtmlAsync(languageFileRequest.TargetLanguage, memoryStream);
     }
 
     [Action("Update content", Description = "Update content based on specified criteria using its ID")]
-    public async Task<Metadata> UpdateContent([ActionParameter] GetContentRequest contentRequest, 
+    public async Task<Metadata> UpdateContent([ActionParameter] GetContentRequest contentRequest,
         [ActionParameter] UpdateContentRequest updateRequest)
     {
         var contentService = _factory.GetContentService(contentRequest.ContentType);
         return await contentService.UpdateContentAsync(contentRequest.ContentId, updateRequest);
     }
-    
+
     [Action("Delete content", Description = "Delete content based on its ID")]
     public async Task DeleteContent([ActionParameter] GetContentRequest contentRequest)
     {
@@ -95,4 +117,3 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
         await contentService.DeleteContentAsync(contentRequest.ContentId);
     }
 }
-

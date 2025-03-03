@@ -4,6 +4,7 @@ using Apps.Hubspot.Extensions;
 using Apps.Hubspot.HtmlConversion;
 using Apps.Hubspot.Models.Dtos.Pages;
 using Apps.Hubspot.Models.Requests.Content;
+using Apps.Hubspot.Models.Responses;
 using Apps.Hubspot.Models.Responses.Content;
 using Apps.Hubspot.Services.ContentServices.Abstract;
 using Apps.Hubspot.Utils.Converters;
@@ -28,6 +29,7 @@ public class LandingPageService(InvocationContext invocationContext) : BaseConte
         {
             Id = x.Id,
             Title = x.Name,
+            Domain = x.Domain,
             Language = x.Language!,
             State = x.CurrentState,
             Published = x.Published,
@@ -37,6 +39,14 @@ public class LandingPageService(InvocationContext invocationContext) : BaseConte
         }).ToList();
     }
 
+    public override async Task<TranslatedLocalesResponse> GetTranslationLanguageCodesAsync(string id)
+    {
+        var url = ApiEndpoints.ALandingPage(id);
+        var request = new HubspotRequest(url, Method.Get, Creds);
+        var page = await Client.ExecuteWithErrorHandling<PageWithTranslationsDto>(request);
+        return await GetTranslatedLocalesResponse(page.Language ?? string.Empty, page.Translations);
+    }
+    
     public override async Task<Metadata> GetContentAsync(string id)
     {
         var url = ApiEndpoints.ALandingPage(id);
@@ -47,6 +57,7 @@ public class LandingPageService(InvocationContext invocationContext) : BaseConte
         {
             Id = page.Id,
             Title = page.Name,
+            Domain = page.Domain,
             State = page.CurrentState,
             Published = page.Published,
             Language = page.Language!,
@@ -102,6 +113,7 @@ public class LandingPageService(InvocationContext invocationContext) : BaseConte
         {
             Id = page.Id,
             Title = page.Name,
+            Domain = page.Domain,
             Language = page.Language!,
             State = page.CurrentState,
             Published = page.Published,

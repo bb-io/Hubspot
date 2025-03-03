@@ -4,6 +4,7 @@ using Apps.Hubspot.HtmlConversion;
 using Apps.Hubspot.Models.Dtos.Forms;
 using Apps.Hubspot.Models.Requests.Content;
 using Apps.Hubspot.Models.Requests.Forms;
+using Apps.Hubspot.Models.Responses;
 using Apps.Hubspot.Models.Responses.Content;
 using Apps.Hubspot.Services.ContentServices.Abstract;
 using Blackbird.Applications.Sdk.Common.Exceptions;
@@ -28,6 +29,7 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
         {
             Id = x.Id,
             Title = x.Name,
+            Domain = "NONE",
             Language = x.Configuration?.Language ?? string.Empty,
             State = "PUBLISHED",
             Published = true,
@@ -47,6 +49,7 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
         {
             Id = form.Id,
             Title = form.Name,
+            Domain = "NONE",
             Language = form.Configuration?.Language ?? string.Empty,
             State = "PUBLISHED",
             Published = true,
@@ -54,6 +57,11 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
             CreatedAt = form.CreatedAt,
             UpdatedAt = form.UpdatedAt
         };
+    }
+    
+    public override Task<TranslatedLocalesResponse> GetTranslationLanguageCodesAsync(string id)
+    {
+        throw new PluginMisconfigurationException("This operation is not supported for marketing form content type. The Hubspot API does not provide translations for from content type.");
     }
 
     public override async Task<Stream> DownloadContentAsync(string id)
@@ -165,6 +173,7 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
         {
             Id = form.Id,
             Title = form.Name,
+            Domain = "NONE",
             Language = form.Configuration?.Language ?? string.Empty,
             State = "PUBLISHED",
             Published = true,

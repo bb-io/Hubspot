@@ -13,6 +13,7 @@ using Apps.Hubspot.Models.Requests.LandingPages;
 using Apps.Hubspot.Models.Responses;
 using Apps.Hubspot.Models.Responses.Files;
 using Apps.Hubspot.Models.Responses.Translations;
+using Apps.Hubspot.Services;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -26,7 +27,8 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
     : BasePageActions(invocationContext, fileManagementClient)
 {
     [Action("Search landing pages", Description = "Search for a list of site pages that match a certain criteria")]
-    public async Task<ListResponse<PageDto>> GetAllLandingPages([ActionParameter] SearchPagesRequest input)
+    public async Task<ListResponse<PageDto>> GetAllLandingPages([ActionParameter] SearchPagesRequest input,
+        [ActionParameter] SearchPagesAdditionalRequest additionalRequest)
     {
         var query = input.AsQuery();
         var endpoint = ApiEndpoints.LandingPages.WithQuery(query);
@@ -44,12 +46,30 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
             response = response.Where(x => x.Language == input.Language).ToList();
         }
 
+        if (!string.IsNullOrEmpty(additionalRequest.PageDomain))
+        {
+            response = response.Where(x => x.Domain == additionalRequest.PageDomain).ToList();
+        }
+        
+        if (!string.IsNullOrEmpty(additionalRequest.PageCurrentState))
+        {
+            response = response.Where(x => x.CurrentState == additionalRequest.PageCurrentState).ToList();
+        }
+
         return new(response);
     }
 
     [Action("Get a landing page", Description = "Get information of a specific landing page")]
     public Task<PageDto> GetLandingPage([ActionParameter] LandingPageRequest input)
         => GetPage<PageDto>(ApiEndpoints.ALandingPage(input.PageId));
+    
+    [Action("Get landing page translation language codes", Description = "Returns list of translated locales for landing page based on ID")]
+    public async Task<TranslatedLocalesResponse> GetListOfTranslatedLocales([ActionParameter] LandingPageRequest request)
+    {
+        ContentServicesFactory factory = new(invocationContext);
+        var service = factory.GetContentService(ContentTypes.LandingPage);
+        return await service.GetTranslationLanguageCodesAsync(request.PageId);
+    }
 
     [Action("Get a landing page as HTML file",
         Description = "Get information of a specific landing page and return an HTML file of its content")]
@@ -92,7 +112,7 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
         
         var translationId = await GetOrCreateTranslationId(ApiEndpoints.LandingPages, sourcePageId, request.TargetLanguage, primaryLanguage);
 
-        await UpdateTranslatedPage(ApiEndpoints.UpdateLandingPage(translationId), new()
+        var page = await UpdateTranslatedPage(ApiEndpoints.UpdateLandingPage(translationId), new()
         {
             Id = translationId,
             HtmlTitle = pageInfo.Title,
@@ -101,7 +121,8 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
 
         return new()
         {
-            TranslationId = translationId
+            TranslationId = translationId,
+            PageId = page.Id
         };
     }
 

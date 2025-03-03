@@ -4,6 +4,7 @@ using Apps.Hubspot.Extensions;
 using Apps.Hubspot.HtmlConversion;
 using Apps.Hubspot.Models.Dtos.Pages;
 using Apps.Hubspot.Models.Requests.Content;
+using Apps.Hubspot.Models.Responses;
 using Apps.Hubspot.Models.Responses.Content;
 using Apps.Hubspot.Services.ContentServices.Abstract;
 using Apps.Hubspot.Utils.Converters;
@@ -28,6 +29,7 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
         {
             Id = x.Id,
             Title = x.Name,
+            Domain = x.Domain,
             Language = x.Language!,
             State = x.CurrentState,
             Published = x.Published,
@@ -35,6 +37,14 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
             CreatedAt = StringToDateTimeConverter.ToDateTime(x.Created),
             UpdatedAt = StringToDateTimeConverter.ToDateTime(x.Updated)
         }).ToList();
+    }
+    
+    public override async Task<TranslatedLocalesResponse> GetTranslationLanguageCodesAsync(string id)
+    {
+        var url = ApiEndpoints.ASitePage(id);
+        var request = new HubspotRequest(url, Method.Get, Creds);
+        var page = await Client.ExecuteWithErrorHandling<PageWithTranslationsDto>(request);
+        return await GetTranslatedLocalesResponse(page.Language ?? string.Empty, page.Translations);    
     }
 
     public override async Task<Metadata> GetContentAsync(string id)
@@ -47,6 +57,7 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
         {
             Id = page.Id,
             Title = page.Name,
+            Domain = page.Domain,
             Language = page.Language!,
             State = page.CurrentState,
             Published = page.Published,
@@ -102,6 +113,7 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
         {
             Id = page.Id,
             Title = page.Name,
+            Domain = page.Domain,
             Language = page.Language!,
             State = page.CurrentState,
             Published = page.Published,
