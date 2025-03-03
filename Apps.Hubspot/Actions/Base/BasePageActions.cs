@@ -45,12 +45,12 @@ public abstract class BasePageActions(InvocationContext invocationContext, IFile
         }
     }
 
-    protected Task<RestResponse> UpdateTranslatedPage(string url, UpdateTranslatedPageRequest page)
+    protected Task<PageDto> UpdateTranslatedPage(string url, UpdateTranslatedPageRequest page)
     {
         var request = new HubspotRequest(url, Method.Patch, Creds)
             .WithJsonBody(page, JsonConfig.Settings);
 
-        return Client.ExecuteWithErrorHandling(request);
+        return Client.ExecuteWithErrorHandling<PageDto>(request);
     }
 
     protected Task PublishPage(string requestUrl, string pageId, DateTime dateTime)

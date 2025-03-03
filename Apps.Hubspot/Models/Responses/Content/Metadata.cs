@@ -9,6 +9,8 @@ public class Metadata
 
     public string Title { get; set; } = string.Empty;
     
+    public string Domain { get; set; } = string.Empty;
+    
     [Display("Content type")]
     public string Type { get; set; } = string.Empty;
 

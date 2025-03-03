@@ -5,6 +5,7 @@ using Apps.Hubspot.Extensions;
 using Apps.Hubspot.Models.Dtos.Blogs.Posts;
 using Apps.Hubspot.Models.Requests.BlogPosts;
 using Apps.Hubspot.Models.Requests.Content;
+using Apps.Hubspot.Models.Responses;
 using Apps.Hubspot.Models.Responses.Content;
 using Apps.Hubspot.Services.ContentServices.Abstract;
 using Apps.Hubspot.Utils.Converters;
@@ -32,6 +33,7 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
         {
             Id = x.Id,
             Title = x.Name,
+            Domain = x.Domain,
             Type = ContentTypes.Blog,
             Language = x.Language!,
             State = x.CurrentState,
@@ -51,6 +53,7 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
         {
             Id = blogPost.Id,
             Title = blogPost.Name,
+            Domain = blogPost.Domain,
             Language = blogPost.Language!,
             State = blogPost.CurrentState,
             Published = blogPost.CurrentlyPublished,
@@ -58,6 +61,14 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
             CreatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Created),
             UpdatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Updated)
         };
+    }
+
+    public override async Task<TranslatedLocalesResponse> GetTranslationLanguageCodesAsync(string id)
+    {
+        var endpoint = $"{ApiEndpoints.BlogPostsSegment}/{id}";
+        var request = new HubspotRequest(endpoint, Method.Get, Creds);
+        var blogPost = await Client.ExecuteWithErrorHandling<BlogPostDto>(request);
+        return await GetTranslatedLocalesResponse(blogPost.Language ?? string.Empty, blogPost.Translations);
     }
 
     public override async Task<Stream> DownloadContentAsync(string id)
@@ -107,6 +118,7 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
         {
             Id = blogPost.Id,
             Title = blogPost.Name,
+            Domain = blogPost.Domain,
             Language = blogPost.Language!,
             State = blogPost.CurrentState,
             Published = blogPost.CurrentlyPublished,

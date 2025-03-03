@@ -16,7 +16,7 @@ public class MetaActionsTests : TestBase
         var result = await actions.SearchContent(new()
         {
             ContentTypes = new[] { ContentTypes.Blog, ContentTypes.Email, ContentTypes.Form, ContentTypes.LandingPage, ContentTypes.SitePage }
-        }, new(), new());
+        }, new(), new(), new());
 
         Assert.AreEqual(result.Items.Any(), true);
         Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
@@ -30,9 +30,49 @@ public class MetaActionsTests : TestBase
         var result = await actions.SearchContent(new()
         {
             ContentTypes = new[] { ContentTypes.LandingPage }
-        }, new(), new());
+        }, new(), new(), new());
 
         Assert.AreEqual(result.Items.Any(), true);
+        Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
+    }
+    
+    [TestMethod]
+    public async Task SearchContent_WithEmailContentTypeAndBlackbirdDomain_ShouldNotFail()
+    {
+        var actions = new MetaActions(InvocationContext, FileManager);
+        var expectedDomain = "blackbird-21491386.hubspotpagebuilder.com";
+        
+        var result = await actions.SearchContent(new()
+        {
+            ContentTypes = new[] { ContentTypes.Email }
+        }, new(), new(), new()
+        {
+            Domain = expectedDomain
+        });
+
+        Assert.AreEqual(result.Items.Any(), true);
+        foreach (var item in result.Items)
+        {
+            Assert.IsTrue(item.Domain.Equals(expectedDomain));    
+        }
+        
+        Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
+    }
+    
+    [TestMethod]
+    public async Task GetTranslationLanguageCodes_WithSitePageContentType_ShouldNotFail()
+    {
+        var actions = new MetaActions(InvocationContext, FileManager);
+        
+        var result = await actions.GetTranslationLanguageCodes(new()
+        {
+            ContentType = ContentTypes.SitePage,
+            ContentId = "185234897561"
+        });
+
+        Assert.IsFalse(string.IsNullOrEmpty(result.PrimaryLanguage));
+        CollectionAssert.Contains(result.TranslationLanguageCodes, "de");
+        
         Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
     }
     

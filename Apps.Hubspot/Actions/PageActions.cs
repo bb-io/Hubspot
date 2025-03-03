@@ -12,6 +12,7 @@ using Apps.Hubspot.Models.Requests.SitePages;
 using Apps.Hubspot.Models.Responses;
 using Apps.Hubspot.Models.Responses.Files;
 using Apps.Hubspot.Models.Responses.Translations;
+using Apps.Hubspot.Services;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -44,7 +45,25 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
             response = response.Where(x => x.Language == input.Language).ToList();
         }
 
+        if (!string.IsNullOrEmpty(input.Domain))
+        {
+            response = response.Where(x => x.Domain == input.Domain).ToList();
+        }
+        
+        if (!string.IsNullOrEmpty(input.CurrentState))
+        {
+            response = response.Where(x => x.CurrentState == input.CurrentState).ToList();
+        }
+
         return new(response);
+    }
+
+    [Action("Get site page translation language codes", Description = "Returns list of translated locales for site page based on ID")]
+    public async Task<TranslatedLocalesResponse> GetListOfTranslatedLocales([ActionParameter] SitePageRequest request)
+    {
+        ContentServicesFactory factory = new(invocationContext);
+        var service = factory.GetContentService(ContentTypes.SitePage);
+        return await service.GetTranslationLanguageCodesAsync(request.PageId);
     }
 
     [Action("Get a site page", Description = "Get information of a specific page")]
@@ -53,7 +72,8 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
 
     [Action("Get a site page as HTML file",
         Description = "Get information of a specific page and return an HTML file of its content")]
-    public async Task<FileLanguageResponse> GetSitePageAsHtml([ActionParameter] SitePageRequest input, [ActionParameter] LocalizablePropertiesRequest Properties)
+    public async Task<FileLanguageResponse> GetSitePageAsHtml([ActionParameter] SitePageRequest input, 
+        [ActionParameter] LocalizablePropertiesRequest Properties)
     {
         var result = await GetPage<GenericPageDto>(ApiEndpoints.ASitePage(input.PageId));
         var htmlFile =
@@ -101,7 +121,7 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
         
         var translationId = await GetOrCreateTranslationId(ApiEndpoints.SitePages, sourcePageId, request.TargetLanguage, primaryLanguage);
 
-        await UpdateTranslatedPage(ApiEndpoints.UpdatePage(translationId), new()
+        var page = await UpdateTranslatedPage(ApiEndpoints.UpdatePage(translationId), new()
         {
             Id = translationId,
             HtmlTitle = pageInfo.Title,
@@ -110,7 +130,8 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
 
         return new()
         {
-            TranslationId = translationId
+            TranslationId = translationId,
+            PageId = page.Id
         };
     }
 

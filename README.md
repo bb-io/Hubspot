@@ -54,10 +54,13 @@ The app makes use of the `content` and `forms` OAuth scopes. You account needs t
 
 - **Search content**: Search for any type of content.
 - **Get content**: Retrieve metadata for a specific content type based on its ID.
+- **Get translation language codes** returns list of translated locales for specific content based on ID (available only for `landing/site pages` and `blog posts` content types)
 - **Download content**: Download content as HTML for a specific content type based on its ID.
 - **Update content from HTML**: Update content from an HTML file.
 - **Update content**: Update content based on specified criteria using its ID.
 - **Delete content**: Delete content based on its ID.
+
+> Please note that we strongly recommend using these actions, as in the future, we will mark all other actions as deprecated. We will not add any new features to them and will eventually delete them (you will still be able to use the non-latest version of Hubspot app and have access to those actions).
 
 ### Landing & site pages
 
@@ -67,6 +70,7 @@ A site page is a more general and versatile page on Hubspot CMS website that can
 
 - **Get a landing/site page** Retrieve information from a specific page on your website by selecting it from a dynamic drop-down list as an input value.
 - **Search landing/site pages** searches for landing/site pages matching certain criteria. One of those criteria is _Not translated in language_ which you can use to filter pages that are missing translations.
+- **Get landing/site page translation language codes** returns list of translated locales for landing/site page based on ID
 - **Get a landing/site page as HTML file** Get webpage details and an HTML file of its content for easy translation and integration while preserving formatting and layout.
 - **Translate a landing/site page from HTML file** Create a new translation for a landing/site page based on an HTML file input. It enables seamless integration of externally translated content back into the website while maintaining the HTML structure. Note: if you are using this action with a landing/site page that has no translations yet, you need to provide the primary language.
 - **Schedule a landing/site page for publishing** Automate webpage publishing to release translated content at the right time for a better user experience.
