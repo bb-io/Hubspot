@@ -12,7 +12,7 @@ public class PageActionsTests : TestBase
     {
         var actions = new PageActions(InvocationContext, FileManager);
 
-        var result = await actions.GetAllSitePages(new()
+        var result = await actions.GetAllSitePages(new(), new()
         {
             CurrentState = "PUBLISHED"
         });

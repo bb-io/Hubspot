@@ -27,7 +27,8 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
     : BasePageActions(invocationContext, fileManagementClient)
 {
     [Action("Search site pages", Description = "Search for a list of site pages that match a certain criteria")]
-    public async Task<ListResponse<PageDto>> GetAllSitePages([ActionParameter] SearchPagesRequest input)
+    public async Task<ListResponse<PageDto>> GetAllSitePages([ActionParameter] SearchPagesRequest input,
+        [ActionParameter] SearchPagesAdditionalRequest additionalRequest)
     {
         var query = input.AsQuery();
         var endpoint = ApiEndpoints.SitePages.WithQuery(query);
@@ -45,14 +46,14 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
             response = response.Where(x => x.Language == input.Language).ToList();
         }
 
-        if (!string.IsNullOrEmpty(input.Domain))
+        if (!string.IsNullOrEmpty(additionalRequest.Domain))
         {
-            response = response.Where(x => x.Domain == input.Domain).ToList();
+            response = response.Where(x => x.Domain == additionalRequest.Domain).ToList();
         }
         
-        if (!string.IsNullOrEmpty(input.CurrentState))
+        if (!string.IsNullOrEmpty(additionalRequest.CurrentState))
         {
-            response = response.Where(x => x.CurrentState == input.CurrentState).ToList();
+            response = response.Where(x => x.CurrentState == additionalRequest.CurrentState).ToList();
         }
 
         return new(response);

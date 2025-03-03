@@ -14,10 +14,4 @@ public class SearchPagesRequest : TimeFilterRequest
 
     [Display("Language"), StaticDataSource(typeof(LanguageHandler))]
     public string? Language { get; set; }
-
-    [Display("Domain"), DataSource(typeof(DomainDataHandler)), JsonIgnore]
-    public string? Domain { get; set; }
-    
-    [Display("Current state"), StaticDataSource(typeof(CurrentStateHandler)), JsonIgnore]
-    public string? CurrentState { get; set; }
 }
