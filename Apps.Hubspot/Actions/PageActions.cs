@@ -56,7 +56,8 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
             response = response.Where(x => x.CurrentState == additionalRequest.PageCurrentState).ToList();
         }
 
-        return new(response);
+        var items = response.Select(x => x.DeepClone()).ToList();
+        return new(items);
     }
 
     [Action("Get site page translation language codes", Description = "Returns list of translated locales for site page based on ID")]

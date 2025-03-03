@@ -1,5 +1,4 @@
-﻿using Apps.Hubspot.Webhooks.Models;
-using Blackbird.Applications.Sdk.Common;
+﻿using Blackbird.Applications.Sdk.Common;
 using Newtonsoft.Json;
 
 namespace Apps.Hubspot.Models.Dtos.Pages;
@@ -92,4 +91,40 @@ public class PageDto
 
     [Display("Translated from ID")]
     public string? TranslatedFromId { get; set; }
+    
+    public PageDto DeepClone()
+    {
+        return new PageDto
+        {
+            Id = Id,
+            HtmlTitle = HtmlTitle,
+            Language = Language != null ? string.Copy(Language) : null,
+            CurrentlyPublished = CurrentlyPublished,
+            Published = Published,
+            CurrentState = string.Copy(CurrentState),
+            Slug = string.Copy(Slug),
+            ContentGroupId = string.Copy(ContentGroupId),
+            CategoryId = string.Copy(CategoryId),
+            State = string.Copy(State),
+            AuthorName = string.Copy(AuthorName),
+            CreatedById = string.Copy(CreatedById),
+            UpdatedById = string.Copy(UpdatedById),
+            Domain = string.Copy(Domain),
+            Subcategory = string.Copy(Subcategory),
+            FolderId = string.Copy(FolderId),
+            PageRedirected = PageRedirected,
+            Url = string.Copy(Url),
+            PageExpiryEnabled = PageExpiryEnabled,
+            PageExpiryDate = PageExpiryDate,
+            PublishDate = string.Copy(PublishDate),
+            Created = string.Copy(Created),
+            Updated = string.Copy(Updated),
+            ArchivedAt = string.Copy(ArchivedAt),
+            MetaDescription = string.Copy(MetaDescription),
+            HeadHtml = string.Copy(HeadHtml),
+            FooterHtml = string.Copy(FooterHtml),
+            Name = string.Copy(Name),
+            TranslatedFromId = TranslatedFromId != null ? string.Copy(TranslatedFromId) : null
+        };
+    }
 }
