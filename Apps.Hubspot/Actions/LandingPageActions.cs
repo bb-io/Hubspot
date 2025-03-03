@@ -46,14 +46,14 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
             response = response.Where(x => x.Language == input.Language).ToList();
         }
 
-        if (!string.IsNullOrEmpty(additionalRequest.Domain))
+        if (!string.IsNullOrEmpty(additionalRequest.PageDomain))
         {
-            response = response.Where(x => x.Domain == additionalRequest.Domain).ToList();
+            response = response.Where(x => x.Domain == additionalRequest.PageDomain).ToList();
         }
-
-        if (!string.IsNullOrEmpty(additionalRequest.CurrentState))
+        
+        if (!string.IsNullOrEmpty(additionalRequest.PageCurrentState))
         {
-            response = response.Where(x => x.CurrentState == additionalRequest.CurrentState).ToList();
+            response = response.Where(x => x.CurrentState == additionalRequest.PageCurrentState).ToList();
         }
 
         return new(response);

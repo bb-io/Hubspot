@@ -1,7 +1,6 @@
-﻿namespace Apps.Hubspot.Models.Dtos
+﻿namespace Apps.Hubspot.Models.Dtos;
+
+public class ObjectWithId
 {
-    public class ObjectWithId
-    {
-        public string Id { get; set; }
-    }
+    public string Id { get; set; }
 }

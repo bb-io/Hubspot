@@ -14,7 +14,7 @@ public class PageActionsTests : TestBase
 
         var result = await actions.GetAllSitePages(new(), new()
         {
-            CurrentState = "PUBLISHED"
+            PageCurrentState = "PUBLISHED"
         });
 
         Assert.AreEqual(result.Items.Any(), true);

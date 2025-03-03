@@ -9,8 +9,8 @@ namespace Apps.Hubspot.Models.Requests;
 public class SearchPagesAdditionalRequest
 {
     [Display("Domain"), DataSource(typeof(DomainDataHandler))]
-    public string? Domain { get; set; }
+    public string? PageDomain { get; set; }
     
     [Display("Current state"), StaticDataSource(typeof(CurrentStateHandler))]
-    public string? CurrentState { get; set; }
+    public string? PageCurrentState { get; set; }
 }
