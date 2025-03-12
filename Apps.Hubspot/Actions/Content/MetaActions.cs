@@ -15,6 +15,7 @@ using Apps.Hubspot.Utils.Extensions;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Html.Extensions;
+using Apps.Hubspot.Utils;
 
 namespace Apps.Hubspot.Actions.Content;
 
@@ -56,6 +57,9 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
     public async Task<TranslatedLocalesResponse> GetTranslationLanguageCodes(
         [ActionParameter] GetContentForTranslationLanguageCodesRequest contentRequest)
     {
+        PluginMisconfigurationExceptionHelper.ThrowIsNullOrEmpty(contentRequest.ContentType, nameof(contentRequest.ContentType));
+        PluginMisconfigurationExceptionHelper.ThrowIsNullOrEmpty(contentRequest.ContentId, nameof(contentRequest.ContentId));
+
         var contentService = _factory.GetContentService(contentRequest.ContentType);
         return await contentService.GetTranslationLanguageCodesAsync(contentRequest.ContentId);
     }
