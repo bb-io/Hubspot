@@ -87,7 +87,7 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
         };
     }
 
-    [Action("Update content from HTML", Description = "Update content from an HTML file")]
+    [Action("Upload content", Description = "Update content from an HTML file")]
     public async Task UpdateContentFromHtml([ActionParameter] LanguageFileRequest languageFileRequest,
         [ActionParameter] UploadContentRequest uploadContentRequest)
     {
