@@ -90,7 +90,6 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
     {
         var resultEntity = await HtmlConverter.ToJsonAsync(targetLanguage, stream, uploadContentRequest, InvocationContext);
 
-        var jsonlogg = JsonConvert.SerializeObject(resultEntity.Json, Formatting.Indented);
         var sourcePageId = resultEntity.PageInfo.HtmlDocument.ExtractBlackbirdReferenceId() ?? throw new Exception("The source page ID is missing. Provide it as an optional input or add it to the HTML file");
         var content = await GetContentAsync(sourcePageId);
         var primaryLanguage = string.IsNullOrEmpty(resultEntity.PageInfo.Language) ? content.Language : resultEntity.PageInfo.Language;

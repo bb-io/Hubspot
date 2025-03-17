@@ -86,11 +86,11 @@ public class LandingPageService(InvocationContext invocationContext) : BaseConte
 
     public override async Task UpdateContentFromHtmlAsync(string targetLanguage, Stream stream, UploadContentRequest uploadContentRequest)
     {
-        var (pageInfo, json) = HtmlConverter.ToJson(stream);
+        var resultEntity = await HtmlConverter.ToJsonAsync(targetLanguage, stream, uploadContentRequest, InvocationContext);
 
-        var sourcePageId = pageInfo.HtmlDocument.ExtractBlackbirdReferenceId() ?? throw new Exception("The Source page ID is missing");
+        var sourcePageId = resultEntity.PageInfo.HtmlDocument.ExtractBlackbirdReferenceId() ?? throw new Exception("The Source page ID is missing");
         var content = await GetContentAsync(sourcePageId);
-        var primaryLanguage = string.IsNullOrEmpty(pageInfo.Language) ? content.Language : pageInfo.Language;
+        var primaryLanguage = string.IsNullOrEmpty(resultEntity.PageInfo.Language) ? content.Language : resultEntity.PageInfo.Language;
         if (string.IsNullOrEmpty(primaryLanguage))
         {
             throw new PluginMisconfigurationException(
@@ -101,8 +101,8 @@ public class LandingPageService(InvocationContext invocationContext) : BaseConte
         await UpdateTranslatedPage(ApiEndpoints.UpdateLandingPage(translationId), new()
         {
             Id = translationId,
-            HtmlTitle = pageInfo.Title,
-            LayoutSections = json
+            HtmlTitle = resultEntity.PageInfo.Title,
+            LayoutSections = resultEntity.Json
         });
     }
 
