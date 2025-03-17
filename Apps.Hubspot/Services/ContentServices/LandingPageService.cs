@@ -39,6 +39,13 @@ public class LandingPageService(InvocationContext invocationContext) : BaseConte
         }).ToList();
     }
 
+    public async Task<PageWithTranslationsDto> GetLandingPageAsync(string id)
+    {
+        var url = ApiEndpoints.ALandingPage(id);
+        var request = new HubspotRequest(url, Method.Get, Creds);
+        return await Client.ExecuteWithErrorHandling<PageWithTranslationsDto>(request);
+    }
+
     public override async Task<TranslatedLocalesResponse> GetTranslationLanguageCodesAsync(string id)
     {
         var url = ApiEndpoints.ALandingPage(id);
@@ -77,7 +84,7 @@ public class LandingPageService(InvocationContext invocationContext) : BaseConte
         return new MemoryStream(htmlFile);
     }
 
-    public override async Task UpdateContentFromHtmlAsync(string targetLanguage, Stream stream)
+    public override async Task UpdateContentFromHtmlAsync(string targetLanguage, Stream stream, UploadContentRequest uploadContentRequest)
     {
         var (pageInfo, json) = HtmlConverter.ToJson(stream);
 

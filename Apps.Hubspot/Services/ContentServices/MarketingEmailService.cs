@@ -77,7 +77,7 @@ public class MarketingEmailService(InvocationContext invocationContext) : BaseCo
         return new MemoryStream(html);
     }
 
-    public override async Task UpdateContentFromHtmlAsync(string targetLanguage, Stream stream)
+    public override async Task UpdateContentFromHtmlAsync(string targetLanguage, Stream stream, UploadContentRequest uploadContentRequest)
     {
         var fileBytes = await stream.GetByteData();
         var blackbirdId = HtmlConverter.ExtractBlackbirdId(fileBytes);
