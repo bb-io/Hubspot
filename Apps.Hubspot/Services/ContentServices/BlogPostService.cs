@@ -45,9 +45,7 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
 
     public override async Task<Metadata> GetContentAsync(string id)
     {        
-        var endpoint = $"{ApiEndpoints.BlogPostsSegment}/{id}";
-        var request = new HubspotRequest(endpoint, Method.Get, Creds);
-        var blogPost = await Client.ExecuteWithErrorHandling<BlogPostDto>(request);
+        var blogPost = await GetBlogPostAsync(id);
 
         return new()
         {
@@ -61,6 +59,13 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
             CreatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Created),
             UpdatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Updated)
         };
+    }
+
+    public async Task<BlogPostDto> GetBlogPostAsync(string id)
+    {
+        var endpoint = $"{ApiEndpoints.BlogPostsSegment}/{id}";
+        var request = new HubspotRequest(endpoint, Method.Get, Creds);
+        return await Client.ExecuteWithErrorHandling<BlogPostDto>(request);
     }
 
     public override async Task<TranslatedLocalesResponse> GetTranslationLanguageCodesAsync(string id)
@@ -80,7 +85,7 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
         return new MemoryStream(Encoding.UTF8.GetBytes(htmlFile));
     }
 
-    public override async Task UpdateContentFromHtmlAsync(string targetLanguage, Stream stream)
+    public override async Task UpdateContentFromHtmlAsync(string targetLanguage, Stream stream, UploadContentRequest uploadContentRequest)
     {
         var fileBytes = await stream.GetByteData();
         var fileString = Encoding.UTF8.GetString(fileBytes);

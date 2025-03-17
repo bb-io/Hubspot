@@ -15,6 +15,7 @@ using Apps.Hubspot.Utils.Extensions;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Html.Extensions;
+using Apps.Hubspot.Utils;
 
 namespace Apps.Hubspot.Actions.Content;
 
@@ -56,6 +57,9 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
     public async Task<TranslatedLocalesResponse> GetTranslationLanguageCodes(
         [ActionParameter] GetContentForTranslationLanguageCodesRequest contentRequest)
     {
+        PluginMisconfigurationExceptionHelper.ThrowIsNullOrEmpty(contentRequest.ContentType, nameof(contentRequest.ContentType));
+        PluginMisconfigurationExceptionHelper.ThrowIsNullOrEmpty(contentRequest.ContentId, nameof(contentRequest.ContentId));
+
         var contentService = _factory.GetContentService(contentRequest.ContentType);
         return await contentService.GetTranslationLanguageCodesAsync(contentRequest.ContentId);
     }
@@ -83,8 +87,9 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
         };
     }
 
-    [Action("Update content from HTML", Description = "Update content from an HTML file")]
-    public async Task UpdateContentFromHtml([ActionParameter] LanguageFileRequest languageFileRequest)
+    [Action("Upload content", Description = "Update content from an HTML file")]
+    public async Task UpdateContentFromHtml([ActionParameter] LanguageFileRequest languageFileRequest,
+        [ActionParameter] UploadContentRequest uploadContentRequest)
     {
         var fileMemory = await fileManagementClient.DownloadAsync(languageFileRequest.File);
         var memoryStream = new MemoryStream();
@@ -99,7 +104,7 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
         var contentType = document.ExtractContentType();
 
         var contentService = _factory.GetContentService(contentType);
-        await contentService.UpdateContentFromHtmlAsync(languageFileRequest.TargetLanguage, memoryStream);
+        await contentService.UpdateContentFromHtmlAsync(languageFileRequest.TargetLanguage, memoryStream, uploadContentRequest);
     }
 
     [Action("Update content", Description = "Update content based on specified criteria using its ID")]

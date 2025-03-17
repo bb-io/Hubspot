@@ -144,10 +144,14 @@ public class MetaActionsTests : TestBase
         {
             File = new()
             {
-                Name = "Random sentences.html",
+                Name = "the first cup (1).html",
                 ContentType = "text/html"
             },
             TargetLanguage = "de"
+        }, new()
+        {
+            EnableInternalLinkLocalization = true,
+            PublishedSiteBaseUrl = "https://blackbird-21491386.hubspotpagebuilder.com",
         });
     }
 }

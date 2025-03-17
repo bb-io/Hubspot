@@ -19,11 +19,12 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using RestSharp;
+using Apps.Hubspot.Utils;
 
 namespace Apps.Hubspot.Actions;
 
 [ActionList]
-public class PageActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
+public class PageActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) 
     : BasePageActions(invocationContext, fileManagementClient)
 {
     [Action("Search site pages", Description = "Search for a list of site pages that match a certain criteria")]
@@ -63,21 +64,31 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
     [Action("Get site page translation language codes", Description = "Returns list of translated locales for site page based on ID")]
     public async Task<TranslatedLocalesResponse> GetListOfTranslatedLocales([ActionParameter] SitePageRequest request)
     {
-        ContentServicesFactory factory = new(invocationContext);
+        ContentServicesFactory factory = new(InvocationContext);
         var service = factory.GetContentService(ContentTypes.SitePage);
         return await service.GetTranslationLanguageCodesAsync(request.PageId);
     }
 
     [Action("Get a site page", Description = "Get information of a specific page")]
     public Task<PageDto> GetSitePage([ActionParameter] SitePageRequest input)
-        => GetPage<PageDto>(ApiEndpoints.ASitePage(input.PageId));
+    {
+        PluginMisconfigurationExceptionHelper.ThrowIsNullOrEmpty(input.PageId, nameof(input.PageId));
+        return GetPage<PageDto>(ApiEndpoints.ASitePage(input.PageId));
+    }
 
     [Action("Get a site page as HTML file",
         Description = "Get information of a specific page and return an HTML file of its content")]
     public async Task<FileLanguageResponse> GetSitePageAsHtml([ActionParameter] SitePageRequest input, 
         [ActionParameter] LocalizablePropertiesRequest Properties)
     {
+        PluginMisconfigurationExceptionHelper.ThrowIsNullOrEmpty(input.PageId, nameof(input.PageId));
+
         var result = await GetPage<GenericPageDto>(ApiEndpoints.ASitePage(input.PageId));
+        if(string.IsNullOrEmpty(result.Language))
+        {
+            throw new PluginMisconfigurationException("The page does not have a language set. Please set the language and try again");
+        }
+
         var htmlFile =
             HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language, input.PageId, ContentTypes.SitePage, Properties);
 

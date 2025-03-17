@@ -6,7 +6,6 @@ namespace Apps.Hubspot.Models.Requests.SitePages;
 
 public class SitePageRequest
 {
-    [Display("Site page ID")]
-    [DataSource(typeof(SitePageHandler))]
-    public string PageId { get; set; }
+    [Display("Site page ID"), DataSource(typeof(SitePageHandler))]
+    public string PageId { get; set; } = string.Empty;
 }

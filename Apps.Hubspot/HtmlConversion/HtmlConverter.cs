@@ -1,9 +1,14 @@
 using System.Text;
 using System.Web;
 using Apps.Hubspot.Models.Dtos.Forms;
+using Apps.Hubspot.Models.Entities;
 using Apps.Hubspot.Models.Requests;
+using Apps.Hubspot.Models.Requests.Content;
 using Apps.Hubspot.Models.Responses.Pages;
+using Apps.Hubspot.Providers;
+using Apps.Hubspot.Services.ContentServices;
 using Blackbird.Applications.Sdk.Common.Exceptions;
+using Blackbird.Applications.Sdk.Common.Invocation;
 using HtmlAgilityPack;
 using Newtonsoft.Json.Linq;
 
@@ -17,7 +22,7 @@ public static class HtmlConverter
         "richtext_field", "subheading", "price", "tab_label", "header", "subheader", "content_text", "alt", "text", "quotation",
         "author_name", "description", "speaker", "status", "event_time", "custom_cta_text", "short_description", "top_label"
     };
-    
+
     private static readonly HashSet<string> ExcludeCustomModulesProperties = new()
     {
         "size_type", "loading", "src"
@@ -95,7 +100,7 @@ public static class HtmlConverter
         Console.WriteLine(doc.DocumentNode.OuterHtml);
         return Encoding.UTF8.GetBytes(doc.DocumentNode.OuterHtml);
     }
-    
+
     public static byte[] ToHtml(JObject emailContent, string title, string language, string pageId, string contentType, LocalizablePropertiesRequest? properties, string? businessUnitId = null)
     {
         if (properties?.PropertiesToInclude != null)
@@ -103,7 +108,7 @@ public static class HtmlConverter
             foreach (var item in properties.PropertiesToInclude)
             { ContentProperties.Add(item); }
         }
-        if (properties?.PropertiesToExclude != null) 
+        if (properties?.PropertiesToExclude != null)
         {
             foreach (var item in properties.PropertiesToExclude)
             {
@@ -140,6 +145,37 @@ public static class HtmlConverter
         htmlNodes.ForEach(x => AddContentToHtml(x.Path, x.Html, bodyNode, doc.CreateElement("div")));
 
         return Encoding.UTF8.GetBytes(doc.DocumentNode.OuterHtml);
+    }
+
+    public static async Task<JsonResultEntity> ToJsonAsync(string targetLanguage, Stream htmlFile, UploadContentRequest uploadContentRequest, InvocationContext invocationContext)
+    {
+        if (uploadContentRequest.EnableInternalLinkLocalization == true)
+        {
+            var memoryStream = await CreateMemoryStreamFromFileAsync(htmlFile);
+            
+            var htmlDoc = new HtmlDocument();
+            htmlDoc.Load(memoryStream);
+            
+            var links = htmlDoc.DocumentNode.SelectNodes("//a")?.ToList() ?? new List<HtmlNode>();
+            memoryStream.Position = 0;
+
+            await LocalizeLinksAsync(links, uploadContentRequest, targetLanguage, invocationContext);
+
+            if (links.Any())
+            {
+                memoryStream = SaveHtmlDocumentToStream(htmlDoc);
+            }
+
+            var (pageInfo, originalJson) = ToJson(memoryStream);
+            pageInfo.Links = links;
+            
+            return new(pageInfo, originalJson);
+        }
+        else 
+        {
+            var (pageInfo, originalJson) = ToJson(htmlFile);
+            return new(pageInfo, originalJson);
+        }
     }
 
     public static (PageInfoResponse pageInfo, JObject json) ToJson(Stream htmlFile)
@@ -373,5 +409,104 @@ public static class HtmlConverter
             FormName: title,
             FieldGroups: properties
         );
+    }
+
+    private static async Task<MemoryStream> CreateMemoryStreamFromFileAsync(Stream file)
+    {
+        var memoryStream = new MemoryStream();
+        await file.CopyToAsync(memoryStream);
+        memoryStream.Position = 0;
+        return memoryStream;
+    }
+    
+    private static MemoryStream SaveHtmlDocumentToStream(HtmlDocument htmlDoc)
+    {
+        var memoryStream = new MemoryStream();
+        htmlDoc.Save(memoryStream);
+        memoryStream.Position = 0;
+        return memoryStream;
+    }
+    
+    private static async Task LocalizeLinksAsync(List<HtmlNode> links, UploadContentRequest uploadContentRequest, 
+        string targetLanguage, InvocationContext invocationContext)
+    {
+        foreach (var link in links)
+        {
+            var href = link.GetAttributeValue("href", null);
+            if (ShouldLocalizeLink(href))
+            {
+                await LocalizeLinkAsync(link, href, uploadContentRequest, targetLanguage, invocationContext);
+            }
+        }
+    }
+    
+    private static bool ShouldLocalizeLink(string? href)
+    {
+        return href != null && !href.StartsWith("http", StringComparison.OrdinalIgnoreCase);
+    }
+    
+    private static async Task LocalizeLinkAsync(HtmlNode link, string href, UploadContentRequest uploadContentRequest, 
+        string targetLanguage, InvocationContext invocationContext)
+    {
+        var fullUrl = $"{uploadContentRequest.PublishedSiteBaseUrl!.TrimEnd('/')}{href}";
+        var htmlVariables = InternalUrlProvider.GetHtmlVariables(fullUrl);
+        
+        if (htmlVariables.ChangeHref)
+        {
+            var pageId = htmlVariables.PageId;
+            var pageType = htmlVariables.PageType;
+
+            if (pageType.Equals("blog-post"))
+            {
+                await LocalizeBlogPostLinkAsync(link, pageId, targetLanguage, invocationContext);
+            }
+            else if(pageType.Equals("standard-page")) 
+            {
+                await LocalizeSitePageLinkAsync(link, pageId, targetLanguage, invocationContext);
+            }
+            else if (pageType.Equals("landing-page"))
+            {
+                await LocalizeLandingPageLinkAsync(link, pageId, targetLanguage, invocationContext);
+            }
+        }
+    }
+    
+    private static async Task LocalizeBlogPostLinkAsync(HtmlNode link, string pageId, string targetLanguage, 
+        InvocationContext invocationContext)
+    {
+        var blogPostService = new BlogPostService(invocationContext);
+        var blogPost = await blogPostService.GetBlogPostAsync(pageId);
+        
+        if (blogPost.Translations.TryGetValue(targetLanguage, out var translation))
+        {
+            var translatedUrl = translation.Slug;
+            link.SetAttributeValue("href", $"/{translatedUrl}");
+        }
+    }
+
+    private static async Task LocalizeSitePageLinkAsync(HtmlNode link, string pageId, string targetLanguage, 
+        InvocationContext invocationContext)
+    {
+        var sitePageService = new SitePageService(invocationContext);
+        var sitePage = await sitePageService.GetPageAsync(pageId);
+        
+        if (sitePage.Translations.TryGetValue(targetLanguage, out var translation))
+        {
+            var translatedUrl = translation.Slug;
+            link.SetAttributeValue("href", $"/{translatedUrl}");
+        }
+    }
+
+    private static async Task LocalizeLandingPageLinkAsync(HtmlNode link, string pageId, string targetLanguage, 
+        InvocationContext invocationContext)
+    {
+        var landingPageService = new LandingPageService(invocationContext);
+        var landingPage = await landingPageService.GetLandingPageAsync(pageId);
+        
+        if (landingPage.Translations.TryGetValue(targetLanguage, out var translation))
+        {
+            var translatedUrl = translation.Slug;
+            link.SetAttributeValue("href", $"/{translatedUrl}");
+        }
     }
 }

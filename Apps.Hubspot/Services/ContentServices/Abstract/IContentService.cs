@@ -10,7 +10,7 @@ public interface IContentService
     public Task<Metadata> GetContentAsync(string id);
     public Task<TranslatedLocalesResponse> GetTranslationLanguageCodesAsync(string id);
     public Task<Stream> DownloadContentAsync(string id);
-    public Task UpdateContentFromHtmlAsync(string targetLanguage, Stream stream);
+    public Task UpdateContentFromHtmlAsync(string targetLanguage, Stream stream, UploadContentRequest uploadContentRequest);
     public Task<Metadata> UpdateContentAsync(string id, UpdateContentRequest updateContentRequest);
     public Task DeleteContentAsync(string id);
 }

@@ -74,7 +74,7 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
         return new MemoryStream(htmlBytes);
     }
 
-    public override async Task UpdateContentFromHtmlAsync(string targetLanguage, Stream stream)
+    public override async Task UpdateContentFromHtmlAsync(string targetLanguage, Stream stream, UploadContentRequest uploadContentRequest)
     {
         var bytes = await stream.GetByteData();
         
