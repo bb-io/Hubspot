@@ -241,29 +241,28 @@ public static class HtmlConverter
         try
         {
             var sitePageService = new SitePageService(invocationContext);
-            var sitePage = sitePageService.GetPageAsync(oldContentId).Result;
-            if (sitePage.Translations.TryGetValue(targetLanguage, out var translation))
+            var pageContent = sitePageService.GetPageAsync(oldContentId).GetAwaiter().GetResult();
+            if (pageContent.Translations.TryGetValue(targetLanguage, out var pageTranslation))
             {
-                return ulong.Parse(translation.Id);
+                return ulong.Parse(pageTranslation.Id);
             }
-
-            return null;
         }
-        catch (PluginApplicationException)
+        catch
+        { }
+
+        try
         {
             var blogPostService = new BlogPostService(invocationContext);
-            var blogPost = blogPostService.GetBlogPostAsync(oldContentId).Result;
-            if (blogPost.Translations.TryGetValue(targetLanguage, out var translation))
+            var blogContent = blogPostService.GetBlogPostAsync(oldContentId).GetAwaiter().GetResult();
+            if (blogContent.Translations.TryGetValue(targetLanguage, out var blogTranslation))
             {
-                return ulong.Parse(translation.Id);
+                return ulong.Parse(blogTranslation.Id);
             }
+        }
+        catch
+        { }
 
-            return null;
-        }
-        catch (Exception)
-        {
-            return null;
-        }
+        return null;
     }
 
     public static string? ExtractBlackbirdId(byte[] fileBytes)
