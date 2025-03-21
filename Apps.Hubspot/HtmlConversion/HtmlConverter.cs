@@ -158,7 +158,7 @@ public static class HtmlConverter
             
             var links = htmlDoc.DocumentNode.SelectNodes("//a")?.ToList() ?? new List<HtmlNode>();
             memoryStream.Position = 0;
-
+            
             await LocalizeLinksAsync(links, uploadContentRequest, targetLanguage, invocationContext);
 
             if (links.Any())
@@ -166,7 +166,7 @@ public static class HtmlConverter
                 memoryStream = SaveHtmlDocumentToStream(htmlDoc);
             }
 
-            var (pageInfo, originalJson) = ToJson(memoryStream);
+            var (pageInfo, originalJson) = ToJson(memoryStream, uploadContentRequest.EnableInternalLinkLocalization ?? false, targetLanguage, invocationContext);
             pageInfo.Links = links;
             
             return new(pageInfo, originalJson);
@@ -178,7 +178,7 @@ public static class HtmlConverter
         }
     }
 
-    public static (PageInfoResponse pageInfo, JObject json) ToJson(Stream htmlFile)
+    public static (PageInfoResponse pageInfo, JObject json) ToJson(Stream htmlFile, bool updateOriginalJson = false, string? targetLanguage = null, InvocationContext? invocationContext = null)
     {
         var pageInfo = ExtractPageInfo(htmlFile);
         var doc = pageInfo.HtmlDocument;
@@ -193,6 +193,10 @@ public static class HtmlConverter
 
         var originalAttributeValue = HttpUtility.HtmlDecode(bodyNode.Attributes[OriginalContentAttribute].Value);
         var originalJson = JObject.Parse(originalAttributeValue);
+        if(updateOriginalJson && !string.IsNullOrEmpty(targetLanguage) && invocationContext != null)
+        {
+            originalJson = UpdateContentIds(originalJson, targetLanguage, invocationContext);
+        }
 
         var contentNodes = doc.DocumentNode.Descendants()
             .Where(x => x.Attributes[PathAttribute] is not null)
@@ -207,6 +211,59 @@ public static class HtmlConverter
         });
 
         return (pageInfo, originalJson);
+    }
+
+    private static JObject UpdateContentIds(JObject originalJson, string targetLanguage, InvocationContext invocationContext)
+    {
+        var updatedJson = (JObject)originalJson.DeepClone();
+        var contentIdTokens = updatedJson.SelectTokens("$..url")
+            .Where(t => t is JObject obj && obj["type"]?.ToString() == "CONTENT" && obj["content_id"] != null)
+            .ToList();
+        
+        foreach (JObject urlToken in contentIdTokens)
+        {
+            var oldContentId = urlToken["content_id"]!.Value<string>();
+            if(!string.IsNullOrEmpty(oldContentId))
+            {
+                ulong? newContentId = GetNewContentId(oldContentId, targetLanguage, invocationContext);
+                if (newContentId.HasValue && newContentId.Value != 0)
+                {
+                    urlToken["content_id"] = newContentId;
+                }
+            }
+        }
+        
+        return updatedJson;
+    }
+
+    private static ulong? GetNewContentId(string oldContentId, string targetLanguage, InvocationContext invocationContext)
+    {
+        try
+        {
+            var sitePageService = new SitePageService(invocationContext);
+            var sitePage = sitePageService.GetPageAsync(oldContentId).Result;
+            if (sitePage.Translations.TryGetValue(targetLanguage, out var translation))
+            {
+                return ulong.Parse(translation.Id);
+            }
+
+            return null;
+        }
+        catch (PluginApplicationException)
+        {
+            var blogPostService = new BlogPostService(invocationContext);
+            var blogPost = blogPostService.GetBlogPostAsync(oldContentId).Result;
+            if (blogPost.Translations.TryGetValue(targetLanguage, out var translation))
+            {
+                return ulong.Parse(translation.Id);
+            }
+
+            return null;
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     public static string? ExtractBlackbirdId(byte[] fileBytes)
