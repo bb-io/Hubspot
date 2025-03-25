@@ -507,7 +507,7 @@ public static class HtmlConverter
         var fullUrl = $"{uploadContentRequest.PublishedSiteBaseUrl!.TrimEnd('/')}{href}";
         var htmlVariables = InternalUrlProvider.GetHtmlVariables(fullUrl);
         
-        if (htmlVariables.ChangeHref)
+        if (htmlVariables != null && htmlVariables.ChangeHref)
         {
             var pageId = htmlVariables.PageId;
             var pageType = htmlVariables.PageType;

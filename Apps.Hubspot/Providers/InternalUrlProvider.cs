@@ -7,7 +7,7 @@ namespace Apps.Hubspot.Providers;
 
 public static class InternalUrlProvider
 {
-    public static HtmlVariablesEntity GetHtmlVariables(string url)
+    public static HtmlVariablesEntity? GetHtmlVariables(string url)
     {
         var restClient = new RestClient(url);
         var request = new RestRequest(string.Empty, Method.Get);
@@ -43,7 +43,7 @@ public static class InternalUrlProvider
                 }
             }
             
-            throw new PluginApplicationException("Failed to find hsVars in the HTML document.");
+            return null;
         }
         else
         {
