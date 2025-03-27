@@ -101,7 +101,20 @@ public class MetaActionsTests : TestBase
 
         Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
     }
-    
+
+    [TestMethod]
+    public async Task DownloadContent_WithSitePageContentType_ShouldNotFail()
+    {
+        var actions = new MetaActions(InvocationContext, FileManager);
+        var result = await actions.DownloadContent(new()
+        {
+            ContentType = ContentTypes.SitePage,
+            ContentId = "116079994124"
+        });
+
+        Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
+    }
+
     [TestMethod]
     public async Task UpdateContent_WithLandingPageContentType_ShouldChangeName()
     {
