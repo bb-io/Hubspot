@@ -85,7 +85,7 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
         return new MemoryStream(Encoding.UTF8.GetBytes(htmlFile));
     }
 
-    public override async Task UpdateContentFromHtmlAsync(string targetLanguage, Stream stream, UploadContentRequest uploadContentRequest)
+    public override async Task<Metadata> UpdateContentFromHtmlAsync(string targetLanguage, Stream stream, UploadContentRequest uploadContentRequest)
     {
         var fileBytes = await stream.GetByteData();
         var fileString = Encoding.UTF8.GetString(fileBytes);
@@ -98,7 +98,7 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
         var body = document.DocumentNode.SelectSingleNode("/html/body").InnerHtml;
 
         var translationId = await GetOrCreateTranslationId(ApiEndpoints.BlogPostsSegment, blogPostId, targetLanguage);
-        await UpdateFullBlogPostObjectAsync(new()
+        var blogPost = await UpdateFullBlogPostObjectAsync(new()
         {
             BlogPostId = translationId
         }, new()
@@ -107,6 +107,19 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
             PostBody = body,
             MetaDescription = metaDescription
         });
+
+        return new()
+        {
+            Id = blogPost.Id,
+            Title = blogPost.Name,
+            Domain = blogPost.Domain,
+            Language = blogPost.Language!,
+            State = blogPost.CurrentState,
+            Published = blogPost.CurrentlyPublished,
+            Type = ContentTypes.Blog,
+            CreatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Created),
+            UpdatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Updated)
+        };
     }
 
     public override async Task<Metadata> UpdateContentAsync(string id, UpdateContentRequest updateContentRequest)

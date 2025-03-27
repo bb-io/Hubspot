@@ -74,7 +74,7 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
         return new MemoryStream(htmlBytes);
     }
 
-    public override async Task UpdateContentFromHtmlAsync(string targetLanguage, Stream stream, UploadContentRequest uploadContentRequest)
+    public override async Task<Metadata> UpdateContentFromHtmlAsync(string targetLanguage, Stream stream, UploadContentRequest uploadContentRequest)
     {
         var bytes = await stream.GetByteData();
         
@@ -156,8 +156,20 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
                 fieldGroups
             });
         
-        await Client.ExecuteWithErrorHandling<MarketingFormDto>(request);
-    }
+        var marketingFormDto = await Client.ExecuteWithErrorHandling<MarketingFormDto>(request);
+        return new()
+        {
+            Id = marketingFormDto.Id,
+            Title = marketingFormDto.Name,
+            Domain = "NONE",
+            Language = marketingFormDto.Configuration?.Language ?? string.Empty,
+            State = "PUBLISHED",
+            Published = true,
+            Type = ContentTypes.Form,
+            CreatedAt = marketingFormDto.CreatedAt,
+            UpdatedAt = marketingFormDto.UpdatedAt
+        };
+    } 
 
     public override async Task<Metadata> UpdateContentAsync(string id, UpdateContentRequest updateContentRequest)
     {
