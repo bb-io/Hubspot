@@ -12,6 +12,7 @@ using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
+using Newtonsoft.Json;
 using RestSharp;
 
 namespace Apps.Hubspot.Services.ContentServices;
@@ -85,7 +86,7 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
         return new MemoryStream(htmlBytes);
     }
 
-    public override async Task UpdateContentFromHtmlAsync(string targetLanguage, Stream stream, UploadContentRequest uploadContentRequest)
+    public override async Task<Metadata> UpdateContentFromHtmlAsync(string targetLanguage, Stream stream, UploadContentRequest uploadContentRequest)
     {
         var resultEntity = await HtmlConverter.ToJsonAsync(targetLanguage, stream, uploadContentRequest, InvocationContext);
 
@@ -98,12 +99,25 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
         }
         
         var translationId = await GetOrCreateTranslationId(ApiEndpoints.SitePages, sourcePageId, targetLanguage, primaryLanguage);
-        await UpdateTranslatedPage(ApiEndpoints.UpdatePage(translationId), new()
+        var pageDto = await UpdateTranslatedPage<PageDto>(ApiEndpoints.UpdatePage(translationId), new()
         {
             Id = translationId,
             HtmlTitle = resultEntity.PageInfo.Title,
             LayoutSections = resultEntity.Json
         });
+
+        return new()
+        {
+            Id = pageDto.Id,
+            Title = pageDto.Name,
+            Domain = pageDto.Domain,
+            Language = pageDto.Language!,
+            State = pageDto.CurrentState,
+            Published = pageDto.Published,
+            Type = ContentTypes.SitePage,
+            CreatedAt = StringToDateTimeConverter.ToDateTime(pageDto.Created),
+            UpdatedAt = StringToDateTimeConverter.ToDateTime(pageDto.Updated)
+        };
     }
 
     public override async Task<Metadata> UpdateContentAsync(string id, UpdateContentRequest updateContentRequest)

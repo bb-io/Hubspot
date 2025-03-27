@@ -22,7 +22,7 @@ public abstract class BaseContentService(InvocationContext invocationContext)
 
     public abstract Task<Stream> DownloadContentAsync(string id);
 
-    public abstract Task UpdateContentFromHtmlAsync(string targetLanguage, Stream stream, UploadContentRequest uploadContentRequest);
+    public abstract Task<Metadata> UpdateContentFromHtmlAsync(string targetLanguage, Stream stream, UploadContentRequest uploadContentRequest);
 
     public abstract Task<Metadata> UpdateContentAsync(string id, UpdateContentRequest updateContentRequest);
 
@@ -40,12 +40,12 @@ public abstract class BaseContentService(InvocationContext invocationContext)
         );
     }
 
-    protected Task<RestResponse> UpdateTranslatedPage(string url, UpdateTranslatedPageRequest page)
+    protected Task<T> UpdateTranslatedPage<T>(string url, UpdateTranslatedPageRequest page)
     {
         var request = new HubspotRequest(url, Method.Patch, Creds)
             .WithJsonBody(page, JsonConfig.Settings);
 
-        return Client.ExecuteWithErrorHandling(request);
+        return Client.ExecuteWithErrorHandling<T>(request);
     }
 
     protected async Task<string> GetOrCreateTranslationId(string resourceUrlPart, string resourceId,
