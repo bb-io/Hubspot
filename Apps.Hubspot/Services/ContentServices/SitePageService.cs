@@ -67,6 +67,13 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
         };
     }
 
+    public async Task<PageWithTranslationsDto> GetPageAsync(string id)
+    {
+        var url = ApiEndpoints.ASitePage(id);
+        var request = new HubspotRequest(url, Method.Get, Creds);
+        return await Client.ExecuteWithErrorHandling<PageWithTranslationsDto>(request);
+    }
+
     public override async Task<Stream> DownloadContentAsync(string id)
     {
         var url = ApiEndpoints.ASitePage(id);
@@ -78,13 +85,13 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
         return new MemoryStream(htmlBytes);
     }
 
-    public override async Task UpdateContentFromHtmlAsync(string targetLanguage, Stream stream)
+    public override async Task UpdateContentFromHtmlAsync(string targetLanguage, Stream stream, UploadContentRequest uploadContentRequest)
     {
-        var (pageInfo, json) = HtmlConverter.ToJson(stream);
+        var resultEntity = await HtmlConverter.ToJsonAsync(targetLanguage, stream, uploadContentRequest, InvocationContext);
 
-        var sourcePageId = pageInfo.HtmlDocument.ExtractBlackbirdReferenceId() ?? throw new Exception("The source page ID is missing. Provide it as an optional input or add it to the HTML file");
+        var sourcePageId = resultEntity.PageInfo.HtmlDocument.ExtractBlackbirdReferenceId() ?? throw new Exception("The source page ID is missing. Provide it as an optional input or add it to the HTML file");
         var content = await GetContentAsync(sourcePageId);
-        var primaryLanguage = string.IsNullOrEmpty(pageInfo.Language) ? content.Language : pageInfo.Language;
+        var primaryLanguage = string.IsNullOrEmpty(resultEntity.PageInfo.Language) ? content.Language : resultEntity.PageInfo.Language;
         if (string.IsNullOrEmpty(primaryLanguage))
         {
             throw new PluginMisconfigurationException("You are creating a new multi-language variation of a page that has no primary language configured. Please select the primary language optional value");
@@ -94,8 +101,8 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
         await UpdateTranslatedPage(ApiEndpoints.UpdatePage(translationId), new()
         {
             Id = translationId,
-            HtmlTitle = pageInfo.Title,
-            LayoutSections = json
+            HtmlTitle = resultEntity.PageInfo.Title,
+            LayoutSections = resultEntity.Json
         });
     }
 

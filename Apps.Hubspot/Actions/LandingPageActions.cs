@@ -19,6 +19,7 @@ using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
+using Apps.Hubspot.Utils;
 
 namespace Apps.Hubspot.Actions;
 
@@ -61,7 +62,10 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
 
     [Action("Get a landing page", Description = "Get information of a specific landing page")]
     public Task<PageDto> GetLandingPage([ActionParameter] LandingPageRequest input)
-        => GetPage<PageDto>(ApiEndpoints.ALandingPage(input.PageId));
+    {
+        PluginMisconfigurationExceptionHelper.ThrowIsNullOrEmpty(input.PageId, nameof(input.PageId));
+        return GetPage<PageDto>(ApiEndpoints.ALandingPage(input.PageId));
+    }
     
     [Action("Get landing page translation language codes", Description = "Returns list of translated locales for landing page based on ID")]
     public async Task<TranslatedLocalesResponse> GetListOfTranslatedLocales([ActionParameter] LandingPageRequest request)
@@ -76,6 +80,7 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
     public async Task<FileLanguageResponse> GetLandingPageAsHtml([ActionParameter] LandingPageRequest input, 
         [ActionParameter] LocalizablePropertiesRequest Properties)
     {
+        PluginMisconfigurationExceptionHelper.ThrowIsNullOrEmpty(input.PageId, nameof(input.PageId));
         var result = await GetPage<GenericPageDto>(ApiEndpoints.ALandingPage(input.PageId));
 
         var htmlFile = HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language, input.PageId, ContentTypes.LandingPage, Properties);

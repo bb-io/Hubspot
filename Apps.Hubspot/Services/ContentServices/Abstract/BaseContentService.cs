@@ -22,7 +22,7 @@ public abstract class BaseContentService(InvocationContext invocationContext)
 
     public abstract Task<Stream> DownloadContentAsync(string id);
 
-    public abstract Task UpdateContentFromHtmlAsync(string targetLanguage, Stream stream);
+    public abstract Task UpdateContentFromHtmlAsync(string targetLanguage, Stream stream, UploadContentRequest uploadContentRequest);
 
     public abstract Task<Metadata> UpdateContentAsync(string id, UpdateContentRequest updateContentRequest);
 
