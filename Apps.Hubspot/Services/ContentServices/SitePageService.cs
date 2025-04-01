@@ -34,7 +34,7 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
             Language = x.Language!,
             State = x.CurrentState,
             Published = x.Published,
-            Type = ContentTypes.Form,
+            Type = ContentTypes.SitePage,
             CreatedAt = StringToDateTimeConverter.ToDateTime(x.Created),
             UpdatedAt = StringToDateTimeConverter.ToDateTime(x.Updated)
         }).ToList();
