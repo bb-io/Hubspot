@@ -109,6 +109,8 @@ Note: the Hubspot API marks these endpoints in beta stage.
 - **Create marketing form** creates a new marketing form.
 - **Create marketing form from HTML** create a marketing form from a HTML file content, using metadata IDs: `name`, `type`, `language`, `archived`. If there is no specific metadata, then it search for HTML tag IDs: `name`, `type`, `language`, `archived`.
 
+> Important: when using the `Update/create .. from HTML` actions, please make sure that the HTML file was generated from the `Get .. as HTML` action. Otherwise, the HTML file may not be compatible with the Hubspot CMS and may cause errors when uploading.
+
 ## Events
 
 - **On content created or updated** (polling): Triggered at specified time intervals and returns all blog posts, landing pages, site pages, emails, and forms that were updated or created during the specified time interval.
