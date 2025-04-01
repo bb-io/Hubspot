@@ -175,8 +175,6 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
         htmlDoc.Load(htmlFile);
 
         var extractedValues = Apps.Hubspot.Utils.Extensions.HtmlExtensions.ExtractHtmlValuesForForm(htmlDoc);
-
-
         var createRequestBody = new CreateMarketingFormFromHtmlRequest
         {
             Name = input.Name ?? extractedValues.Name,
