@@ -9,4 +9,7 @@ public class UploadContentRequest
 
     [Display("Published site base URL", Description = "The base URL of the published site. Required for internal link localization. This is used to determine the correct URL for internal links.")]
     public string? PublishedSiteBaseUrl { get; set; }
+    
+    [Display("Create new", Description = "If set to true for emails and forms, instead of updating the original item, it will create a new one. Default is false.")]
+    public bool? CreateNew { get; set; }
 }

@@ -78,12 +78,84 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
     {
         var bytes = await stream.GetByteData();
         
-        var extractedFormId = HtmlConverter.ExtractBlackbirdId(bytes) ?? throw new PluginMisconfigurationException(
-            "Could not extract form ID from HTML content. Please ensure that the form ID is present in the HTML content as meta tag with name 'blackbird-reference-id'.");
-
-        var form = await GetMarketingForm(new() { FormId = extractedFormId });
+        var extractedFormId = HtmlConverter.ExtractBlackbirdId(bytes);
         
+        if (uploadContentRequest.CreateNew != true && extractedFormId == null)
+        {
+            throw new PluginMisconfigurationException(
+                "Could not extract form ID from HTML content. Please ensure that the form ID is present in the HTML content as meta tag with name 'blackbird-reference-id', or set 'Create new' to true to create a new form instead.");
+        }
+
         var htmlEntity = HtmlConverter.ExtractFormHtmlEntities(bytes);
+        
+        if (uploadContentRequest.CreateNew == true)
+        {
+            return await CreateNewFormFromHtmlAsync(htmlEntity, targetLanguage);
+        }
+        else
+        {
+            return await UpdateExistingFormFromHtmlAsync(extractedFormId!, htmlEntity);
+        }
+    }
+
+    private async Task<Metadata> CreateNewFormFromHtmlAsync(FormHtmlEntities htmlEntity, string targetLanguage)
+    {
+        var fieldGroups = htmlEntity.FieldGroups.Select(x => new FieldGroupDto
+        {
+            GroupType = "default_group",
+            RichTextType = "text",
+            Fields = new List<FieldDto>
+            {
+                new()
+                {
+                    Name = x.Name,
+                    Label = x.Properties.GetValueOrDefault("label") ?? string.Empty,
+                    Placeholder = x.Properties.GetValueOrDefault("placeholder") ?? string.Empty,
+                    Description = x.Properties.GetValueOrDefault("description") ?? string.Empty,
+                    Options = x.Options?.Select(z => new OptionDto
+                    {
+                        Value = z.Key,
+                        Label = z.Value
+                    }).ToList()
+                }
+            }
+        }).ToList();
+
+        var formName = htmlEntity.FormName ?? "New Marketing Form";
+        
+        var endpoint = $"{ApiEndpoints.MarketingFormsEndpoint}";
+        var request = new HubspotRequest(endpoint, Method.Post, Creds)
+            .WithJsonBody(new
+            {
+                name = formName,
+                fieldGroups,
+                formType = "HUBSPOT",
+                configuration = new
+                {
+                    language = targetLanguage
+                }
+            });
+        
+        var newForm = await Client.ExecuteWithErrorHandling<MarketingFormDto>(request);
+        
+        return new()
+        {
+            Id = newForm.Id,
+            Title = newForm.Name,
+            Domain = "NONE",
+            Language = newForm.Configuration?.Language ?? string.Empty,
+            State = "PUBLISHED",
+            Published = true,
+            Type = ContentTypes.Form,
+            CreatedAt = newForm.CreatedAt,
+            UpdatedAt = newForm.UpdatedAt
+        };
+    }
+
+    private async Task<Metadata> UpdateExistingFormFromHtmlAsync(string formId, FormHtmlEntities htmlEntity)
+    {
+        var form = await GetMarketingForm(new() { FormId = formId });
+        
         form.Name = htmlEntity.FormName;
         var fieldGroups = htmlEntity.FieldGroups.Select(x =>
         {
@@ -148,7 +220,7 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
             return group;
         }).ToList();
         
-        var endpoint = $"{ApiEndpoints.MarketingFormsEndpoint}/{extractedFormId}";
+        var endpoint = $"{ApiEndpoints.MarketingFormsEndpoint}/{formId}";
         var request = new HubspotRequest(endpoint, Method.Patch, Creds)
             .WithJsonBody(new
             {
@@ -169,7 +241,7 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
             CreatedAt = marketingFormDto.CreatedAt,
             UpdatedAt = marketingFormDto.UpdatedAt
         };
-    } 
+    }
 
     public override async Task<Metadata> UpdateContentAsync(string id, UpdateContentRequest updateContentRequest)
     {
