@@ -100,10 +100,8 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
 
     private async Task<Metadata> CreateNewFormFromHtmlAsync(FormHtmlEntities htmlEntity, string originalFormId, string targetLanguage)
     {
-        // Get the original form to use as a template
         var originalForm = await GetMarketingForm(new() { FormId = originalFormId });
         
-        // Create a new form with the target language
         var createEndpoint = $"{ApiEndpoints.MarketingFormsEndpoint}";
         var createRequest = new HubspotRequest(createEndpoint, Method.Post, Creds)
             .WithJsonBody(new
@@ -118,11 +116,8 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
             });
 
         var newForm = await Client.ExecuteWithErrorHandling<MarketingFormDto>(createRequest);
-        
-        // Transform the field groups based on the HTML entity
         var fieldGroups = TransformFieldGroups(htmlEntity.FieldGroups, originalForm.FieldGroups);
         
-        // Update the newly created form with the transformed field groups
         var updateEndpoint = $"{ApiEndpoints.MarketingFormsEndpoint}/{newForm.Id}";
         var updateRequest = new HubspotRequest(updateEndpoint, Method.Patch, Creds)
             .WithJsonBody(new
@@ -132,19 +127,14 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
             });
 
         var updatedForm = await Client.ExecuteWithErrorHandling<MarketingFormDto>(updateRequest);
-        
         return ConvertToMetadata(updatedForm);
     }
 
     private async Task<Metadata> UpdateExistingFormFromHtmlAsync(string formId, FormHtmlEntities htmlEntity)
     {
-        // Get the existing form
         var existingForm = await GetMarketingForm(new() { FormId = formId });
-        
-        // Transform the field groups based on the HTML entity
         var fieldGroups = TransformFieldGroups(htmlEntity.FieldGroups, existingForm.FieldGroups);
         
-        // Update the existing form with the transformed field groups
         var endpoint = $"{ApiEndpoints.MarketingFormsEndpoint}/{formId}";
         var request = new HubspotRequest(endpoint, Method.Patch, Creds)
             .WithJsonBody(new
@@ -154,7 +144,6 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
             });
 
         var updatedForm = await Client.ExecuteWithErrorHandling<MarketingFormDto>(request);
-        
         return ConvertToMetadata(updatedForm);
     }
     
@@ -168,7 +157,6 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
             
             if (existingField != null)
             {
-                // Update existing field properties if they exist in the HTML entity
                 if (htmlField.Properties.TryGetValue("label", out var label))
                     existingField.Label = label;
 
@@ -178,7 +166,6 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
                 if (htmlField.Properties.TryGetValue("description", out var description))
                     existingField.Description = description;
                 
-                // Update field options if they exist
                 if (htmlField.Options != null && existingField.Options != null)
                 {
                     existingField.Options = htmlField.Options
@@ -196,13 +183,11 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
                         .ToList();
                 }
                 
-                // Return the existing field group that contains this field
                 return existingFieldGroups.FirstOrDefault(g => g.Fields.Any(f => f.Name == htmlField.Name)) 
                     ?? CreateNewFieldGroup(htmlField);
             }
             else
             {
-                // Create a new field group if the field doesn't exist
                 return CreateNewFieldGroup(htmlField);
             }
         }).ToList();
