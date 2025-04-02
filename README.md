@@ -59,6 +59,7 @@ The app makes use of the `content` and `forms` OAuth scopes. You account needs t
 - **Upload content**: Update content from an HTML file.
   - **Enable internal link localization**: When enabled, this feature automatically updates internal links within your uploaded HTML content to point to the correct localized versions. This is particularly useful when managing multilingual content across different language variants. Instead of manually adjusting each link for different language versions, the system will intelligently transform URLs to match the target locale of the content being uploaded. This works for internal links pointing to site pages, landing pages, and blog posts.
   - **Published site base URL**: This optional parameter allows you to specify the base URL of your published site (e.g., https://example.com). When provided alongside the internal link localization feature, it helps the system correctly identify and process internal links by establishing the root domain for your content. This ensures that only links within your domain are processed for localization.
+  - **Create new content**: This optional parameter allows you to create new content instead of updating existing content. **Important**: this is valid only for `marketing forms` and `marketing emails` content types, since they don't have a localization feature in hubspot. For all other content types, this parameter is ignored.
 - **Update content**: Update content based on specified criteria using its ID.
 - **Delete content**: Delete content based on its ID.
 
