@@ -26,6 +26,9 @@ namespace Apps.Hubspot.Webhooks;
 [PollingEventList]
 public class PollingList(InvocationContext invocationContext) : HubSpotInvocable(invocationContext)
 {
+    private const string UpdatedPollingEvent = "updated";
+    private const string CreatedPollingEvent = "created";
+
     [PollingEvent("On content created or updated",
         Description =
             "Triggered at specified time intervals and returns all blog posts, landing pages, site pages, emails, and forms that were updated or created during the specified time interval")]
@@ -43,14 +46,14 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
             };
         }
         
-        var metadata = new List<Metadata>();
+        var metadata = new List<MetadataPollingDto>();
         
         var blogPosts = await OnBlogPostsCreatedOrUpdated(request, languageRequest);
-        if (blogPosts.FlyBird && blogPosts.Result != null)
+        if (blogPosts.FlyBird && blogPosts.Result != null && blogPosts.Result.BlogPosts != null)
         {
             if(contentTypesFilter.ContentTypes == null || contentTypesFilter.ContentTypes.Contains(ContentTypes.Blog))
             {
-                metadata.AddRange(blogPosts.Result?.BlogPosts.Select(x => new Metadata
+                metadata.AddRange(blogPosts.Result.BlogPosts.Select(x => new MetadataPollingDto
                 {
                     Id = x.Id,
                     Language = x.Language,
@@ -59,7 +62,8 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                     Published = x.CurrentlyPublished,
                     CreatedAt = StringToDateTimeConverter.ToDateTime(x.Created),
                     UpdatedAt = StringToDateTimeConverter.ToDateTime(x.Updated),
-                    Type = ContentTypes.Blog
+                    Type = ContentTypes.Blog,
+                    EventType = x.EventType
                 }));
             }
         }
@@ -69,7 +73,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         {
             if(contentTypesFilter.ContentTypes == null || contentTypesFilter.ContentTypes.Contains(ContentTypes.SitePage))
             {
-                metadata.AddRange(sitePages.Result.Pages.Select(x => new Metadata
+                metadata.AddRange(sitePages.Result.Pages.Select(x => new MetadataPollingDto
                 {
                     Id = x.Id,
                     Language = x.Language,
@@ -78,7 +82,8 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                     Published = x.Published,
                     CreatedAt = StringToDateTimeConverter.ToDateTime(x.Created),
                     UpdatedAt = StringToDateTimeConverter.ToDateTime(x.Updated),
-                    Type = ContentTypes.SitePage
+                    Type = ContentTypes.SitePage,
+                    EventType = x.EventType
                 }));
             }
         }
@@ -88,7 +93,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         {
             if(contentTypesFilter.ContentTypes == null || contentTypesFilter.ContentTypes.Contains(ContentTypes.LandingPage))
             {
-                metadata.AddRange(landingPages.Result.Pages.Select(x => new Metadata
+                metadata.AddRange(landingPages.Result.Pages.Select(x => new MetadataPollingDto
                 {
                     Id = x.Id,
                     Language = x.Language,
@@ -97,7 +102,8 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                     Published = x.Published,
                     CreatedAt = StringToDateTimeConverter.ToDateTime(x.Created),
                     UpdatedAt = StringToDateTimeConverter.ToDateTime(x.Updated),
-                    Type = ContentTypes.LandingPage
+                    Type = ContentTypes.LandingPage,
+                    EventType = x.EventType
                 }));
             }
         }
@@ -107,7 +113,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         {
             if(contentTypesFilter.ContentTypes == null || contentTypesFilter.ContentTypes.Contains(ContentTypes.Form))
             {
-                metadata.AddRange(marketingForms.Result.Forms.Select(x => new Metadata
+                metadata.AddRange(marketingForms.Result.Forms.Select(x => new MetadataPollingDto
                 {
                     Id = x.Id,
                     Language = x.Configuration.Language,
@@ -116,7 +122,8 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                     Published = true,
                     CreatedAt = x.CreatedAt,
                     UpdatedAt = x.UpdatedAt,
-                    Type = ContentTypes.Form
+                    Type = ContentTypes.Form,
+                    EventType = x.EventType
                 }));
             }
         }
@@ -126,7 +133,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         {
             if(contentTypesFilter.ContentTypes == null || contentTypesFilter.ContentTypes.Contains(ContentTypes.Email))
             {
-                metadata.AddRange(marketingEmails.Result.Emails.Select(x => new Metadata
+                metadata.AddRange(marketingEmails.Result.Emails.Select(x => new MetadataPollingDto
                 {
                     Id = x.Id,
                     Language = x.Language,
@@ -135,7 +142,8 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                     Published = x.IsPublished,
                     CreatedAt = x.CreatedAt,
                     UpdatedAt = x.UpdatedAt ?? DateTime.MinValue,
-                    Type = ContentTypes.Email
+                    Type = ContentTypes.Email,
+                    EventType = x.EventType
                 }));
             }
         }
@@ -361,7 +369,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         };
     }
     
-    private async Task<ListResponse<BlogPostDto>> GetAllBlogPosts(SearchPagesRequest input)
+    private async Task<ListResponse<BlogPostPollingDto>> GetAllBlogPosts(SearchPagesRequest input)
     {
         var query = input.AsQuery();
         var endpoint = ApiEndpoints.BlogPostsSegment.WithQuery(query);
@@ -376,10 +384,20 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                 p.Translations.Keys.All(key => key != input.NotTranslatedInLanguage.ToLower())).ToList();
         }
 
-        return new(response);
+        if(input.UpdatedAfter != null)
+        {
+            return new ListResponse<BlogPostPollingDto>(response.Select(x => new BlogPostPollingDto(x, UpdatedPollingEvent)));
+        }
+
+        if(input.CreatedAfter != null)
+        {
+            return new ListResponse<BlogPostPollingDto>(response.Select(x => new BlogPostPollingDto(x, CreatedPollingEvent)));
+        }
+
+        return new ListResponse<BlogPostPollingDto>(response.Select(x => new BlogPostPollingDto(x, string.Empty)));
     }
 
-    private async Task<ListResponse<PageDto>> GetAllSitePages(SearchPagesRequest input)
+    private async Task<ListResponse<PagePollingDto>> GetAllSitePages(SearchPagesRequest input)
     {
         var query = input.AsQuery();
         var endpoint = ApiEndpoints.SitePages.WithQuery(query);
@@ -394,10 +412,20 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                 p.Translations.Keys.All(key => key != input.NotTranslatedInLanguage.ToLower())).ToList();
         }
 
-        return new(response);
+        if(input.UpdatedAfter != null)
+        {
+            return new ListResponse<PagePollingDto>(response.Select(x => new PagePollingDto(x, UpdatedPollingEvent)));
+        }
+
+        if(input.CreatedAfter != null)
+        {
+            return new ListResponse<PagePollingDto>(response.Select(x => new PagePollingDto(x, CreatedPollingEvent)));
+        }
+
+        return new ListResponse<PagePollingDto>(response.Select(x => new PagePollingDto(x, string.Empty)));
     }
 
-    private async Task<ListResponse<PageDto>> GetAllLandingPages(SearchPagesRequest input)
+    private async Task<ListResponse<PagePollingDto>> GetAllLandingPages(SearchPagesRequest input)
     {
         var query = input.AsQuery();
         var endpoint = ApiEndpoints.LandingPages.WithQuery(query);
@@ -412,10 +440,20 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                 p.Translations.Keys.All(key => key != input.NotTranslatedInLanguage.ToLower())).ToList();
         }
 
-        return new(response);
+        if(input.UpdatedAfter != null)
+        {
+            return new ListResponse<PagePollingDto>(response.Select(x => new PagePollingDto(x, UpdatedPollingEvent)));
+        }
+
+        if(input.CreatedAfter != null)
+        {
+            return new ListResponse<PagePollingDto>(response.Select(x => new PagePollingDto(x, CreatedPollingEvent)));
+        }
+
+        return new ListResponse<PagePollingDto>(response.Select(x => new PagePollingDto(x, string.Empty)));
     }
     
-    public async Task<ListResponse<MarketingFormDto>> GetAllMarketingForms(TimeFilterRequest input)
+    public async Task<ListResponse<MarketingFormPollingDto>> GetAllMarketingForms(TimeFilterRequest input)
     {
         var endpoint = $"{ApiEndpoints.MarketingFormsEndpoint}";
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
@@ -431,17 +469,48 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         {
             result = result.Where(x => x.UpdatedAt > input.UpdatedAfter.Value).ToList();
         }
-        
-        return new(result);
+
+        if(input.CreatedAfter != null)
+        {
+            return new ListResponse<MarketingFormPollingDto>(result.Select(x => new MarketingFormPollingDto(x, CreatedPollingEvent)));
+        }
+
+        if(input.UpdatedAfter != null)
+        {
+            return new ListResponse<MarketingFormPollingDto>(result.Select(x => new MarketingFormPollingDto(x, UpdatedPollingEvent)));
+        }
+
+        return new ListResponse<MarketingFormPollingDto>(result.Select(x => new MarketingFormPollingDto(x, string.Empty)));
     }
     
-    public async Task<ListResponse<MarketingEmailDto>> GetAllMarketingEmails(SearchEmailsRequest input)
+    public async Task<ListResponse<MarketingEmailPollingDto>> GetAllMarketingEmails(SearchEmailsRequest input)
     {
         var query = input.AsQuery();
         var endpoint = $"{ApiEndpoints.MarketingEmailsEndpoint}".WithQuery(query);
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
 
         var result = await Client.Paginate<MarketingEmailDto>(request);
-        return new(result);
+
+        if (input.CreatedAfter.HasValue)
+        {
+            result = result.Where(x => x.CreatedAt > input.CreatedAfter.Value).ToList();
+        }
+
+        if (input.UpdatedAfter.HasValue)
+        {
+            result = result.Where(x => x.UpdatedAt > input.UpdatedAfter.Value).ToList();
+        }
+
+        if(input.CreatedAfter != null)
+        {
+            return new ListResponse<MarketingEmailPollingDto>(result.Select(x => new MarketingEmailPollingDto(x, CreatedPollingEvent)));
+        }
+
+        if(input.UpdatedAfter != null)
+        {
+            return new ListResponse<MarketingEmailPollingDto>(result.Select(x => new MarketingEmailPollingDto(x, UpdatedPollingEvent)));
+        }
+
+        return new ListResponse<MarketingEmailPollingDto>(result.Select(x => new MarketingEmailPollingDto(x, string.Empty)));
     }
 }

@@ -42,7 +42,7 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
         {
             result = result.Where(x => x.Language == input.Language).ToList();
         }
-        
+
         return new(result);
     }
 
@@ -84,24 +84,23 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
         var htmlStream = await FileManagementClient.DownloadAsync(fileRequest.File);
         byte[] fileBytes;
 
-        using (var memoryStream = new MemoryStream())
-        {
-            await htmlStream.CopyToAsync(memoryStream);
-            fileBytes = memoryStream.ToArray();
-        }
+        using var memoryStream = new MemoryStream();
+        
+        await htmlStream.CopyToAsync(memoryStream);
+        fileBytes = memoryStream.ToArray();
 
         var blackbirdId = HtmlConverter.ExtractBlackbirdId(fileBytes);
         var marketingEmailId = emailRequest.MarketingEmailId
          ?? blackbirdId
          ?? throw new PluginMisconfigurationException("Marketing email ID is required. Please provide it as an optional parameter or include it in the HTML file.");
 
-        var titleText = HtmlConverter.ExtractTitle(fileBytes); 
+        var titleText = HtmlConverter.ExtractTitle(fileBytes);
         var language = HtmlConverter.ExtractLanguage(fileBytes);
         var businessUnitId = HtmlConverter.ExtractBusinessUnitId(fileBytes);
 
         using var stringStream = new MemoryStream(fileBytes);
         var (pageInfo, json) = HtmlConverter.ToJson(stringStream);
-      
+
         var email = await GetEmail(marketingEmailId);
 
         var updatedContent = new Models.Requests.Emails.Content
