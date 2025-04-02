@@ -133,7 +133,7 @@ public class MarketingEmailService(InvocationContext invocationContext) : BaseCo
             createRequest.AddQueryParameter("businessUnitId", createMarketingEmailRequest.BusinessUnitId);
         }
 
-        var newEmail = Client.ExecuteWithErrorHandling<MarketingEmailDto>(createRequest);
+        var newEmail = await Client.ExecuteWithErrorHandling<MarketingEmailDto>(createRequest);
 
         var updateEmailDto = new MarketingEmailOptionalRequest
         {
