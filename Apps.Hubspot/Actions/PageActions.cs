@@ -73,7 +73,7 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
     public Task<PageDto> GetSitePage([ActionParameter] SitePageRequest input)
     {
         PluginMisconfigurationExceptionHelper.ThrowIsNullOrEmpty(input.PageId, nameof(input.PageId));
-        return GetPage<PageDto>(ApiEndpoints.ASitePage(input.PageId));
+        return GetPage<PageDto>(ApiEndpoints.ASitePage(input.PageId,input.LanguageCode));
     }
 
     [Action("Get a site page as HTML file",
@@ -83,7 +83,7 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
     {
         PluginMisconfigurationExceptionHelper.ThrowIsNullOrEmpty(input.PageId, nameof(input.PageId));
 
-        var result = await GetPage<GenericPageDto>(ApiEndpoints.ASitePage(input.PageId));
+        var result = await GetPage<GenericPageDto>(ApiEndpoints.ASitePage(input.PageId, input.LanguageCode));
         if(string.IsNullOrEmpty(result.Language))
         {
             throw new PluginMisconfigurationException("The page does not have a language set. Please set the language and try again");
