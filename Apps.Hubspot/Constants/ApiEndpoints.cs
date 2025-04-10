@@ -22,7 +22,7 @@ public static class ApiEndpoints
 
     public static string ALandingPage(string landingPageId) => $"{LandingPages}/{landingPageId}";
     public static string UpdateLandingPage(string landingPageId) => $"{LandingPages}/{landingPageId}";
-    public static string ASitePage(string sitePageId, string? languageCode)
+    public static string ASitePage(string sitePageId, string? languageCode = default)
     {
         if (!string.IsNullOrEmpty(languageCode))
         {
