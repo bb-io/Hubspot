@@ -26,9 +26,9 @@ public static class ApiEndpoints
     {
         if (!string.IsNullOrEmpty(languageCode))
         {
-            return $"{SitePages}?id__eq={sitePageId}&language__in={languageCode}";
+            return $"{SitePages}/{sitePageId}&language__in={languageCode}";
         }
-        return $"{SitePages}?id__eq={sitePageId}";
+        return $"{SitePages}/{sitePageId}";
     }
 
     public static string UpdatePage(string sitePageId) => $"{SitePages}/{sitePageId}";
