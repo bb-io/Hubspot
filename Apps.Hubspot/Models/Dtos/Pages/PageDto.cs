@@ -91,9 +91,6 @@ public class PageDto
 
     [Display("Translated from ID")]
     public string? TranslatedFromId { get; set; }
-
-    [Display("Translation group ID"), JsonProperty("translation_group_id")]
-    public string? TranslationGroupId {  get; set; }
     
     public PageDto DeepClone()
     {
@@ -128,7 +125,6 @@ public class PageDto
             FooterHtml = string.Copy(FooterHtml),
             Name = string.Copy(Name),
             TranslatedFromId = TranslatedFromId != null ? string.Copy(TranslatedFromId) : null,
-            TranslationGroupId = TranslationGroupId != null ? string.Copy(TranslationGroupId) : null
         };
     }
 }
