@@ -26,7 +26,7 @@ public static class ApiEndpoints
     {
         if (!string.IsNullOrEmpty(languageCode))
         {
-            return $"{SitePages}?id={sitePageId}&language={languageCode}";
+            return $"{SitePages}/{sitePageId}?language__in={languageCode}";
         }
         return $"{SitePages}/{sitePageId}";
     }
