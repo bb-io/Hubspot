@@ -16,7 +16,7 @@ public class SitePageHandler : HubSpotInvocable, IAsyncDataSourceItemHandler
 
     public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
     {
-        var endpoint = $"/pages/site-pages?name__icontains={context.SearchString}&limit=20";
+        var endpoint = $"/pages/site-pages?name__icontains={context.SearchString}&translatedFromId__is_null&limit=20";
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
 
         var sitePages = await Client.ExecuteWithErrorHandling<GetAllResponse<PageDto>>(request);
