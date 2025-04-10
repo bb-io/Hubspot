@@ -47,6 +47,16 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
             response = response.Where(x => x.Language == input.Language).ToList();
         }
 
+        if (!string.IsNullOrEmpty(input.Name))
+        {
+            response = response.Where(x => x.Name == input.Name).ToList();
+        }
+
+        if (!string.IsNullOrEmpty(input.Slug))
+        {
+            response = response.Where(x => x.Slug == input.Slug).ToList();
+        }
+
         if (!string.IsNullOrEmpty(additionalRequest.PageDomain))
         {
             response = response.Where(x => x.Domain == additionalRequest.PageDomain).ToList();
@@ -56,7 +66,6 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
         {
             response = response.Where(x => x.CurrentState == additionalRequest.PageCurrentState).ToList();
         }
-
         var items = response.Select(x => x.DeepClone()).ToList();
         return new(items);
     }
