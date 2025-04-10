@@ -8,4 +8,8 @@ public class SitePageRequest
 {
     [Display("Site page ID"), DataSource(typeof(SitePageHandler))]
     public string PageId { get; set; } = string.Empty;
+
+    [Display("Site language"),DataSource(typeof(LanguageHandler))]
+
+    public string? LanguageCode {  get; set; }
 }
