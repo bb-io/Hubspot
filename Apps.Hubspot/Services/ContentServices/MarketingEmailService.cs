@@ -105,7 +105,7 @@ public class MarketingEmailService(InvocationContext invocationContext) : BaseCo
         
         if (uploadContentRequest.CreateNew == true)
         {
-            return await CreateNewEmailFromHtmlAsync(blackbirdId, titleText, language ?? targetLanguage, businessUnitId, updatedContent);
+            return await CreateNewEmailFromHtmlAsync(blackbirdId, titleText, targetLanguage ?? language, businessUnitId, updatedContent);
         }
         else
         {
