@@ -7,6 +7,7 @@ using Apps.Hubspot.Models.Requests.Content;
 using Apps.Hubspot.Models.Responses.Pages;
 using Apps.Hubspot.Providers;
 using Apps.Hubspot.Services.ContentServices;
+using Apps.Hubspot.Utils.Extensions;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using HtmlAgilityPack;
@@ -193,7 +194,7 @@ public static class HtmlConverter
         }
 
         var originalAttributeValue = HttpUtility.HtmlDecode(bodyNode.Attributes[OriginalContentAttribute].Value);
-        var originalJson = JObject.Parse(originalAttributeValue);
+        var originalJson = JObjectExtensions.ToJObjectWithExceptionHandling(originalAttributeValue);
         if(updateOriginalJson && !string.IsNullOrEmpty(targetLanguage) && invocationContext != null)
         {
             originalJson = UpdateContentIds(originalJson, targetLanguage, invocationContext);
