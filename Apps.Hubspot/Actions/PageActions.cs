@@ -37,25 +37,25 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
         var response = await Client.Paginate<GenericPageDto>(request);
 
-        if (input.NotTranslatedInLanguage != null)
-        {
-            response = response.Where(p => p.Translations == null || p.Translations.Keys.All(key => key != input.NotTranslatedInLanguage.ToLower())).ToList();
-        }
+        //if (input.NotTranslatedInLanguage != null)
+        //{
+        //    response = response.Where(p => p.Translations == null || p.Translations.Keys.All(key => key != input.NotTranslatedInLanguage.ToLower())).ToList();
+        //}
 
-        if (!string.IsNullOrEmpty(input.Language))
-        {
-            response = response.Where(x => x.Language == input.Language).ToList();
-        }
+        //if (!string.IsNullOrEmpty(input.Language))
+        //{
+        //    response = response.Where(x => x.Language == input.Language).ToList();
+        //}
 
-        if (!string.IsNullOrEmpty(input.Name))
-        {
-            response = response.Where(x => x.Name == input.Name).ToList();
-        }
+        //if (!string.IsNullOrEmpty(input.Name))
+        //{
+        //    response = response.Where(x => x.Name == input.Name).ToList();
+        //}
 
-        if (!string.IsNullOrEmpty(input.Slug))
-        {
-            response = response.Where(x => x.Slug == input.Slug).ToList();
-        }
+        //if (!string.IsNullOrEmpty(input.Slug))
+        //{
+        //    response = response.Where(x => x.Slug == input.Slug).ToList();
+        //}
 
         if (!string.IsNullOrEmpty(additionalRequest.PageDomain))
         {
