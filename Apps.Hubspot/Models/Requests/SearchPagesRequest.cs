@@ -18,7 +18,7 @@ public class SearchPagesRequest : TimeFilterRequest
     [JsonProperty("name__icontains")]
     public string? Name { get; set; }
 
-    [Display("Slug")] // TODO: datahandler
+    [Display("Slug")] //TODO: datahandler
     [JsonProperty("slug__icontains")]
     public string? Slug { get; set; }
 }
