@@ -10,14 +10,15 @@ public class SearchPagesRequest : TimeFilterRequest
     [Display("Not translated in language"), StaticDataSource(typeof(LanguageHandler))]
     public string? NotTranslatedInLanguage { get; set; }
 
-    [Display("Language"), JsonIgnore, StaticDataSource(typeof(LanguageHandler))]
+    [Display("Language"), StaticDataSource(typeof(LanguageHandler))]
+    [JsonProperty("language__in")]
     public string? Language { get; set; }
 
-    [Display("Site name"), JsonIgnore] // TODO: datahandler
-
+    [Display("Site name")] // TODO: datahandler
+    [JsonProperty("__icontains")]
     public string? Name { get; set; }
 
-    [Display("Slug"), JsonIgnore] // TODO: datahandler
-
+    [Display("Slug")] // TODO: datahandler
+    [JsonProperty("slug__icontains")]
     public string? Slug { get; set; }
 }
