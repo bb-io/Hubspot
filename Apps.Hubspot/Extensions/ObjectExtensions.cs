@@ -12,7 +12,7 @@ public static class ObjectExtensions
     
     public static string ToQueryString(this Dictionary<string, string> query)
     {
-        return string.Join("&", query.Select(x => $"{x.Key}__eq={x.Value}")); //TODO: fix this query, as it is it does not run.
+        return string.Join("&", query.Select(x => $"{x.Key}__icontains={x.Value}")); //TODO: fix this query, as it is it does not run.
     }
     
     public static string ToQueryString(this List<KeyValuePair<string, string>>? parameters)
