@@ -1,21 +1,23 @@
-﻿using System.Net.Mime;
-using System.Text;
+﻿using Apps.Hubspot.Constants;
 using Apps.Hubspot.Extensions;
-using Apps.Hubspot.Models.Requests;
-using Apps.Hubspot.Models.Responses;
-using Blackbird.Applications.Sdk.Common.Actions;
-using Blackbird.Applications.Sdk.Common;
-using Blackbird.Applications.Sdk.Common.Invocation;
-using Apps.Hubspot.Models.Requests.Content;
 using Apps.Hubspot.Invocables;
+using Apps.Hubspot.Models.Requests;
+using Apps.Hubspot.Models.Requests.Content;
+using Apps.Hubspot.Models.Responses;
 using Apps.Hubspot.Models.Responses.Content;
 using Apps.Hubspot.Models.Responses.Files;
 using Apps.Hubspot.Services;
-using Apps.Hubspot.Utils.Extensions;
-using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
-using Blackbird.Applications.Sdk.Utils.Extensions.Files;
-using Blackbird.Applications.Sdk.Utils.Html.Extensions;
 using Apps.Hubspot.Utils;
+using Apps.Hubspot.Utils.Extensions;
+using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Utils.Extensions.Files;
+using Blackbird.Applications.Sdk.Utils.Extensions.String;
+using Blackbird.Applications.Sdk.Utils.Html.Extensions;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
+using System.Net.Mime;
+using System.Text;
 
 namespace Apps.Hubspot.Actions.Content;
 
@@ -32,22 +34,13 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
         [ActionParameter] SearchContentRequest searchContentRequest)
     {
         var contentServices = _factory.GetContentServices(typesFilter.ContentTypes);
-        var query = timeFilter.AsQuery();
+        var timeQuery = timeFilter.AsQuery();
+        var languageQuery = languageFilter.AsQuery();
+        var searchContentQuery = searchContentRequest.AsQuery();
+        
+        var query = searchContentQuery.Combine(timeQuery,languageQuery,searchContentQuery);
+
         var metadata = await contentServices.ExecuteManyAsync(query);
-        if (!string.IsNullOrEmpty(languageFilter.Language))
-        {
-            metadata = metadata.Where(x => x.Language == languageFilter.Language).ToList();
-        }
-
-        if (!string.IsNullOrEmpty(searchContentRequest.Domain))
-        {
-            metadata = metadata.Where(x => x.Domain == searchContentRequest.Domain).ToList();
-        }
-
-        if (!string.IsNullOrEmpty(searchContentRequest.CurrentState))
-        {
-            metadata = metadata.Where(x => x.State == searchContentRequest.CurrentState).ToList();
-        }
 
         return new(metadata);
     }

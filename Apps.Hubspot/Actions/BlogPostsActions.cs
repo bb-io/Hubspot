@@ -21,7 +21,6 @@ using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using Blackbird.Applications.Sdk.Utils.Html.Extensions;
 using Apps.Hubspot.Utils.Extensions;
 using Blackbird.Applications.Sdk.Common.Exceptions;
-using HtmlExtensions = Blackbird.Applications.Sdk.Utils.Html.Extensions.HtmlExtensions;
 
 namespace Apps.Hubspot.Actions;
 
@@ -42,12 +41,6 @@ public class BlogPostsActions(InvocationContext invocationContext, IFileManageme
         {
             response = response.Where(p => p.Translations == null || p.Translations.Keys.All(key => key != input.NotTranslatedInLanguage.ToLower())).ToList();
         }
-        
-        if (!string.IsNullOrEmpty(input.Language))
-        {
-            response = response.Where(x => x.Language == input.Language).ToList();
-        }
-
         return new(response);
     }
 

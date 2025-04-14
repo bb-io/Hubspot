@@ -28,33 +28,23 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
     : BasePageActions(invocationContext, fileManagementClient)
 {
     [Action("Search landing pages", Description = "Search for a list of site pages that match a certain criteria")]
-    public async Task<ListResponse<PageDto>> GetAllLandingPages([ActionParameter] SearchPagesRequest input,
+    public async Task<ListResponse<PageDto>> GetAllLandingPages([ActionParameter] SearchPagesRequest searchPagesRequest,
         [ActionParameter] SearchPagesAdditionalRequest additionalRequest)
     {
-        var query = input.AsQuery();
+        var searchPagesQuery = searchPagesRequest.AsQuery();
+
+        var additionalQuery = additionalRequest.AsQuery();
+
+        var query = searchPagesQuery.Combine(additionalQuery);
+
         var endpoint = ApiEndpoints.LandingPages.WithQuery(query);
 
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
         var response = await Client.Paginate<GenericPageDto>(request);
 
-        if (input.NotTranslatedInLanguage != null)
+        if (searchPagesRequest.NotTranslatedInLanguage != null)
         {
-            response = response.Where(p => p.Translations == null || p.Translations.Keys.All(key => key != input.NotTranslatedInLanguage.ToLower())).ToList();
-        }
-        
-        if (!string.IsNullOrEmpty(input.Language))
-        {
-            response = response.Where(x => x.Language == input.Language).ToList();
-        }
-
-        if (!string.IsNullOrEmpty(additionalRequest.PageDomain))
-        {
-            response = response.Where(x => x.Domain == additionalRequest.PageDomain).ToList();
-        }
-        
-        if (!string.IsNullOrEmpty(additionalRequest.PageCurrentState))
-        {
-            response = response.Where(x => x.CurrentState == additionalRequest.PageCurrentState).ToList();
+            response = response.Where(p => p.Translations == null || p.Translations.Keys.All(key => key != searchPagesRequest.NotTranslatedInLanguage.ToLower())).ToList();
         }
 
         return new(response);

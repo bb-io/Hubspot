@@ -28,44 +28,25 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
     : BasePageActions(invocationContext, fileManagementClient)
 {
     [Action("Search site pages", Description = "Search for a list of site pages that match a certain criteria")]
-    public async Task<ListResponse<PageDto>> GetAllSitePages([ActionParameter] SearchPagesRequest input,
+    public async Task<ListResponse<PageDto>> GetAllSitePages([ActionParameter] SearchPagesRequest searchPageRequest,
         [ActionParameter] SearchPagesAdditionalRequest additionalRequest)
     {
-        var query = input.AsQuery();
+        var searchPageQuery = searchPageRequest.AsQuery();
+
+        var additionalQuery = additionalRequest.AsQuery();
+
+        var query = searchPageQuery.Combine(additionalQuery);
+
         var endpoint = ApiEndpoints.SitePages.WithQuery(query);
 
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
         var response = await Client.Paginate<GenericPageDto>(request);
 
-        //if (input.NotTranslatedInLanguage != null)
-        //{
-        //    response = response.Where(p => p.Translations == null || p.Translations.Keys.All(key => key != input.NotTranslatedInLanguage.ToLower())).ToList();
-        //}
-
-        //if (!string.IsNullOrEmpty(input.Language))
-        //{
-        //    response = response.Where(x => x.Language == input.Language).ToList();
-        //}
-
-        //if (!string.IsNullOrEmpty(input.Name))
-        //{
-        //    response = response.Where(x => x.Name == input.Name).ToList();
-        //}
-
-        //if (!string.IsNullOrEmpty(input.Slug))
-        //{
-        //    response = response.Where(x => x.Slug == input.Slug).ToList();
-        //}
-
-        if (!string.IsNullOrEmpty(additionalRequest.PageDomain))
+        if (searchPageRequest.NotTranslatedInLanguage != null)
         {
-            response = response.Where(x => x.Domain == additionalRequest.PageDomain).ToList();
+            response = response.Where(p => p.Translations == null || p.Translations.Keys.All(key => key != searchPageRequest.NotTranslatedInLanguage.ToLower())).ToList();
         }
-        
-        if (!string.IsNullOrEmpty(additionalRequest.PageCurrentState))
-        {
-            response = response.Where(x => x.CurrentState == additionalRequest.PageCurrentState).ToList();
-        }
+
         var items = response.Select(x => x.DeepClone()).ToList();
         return new(items);
     }
@@ -93,6 +74,7 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
         PluginMisconfigurationExceptionHelper.ThrowIsNullOrEmpty(input.PageId, nameof(input.PageId));
 
         var result = await GetPage<GenericPageDto>(ApiEndpoints.ASitePage(input.PageId));
+        
         if(string.IsNullOrEmpty(result.Language))
         {
             throw new PluginMisconfigurationException("The page does not have a language set. Please set the language and try again");
@@ -116,24 +98,24 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
     }
 
     [Action("Translate a site page from HTML file",
-        Description = "Create a new translation for a site page based on a file input")]
+        Description = "Create a new translation for a site page based on a file searchPageRequest")]
     public async Task<TranslationResponse> TranslateSitePageFromFile(
         [ActionParameter] TranslateSitePageFromFileRequest request)
     {
         if (request.File == null)
         {
-            throw new PluginMisconfigurationException("The file input is not found. Please check the input and try again");
+            throw new PluginMisconfigurationException("The file searchPageRequest is not found. Please check the searchPageRequest and try again");
         }
 
         if (string.IsNullOrWhiteSpace(request.TargetLanguage))
         {
-            throw new PluginMisconfigurationException("The target language is not found. Please check the input and try again");
+            throw new PluginMisconfigurationException("The target language is not found. Please check the searchPageRequest and try again");
         }
 
         var file = await FileManagementClient.DownloadAsync(request.File);
         var (pageInfo, json) = HtmlConverter.ToJson(file);
 
-        var sourcePageId = request.SourcePageId ?? pageInfo.HtmlDocument.ExtractBlackbirdReferenceId() ?? throw new PluginMisconfigurationException("The source page ID is missing. Provide it as an optional input");
+        var sourcePageId = request.SourcePageId ?? pageInfo.HtmlDocument.ExtractBlackbirdReferenceId() ?? throw new PluginMisconfigurationException("The source page ID is missing. Provide it as an optional searchPageRequest");
         var primaryLanguage = string.IsNullOrEmpty(pageInfo.Language) ? request.PrimaryLanguage : pageInfo.Language;
         if (string.IsNullOrEmpty(primaryLanguage))
         {
