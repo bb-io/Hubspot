@@ -8,16 +8,22 @@ namespace Apps.Hubspot.Models.Requests;
 public class SearchPagesRequest : TimeFilterRequest
 {
     [Display("Not translated in language"), StaticDataSource(typeof(LanguageHandler))]
+    [JsonIgnore]
     public string? NotTranslatedInLanguage { get; set; }
 
-    [Display("Language"), JsonIgnore, StaticDataSource(typeof(LanguageHandler))]
+    [Display("Language", Description = "Does not support language locale values (e.g., en-us)"), StaticDataSource(typeof(LanguageHandler))]
+    [JsonProperty("language__in")]
     public string? Language { get; set; }
 
-    [Display("Site name"), JsonIgnore] // TODO: datahandler
-
+    [Display("Site name")]
+    [JsonProperty("name__icontains")]
     public string? Name { get; set; }
 
-    [Display("Slug"), JsonIgnore] // TODO: datahandler
-
+    [Display("Slug")]
+    [JsonProperty("slug__eq")]
     public string? Slug { get; set; }
+
+    [Display("State")]
+    [JsonProperty("state__eq")]
+    public string? State { get; set; }
 }

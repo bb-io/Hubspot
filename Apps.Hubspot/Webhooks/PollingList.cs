@@ -384,16 +384,6 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                 p.Translations.Keys.All(key => key != input.NotTranslatedInLanguage.ToLower())).ToList();
         }
 
-        if(input.UpdatedAfter != null)
-        {
-            return new ListResponse<BlogPostPollingDto>(response.Select(x => new BlogPostPollingDto(x, UpdatedPollingEvent)));
-        }
-
-        if(input.CreatedAfter != null)
-        {
-            return new ListResponse<BlogPostPollingDto>(response.Select(x => new BlogPostPollingDto(x, CreatedPollingEvent)));
-        }
-
         return new ListResponse<BlogPostPollingDto>(response.Select(x => new BlogPostPollingDto(x, string.Empty)));
     }
 
@@ -412,16 +402,6 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                 p.Translations.Keys.All(key => key != input.NotTranslatedInLanguage.ToLower())).ToList();
         }
 
-        if(input.UpdatedAfter != null)
-        {
-            return new ListResponse<PagePollingDto>(response.Select(x => new PagePollingDto(x, UpdatedPollingEvent)));
-        }
-
-        if(input.CreatedAfter != null)
-        {
-            return new ListResponse<PagePollingDto>(response.Select(x => new PagePollingDto(x, CreatedPollingEvent)));
-        }
-
         return new ListResponse<PagePollingDto>(response.Select(x => new PagePollingDto(x, string.Empty)));
     }
 
@@ -438,16 +418,6 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
             response = response.Where(p =>
                 p.Translations == null ||
                 p.Translations.Keys.All(key => key != input.NotTranslatedInLanguage.ToLower())).ToList();
-        }
-
-        if(input.UpdatedAfter != null)
-        {
-            return new ListResponse<PagePollingDto>(response.Select(x => new PagePollingDto(x, UpdatedPollingEvent)));
-        }
-
-        if(input.CreatedAfter != null)
-        {
-            return new ListResponse<PagePollingDto>(response.Select(x => new PagePollingDto(x, CreatedPollingEvent)));
         }
 
         return new ListResponse<PagePollingDto>(response.Select(x => new PagePollingDto(x, string.Empty)));
@@ -490,26 +460,6 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
 
         var result = await Client.Paginate<MarketingEmailDto>(request);
-
-        if (input.CreatedAfter.HasValue)
-        {
-            result = result.Where(x => x.CreatedAt > input.CreatedAfter.Value).ToList();
-        }
-
-        if (input.UpdatedAfter.HasValue)
-        {
-            result = result.Where(x => x.UpdatedAt > input.UpdatedAfter.Value).ToList();
-        }
-
-        if(input.CreatedAfter != null)
-        {
-            return new ListResponse<MarketingEmailPollingDto>(result.Select(x => new MarketingEmailPollingDto(x, CreatedPollingEvent)));
-        }
-
-        if(input.UpdatedAfter != null)
-        {
-            return new ListResponse<MarketingEmailPollingDto>(result.Select(x => new MarketingEmailPollingDto(x, UpdatedPollingEvent)));
-        }
 
         return new ListResponse<MarketingEmailPollingDto>(result.Select(x => new MarketingEmailPollingDto(x, string.Empty)));
     }
