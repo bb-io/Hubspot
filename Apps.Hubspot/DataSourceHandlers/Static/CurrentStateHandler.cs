@@ -10,6 +10,7 @@ public class CurrentStateHandler : IStaticDataSourceItemHandler
         return new List<DataSourceItem>
         {
             new("DRAFT", "Draft"),
+            new("SCHEDULED", "Scheduled"),
             new("PUBLISHED", "Published"),
         };
 
