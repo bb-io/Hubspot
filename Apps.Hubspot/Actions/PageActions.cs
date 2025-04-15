@@ -55,7 +55,15 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
 
     private List<GenericPageDto> ProcessTimeFilter(List<GenericPageDto> response, TimeFilterRequest timeFilterRequest)
     {
-        return response
+        if (timeFilterRequest.CreatedAt == null && timeFilterRequest.CreatedAfter == null && timeFilterRequest.CreatedBefore == null &&
+                   timeFilterRequest.UpdatedAt == null && timeFilterRequest.UpdatedAfter == null && timeFilterRequest.UpdatedBefore == null &&
+                   timeFilterRequest.PublishedAt == null && timeFilterRequest.PublishedAfter == null && timeFilterRequest.PublishedBefore == null &&
+                   timeFilterRequest.ArchivedAt == null && timeFilterRequest.ArchivedAfter == null && timeFilterRequest.ArchivedBefore == null)
+        {
+            return response;
+        }
+
+        var filtered = response
             .Where(x => timeFilterRequest.CreatedAt != null && Convert.ToDateTime(x.Created) == timeFilterRequest.CreatedAt)
             .Where(x => timeFilterRequest.CreatedAfter != null && Convert.ToDateTime(x.Created) >= timeFilterRequest.CreatedAfter)
             .Where(x => timeFilterRequest.CreatedBefore != null && Convert.ToDateTime(x.Created) <= timeFilterRequest.CreatedBefore)
@@ -66,9 +74,11 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
             .Where(x => timeFilterRequest.PublishedAfter != null && Convert.ToDateTime(x.PublishDate) >= timeFilterRequest.PublishedAfter)
             .Where(x => timeFilterRequest.PublishedBefore != null && Convert.ToDateTime(x.PublishDate) <= timeFilterRequest.PublishedBefore)
             .Where(x => timeFilterRequest.ArchivedAt != null && Convert.ToDateTime(x.ArchivedAt) == timeFilterRequest.ArchivedAt)
-            .Where(x => timeFilterRequest.ArchivedAfter != null && Convert.ToDateTime(x.ArchivedAt) >= timeFilterRequest.ArchivedBefore)
+            .Where(x => timeFilterRequest.ArchivedAfter != null && Convert.ToDateTime(x.ArchivedAt) >= timeFilterRequest.ArchivedAfter)
             .Where(x => timeFilterRequest.ArchivedBefore != null && Convert.ToDateTime(x.ArchivedAt) <= timeFilterRequest.ArchivedBefore)
             .ToList();
+
+        return filtered;
     }
 
     [Action("Get site page translation language codes", Description = "Returns list of translated locales for site page based on ID")]
