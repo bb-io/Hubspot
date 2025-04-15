@@ -12,6 +12,7 @@ using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
+using HtmlAgilityPack;
 using Newtonsoft.Json;
 using RestSharp;
 
@@ -89,15 +90,14 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
     public override async Task<Metadata> UpdateContentFromHtmlAsync(string targetLanguage, Stream stream, UploadContentRequest uploadContentRequest)
     {
         var resultEntity = await HtmlConverter.ToJsonAsync(targetLanguage, stream, uploadContentRequest, InvocationContext);
-
-        var sourcePageId = resultEntity.PageInfo.HtmlDocument.ExtractBlackbirdReferenceId() ?? throw new Exception("The source page ID is missing. Provide it as an optional input or add it to the HTML file");
+        string sourcePageId = await GetSourcePageId(uploadContentRequest, resultEntity.PageInfo.HtmlDocument);
         var content = await GetContentAsync(sourcePageId);
         var primaryLanguage = string.IsNullOrEmpty(resultEntity.PageInfo.Language) ? content.Language : resultEntity.PageInfo.Language;
         if (string.IsNullOrEmpty(primaryLanguage))
         {
             throw new PluginMisconfigurationException("You are creating a new multi-language variation of a page that has no primary language configured. Please select the primary language optional value");
         }
-        
+
         var translationId = await GetOrCreateTranslationId(ApiEndpoints.SitePages, sourcePageId, targetLanguage, primaryLanguage);
         var pageDto = await UpdateTranslatedPage<PageDto>(ApiEndpoints.UpdatePage(translationId), new()
         {
@@ -118,6 +118,34 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
             CreatedAt = StringToDateTimeConverter.ToDateTime(pageDto.Created),
             UpdatedAt = StringToDateTimeConverter.ToDateTime(pageDto.Updated)
         };
+    }
+
+    private async Task<string> GetSourcePageId(UploadContentRequest uploadContentRequest, HtmlDocument htmlDocument)
+    {
+        string sourcePageId;
+        if (!string.IsNullOrEmpty(uploadContentRequest.SitePageId))
+        {
+            sourcePageId = uploadContentRequest.SitePageId;
+        }
+        else
+        {
+            var currentPageId = htmlDocument.ExtractBlackbirdReferenceId();
+
+            var url = ApiEndpoints.ASitePage(currentPageId);
+            var request = new HubspotRequest(url, Method.Get, Creds);
+            var page = await Client.ExecuteWithErrorHandling<PageDto>(request);
+
+            if (!string.IsNullOrEmpty(page.TranslatedFromId))
+            {
+                sourcePageId = page.TranslatedFromId;
+            }
+            else
+            {
+                sourcePageId = currentPageId;
+            }
+        }
+
+        return sourcePageId;
     }
 
     public override async Task<Metadata> UpdateContentAsync(string id, UpdateContentRequest updateContentRequest)
