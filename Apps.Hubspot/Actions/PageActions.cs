@@ -20,6 +20,7 @@ using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using RestSharp;
 using Apps.Hubspot.Utils;
+using Apps.Hubspot.Utils.Converters;
 
 namespace Apps.Hubspot.Actions;
 
@@ -64,18 +65,18 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
         }
 
         var filtered = response
-            .Where(x => timeFilterRequest.CreatedAt != null && DateTime.Parse(x.Created) == timeFilterRequest.CreatedAt)
-            .Where(x => timeFilterRequest.CreatedAfter != null && DateTime.Parse(x.Created) >= timeFilterRequest.CreatedAfter)
-            .Where(x => timeFilterRequest.CreatedBefore != null && DateTime.Parse(x.Created) <= timeFilterRequest.CreatedBefore)
-            .Where(x => timeFilterRequest.UpdatedAt != null && DateTime.Parse(x.Updated) == timeFilterRequest.UpdatedAt)
-            .Where(x => timeFilterRequest.UpdatedAfter != null && DateTime.Parse(x.Updated) >= timeFilterRequest.UpdatedAfter)
-            .Where(x => timeFilterRequest.UpdatedBefore != null && DateTime.Parse(x.Updated) <= timeFilterRequest.UpdatedBefore)
-            .Where(x => timeFilterRequest.PublishedAt != null && DateTime.Parse(x.PublishDate) == timeFilterRequest.PublishedAt)
-            .Where(x => timeFilterRequest.PublishedAfter != null && DateTime.Parse(x.PublishDate) >= timeFilterRequest.PublishedAfter)
-            .Where(x => timeFilterRequest.PublishedBefore != null && DateTime.Parse(x.PublishDate) <= timeFilterRequest.PublishedBefore)
-            .Where(x => timeFilterRequest.ArchivedAt != null && DateTime.Parse(x.ArchivedAt) == timeFilterRequest.ArchivedAt)
-            .Where(x => timeFilterRequest.ArchivedAfter != null && DateTime.Parse(x.ArchivedAt) >= timeFilterRequest.ArchivedAfter)
-            .Where(x => timeFilterRequest.ArchivedBefore != null && DateTime.Parse(x.ArchivedAt) <= timeFilterRequest.ArchivedBefore)
+            .Where(x => timeFilterRequest.CreatedAt != null && StringToDateTimeConverter.ToDateTime(x.Created) == timeFilterRequest.CreatedAt)
+            .Where(x => timeFilterRequest.CreatedAfter != null && StringToDateTimeConverter.ToDateTime(x.Created) >= timeFilterRequest.CreatedAfter)
+            .Where(x => timeFilterRequest.CreatedBefore != null && StringToDateTimeConverter.ToDateTime(x.Created) <= timeFilterRequest.CreatedBefore)
+            .Where(x => timeFilterRequest.UpdatedAt != null && StringToDateTimeConverter.ToDateTime(x.Updated) == timeFilterRequest.UpdatedAt)
+            .Where(x => timeFilterRequest.UpdatedAfter != null && StringToDateTimeConverter.ToDateTime(x.Updated) >= timeFilterRequest.UpdatedAfter)
+            .Where(x => timeFilterRequest.UpdatedBefore != null && StringToDateTimeConverter.ToDateTime(x.Updated) <= timeFilterRequest.UpdatedBefore)
+            .Where(x => timeFilterRequest.PublishedAt != null && StringToDateTimeConverter.ToDateTime(x.PublishDate) == timeFilterRequest.PublishedAt)
+            .Where(x => timeFilterRequest.PublishedAfter != null && StringToDateTimeConverter.ToDateTime(x.PublishDate) >= timeFilterRequest.PublishedAfter)
+            .Where(x => timeFilterRequest.PublishedBefore != null && StringToDateTimeConverter.ToDateTime(x.PublishDate) <= timeFilterRequest.PublishedBefore)
+            .Where(x => timeFilterRequest.ArchivedAt != null && StringToDateTimeConverter.ToDateTime(x.ArchivedAt) == timeFilterRequest.ArchivedAt)
+            .Where(x => timeFilterRequest.ArchivedAfter != null && StringToDateTimeConverter.ToDateTime(x.ArchivedAt) >= timeFilterRequest.ArchivedAfter)
+            .Where(x => timeFilterRequest.ArchivedBefore != null && StringToDateTimeConverter.ToDateTime(x.ArchivedAt) <= timeFilterRequest.ArchivedBefore)
             .ToList();
 
         return filtered;
