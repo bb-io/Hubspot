@@ -42,6 +42,8 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
         var response = await Client.Paginate<GenericPageDto>(request);
 
+        response = ProcessTimeFilter(response, searchPageRequest);
+
         if (searchPageRequest.NotTranslatedInLanguage != null)
         {
             response = response.Where(p => p.Translations == null || p.Translations.Keys.All(key => key != searchPageRequest.NotTranslatedInLanguage.ToLower())).ToList();
@@ -49,6 +51,24 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
 
         var items = response.Select(x => x.DeepClone()).ToList();
         return new(items);
+    }
+
+    private List<GenericPageDto> ProcessTimeFilter(List<GenericPageDto> response, TimeFilterRequest timeFilterRequest)
+    {
+        return response
+            .Where(x => timeFilterRequest.CreatedAt != null && Convert.ToDateTime(x.Created) == timeFilterRequest.CreatedAt)
+            .Where(x => timeFilterRequest.CreatedAfter != null && Convert.ToDateTime(x.Created) >= timeFilterRequest.CreatedAfter)
+            .Where(x => timeFilterRequest.CreatedBefore != null && Convert.ToDateTime(x.Created) <= timeFilterRequest.CreatedBefore)
+            .Where(x => timeFilterRequest.UpdatedAt != null && Convert.ToDateTime(x.Updated) == timeFilterRequest.UpdatedAt)
+            .Where(x => timeFilterRequest.UpdatedAfter != null && Convert.ToDateTime(x.Updated) >= timeFilterRequest.UpdatedAfter)
+            .Where(x => timeFilterRequest.UpdatedBefore != null && Convert.ToDateTime(x.Updated) <= timeFilterRequest.UpdatedBefore)
+            .Where(x => timeFilterRequest.PublishedAt != null && Convert.ToDateTime(x.PublishDate) == timeFilterRequest.PublishedAt)
+            .Where(x => timeFilterRequest.PublishedAfter != null && Convert.ToDateTime(x.PublishDate) >= timeFilterRequest.PublishedAfter)
+            .Where(x => timeFilterRequest.PublishedBefore != null && Convert.ToDateTime(x.PublishDate) <= timeFilterRequest.PublishedBefore)
+            .Where(x => timeFilterRequest.ArchivedAt != null && Convert.ToDateTime(x.ArchivedAt) == timeFilterRequest.ArchivedAt)
+            .Where(x => timeFilterRequest.ArchivedAfter != null && Convert.ToDateTime(x.ArchivedAt) >= timeFilterRequest.ArchivedBefore)
+            .Where(x => timeFilterRequest.ArchivedBefore != null && Convert.ToDateTime(x.ArchivedAt) <= timeFilterRequest.ArchivedBefore)
+            .ToList();
     }
 
     [Action("Get site page translation language codes", Description = "Returns list of translated locales for site page based on ID")]
