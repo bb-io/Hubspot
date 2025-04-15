@@ -68,6 +68,7 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
             .Where(x => timeFilterRequest.ArchivedAt != null && Convert.ToDateTime(x.ArchivedAt) == timeFilterRequest.ArchivedAt)
             .Where(x => timeFilterRequest.ArchivedAfter != null && Convert.ToDateTime(x.ArchivedAt) >= timeFilterRequest.ArchivedBefore)
             .Where(x => timeFilterRequest.ArchivedBefore != null && Convert.ToDateTime(x.ArchivedAt) <= timeFilterRequest.ArchivedBefore)
+            .Select(x => x)
             .ToList();
     }
 
