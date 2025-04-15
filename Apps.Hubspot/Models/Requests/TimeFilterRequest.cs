@@ -12,12 +12,12 @@ public class TimeFilterRequest
     public DateTime? CreatedAt { get; set; }
     
     [Display("Created after")]
-    [JsonProperty("createdAt__gte")]
+    [JsonProperty("createdAt__gt")]
     [JsonConverter(typeof(IsoDateTimeConverter))]
     public DateTime? CreatedAfter { get; set; }
     
     [Display("Created before")]
-    [JsonProperty("createdAt__lte")]
+    [JsonProperty("createdAt__lt")]
     [JsonConverter(typeof(IsoDateTimeConverter))]
     public DateTime? CreatedBefore { get; set; }
 
@@ -27,12 +27,12 @@ public class TimeFilterRequest
     public DateTime? UpdatedAt { get; set; }
 
     [Display("Updated after")]
-    [JsonProperty("updatedAt__gte")]
+    [JsonProperty("updatedAt__gt")]
     [JsonConverter(typeof(IsoDateTimeConverter))]
     public DateTime? UpdatedAfter { get; set; }
 
     [Display("Updated before")]
-    [JsonProperty("updatedAt__lte")]
+    [JsonProperty("updatedAt__lt")]
     [JsonConverter(typeof(IsoDateTimeConverter))]
     public DateTime? UpdatedBefore { get; set; }
 
@@ -42,12 +42,12 @@ public class TimeFilterRequest
     public DateTime? PublishedAt { get; set; }
 
     [Display("Published after")]
-    [JsonProperty("publishDate__gte")]
+    [JsonProperty("publishDate__gt")]
     [JsonConverter(typeof(IsoDateTimeConverter))]
     public DateTime? PublishedAfter { get; set; }
 
     [Display("Published before")]
-    [JsonProperty("publishDate__lte")]
+    [JsonProperty("publishDate__lt")]
     [JsonConverter(typeof(IsoDateTimeConverter))]
     public DateTime? PublishedBefore { get; set; }
 
@@ -57,12 +57,12 @@ public class TimeFilterRequest
     public DateTime? ArchivedAt { get; set; }
 
     [Display("Archived after")]
-    [JsonProperty("archivedAt__gte")]
+    [JsonProperty("archivedAt__gt")]
     [JsonConverter(typeof(IsoDateTimeConverter))]
     public DateTime? ArchivedAfter { get; set; }
 
     [Display("Archived before")]
-    [JsonProperty("archivedAt__lte")]
+    [JsonProperty("archivedAt__lt")]
     [JsonConverter(typeof(IsoDateTimeConverter))]
     public DateTime? ArchivedBefore { get; set; }
 
