@@ -7,63 +7,63 @@ namespace Apps.Hubspot.Models.Requests;
 public class TimeFilterRequest
 {
     [Display("Created at")]
+    [JsonProperty("createdAt")]
     [JsonConverter(typeof(IsoDateTimeConverter))]
-    [JsonIgnore]
     public DateTime? CreatedAt { get; set; }
     
     [Display("Created after")]
+    [JsonProperty("createdAfter")]
     [JsonConverter(typeof(IsoDateTimeConverter))]
-    [JsonIgnore]
     public DateTime? CreatedAfter { get; set; }
     
     [Display("Created before")]
+    [JsonProperty("createdBefore")]
     [JsonConverter(typeof(IsoDateTimeConverter))]
-    [JsonIgnore]
     public DateTime? CreatedBefore { get; set; }
 
     [Display("Updated at")]
+    [JsonProperty("updatedAt")]
     [JsonConverter(typeof(IsoDateTimeConverter))]
-    [JsonIgnore]
     public DateTime? UpdatedAt { get; set; }
-
+    
     [Display("Updated after")]
+    [JsonProperty("updatedAfter")]
     [JsonConverter(typeof(IsoDateTimeConverter))]
-    [JsonIgnore]
     public DateTime? UpdatedAfter { get; set; }
-
+    
     [Display("Updated before")]
+    [JsonProperty("updatedBefore")]
     [JsonConverter(typeof(IsoDateTimeConverter))]
-    [JsonIgnore]
     public DateTime? UpdatedBefore { get; set; }
 
     [Display("Published at")]
+    [JsonProperty("publishDate__eq")]
     [JsonConverter(typeof(IsoDateTimeConverter))]
-    [JsonIgnore]
     public DateTime? PublishedAt { get; set; }
 
     [Display("Published after")]
+    [JsonProperty("publishDate__gte")]
     [JsonConverter(typeof(IsoDateTimeConverter))]
-    [JsonIgnore]
     public DateTime? PublishedAfter { get; set; }
 
     [Display("Published before")]
+    [JsonProperty("publishDate__lte")]
     [JsonConverter(typeof(IsoDateTimeConverter))]
-    [JsonIgnore]
     public DateTime? PublishedBefore { get; set; }
 
     [Display("Archived at")]
+    [JsonProperty("archivedAt__eq")]
     [JsonConverter(typeof(IsoDateTimeConverter))]
-    [JsonIgnore]
     public DateTime? ArchivedAt { get; set; }
 
     [Display("Archived after")]
+    [JsonProperty("archivedAt__gte")]
     [JsonConverter(typeof(IsoDateTimeConverter))]
-    [JsonIgnore]
     public DateTime? ArchivedAfter { get; set; }
 
     [Display("Archived before")]
+    [JsonProperty("archivedAt__lte")]
     [JsonConverter(typeof(IsoDateTimeConverter))]
-    [JsonIgnore]
     public DateTime? ArchivedBefore { get; set; }
 
 }
