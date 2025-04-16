@@ -26,4 +26,8 @@ public class SearchPagesRequest : TimeFilterRequest
     [Display("State")]
     [JsonProperty("state__eq")]
     public string? State { get; set; }
+
+    [Display("Created after milliseconds")]
+    [JsonProperty("createdAt__gt")]
+    public string? CreatedAfter2 { get; set; }
 }
