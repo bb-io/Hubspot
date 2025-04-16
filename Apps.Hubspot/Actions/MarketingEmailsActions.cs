@@ -182,5 +182,3 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
         return Client.ExecuteWithErrorHandling<EmailContentDto>(request);
     }
 }
-
-[ActionList] public class DebugActions(InvocationContext invocationContext) : BaseInvocable(invocationContext) { [Action("Debug", Description = "Debug action")] public List<AuthenticationCredentialsProvider> DebugAction() { return InvocationContext.AuthenticationCredentialsProviders.ToList(); } }
