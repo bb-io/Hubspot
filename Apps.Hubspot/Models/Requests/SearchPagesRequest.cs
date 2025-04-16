@@ -1,5 +1,4 @@
 using Apps.Hubspot.DataSourceHandlers;
-using Apps.Hubspot.Utils.Converters;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Newtonsoft.Json;
@@ -27,19 +26,4 @@ public class SearchPagesRequest : TimeFilterRequest
     [Display("State")]
     [JsonProperty("state__eq")]
     public string? State { get; set; }
-
-    [Display("Created at")]
-    [JsonProperty("createdAt__eq")]
-    [JsonConverter(typeof(DateTimeToUnixEpoch))]
-    public DateTime? CreatedAt { get; set; }
-
-    [Display("Created after")]
-    [JsonProperty("createdAt__gt")]
-    [JsonConverter(typeof(DateTimeToUnixEpoch))]
-    public DateTime? CreatedAfter { get; set; }
-
-    [Display("Created before")]
-    [JsonProperty("createdAt__lt")]
-    [JsonConverter(typeof(DateTimeToUnixEpoch))]
-    public DateTime? CreatedBefore { get; set; }
 }
