@@ -66,4 +66,8 @@ public class TimeFilterRequest
     [JsonConverter(typeof(DateTimeToUnixEpoch))]
     public DateTime? ArchivedBefore { get; set; }
 
+    [Display("Created after Date")]
+    [JsonProperty("createdAt__gt")]
+    [JsonConverter(typeof(DateTimeToUnixEpoch))]
+    public DateTime? CreatedAfterDate { get; set; }
 }
