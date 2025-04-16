@@ -43,7 +43,7 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
         var response = await Client.Paginate<GenericPageDto>(request);
 
-        response = ProcessTimeFilter(response, searchPageRequest);
+        //response = ProcessTimeFilter(response, searchPageRequest);
 
         if (searchPageRequest.NotTranslatedInLanguage != null)
         {
