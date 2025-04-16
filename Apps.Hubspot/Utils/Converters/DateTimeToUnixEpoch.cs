@@ -12,7 +12,7 @@ public class DateTimeToUnixEpoch : JsonConverter
     public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
     {
         var dateTime = (DateTime)value;
-        writer.WriteValue(TimeSpan.FromTicks(new DateTime(2025, 01, 01).Subtract(DateTime.UnixEpoch).Ticks).TotalMilliseconds.ToString());
+        writer.WriteValue(TimeSpan.FromTicks(dateTime.Subtract(DateTime.UnixEpoch).Ticks).TotalMilliseconds.ToString());
     }
 
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
