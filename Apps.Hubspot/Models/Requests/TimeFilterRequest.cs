@@ -73,7 +73,7 @@ public class TimeFilterRequest
 
     [Display("NameFromTimeFilter")]
     [JsonProperty("name")]
-    public string? Name { get; set; }
+    public string? NameFromTimeFilter { get; set; }
 
 
 }
