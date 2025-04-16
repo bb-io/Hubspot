@@ -70,4 +70,10 @@ public class TimeFilterRequest
     [JsonProperty("createdAt__gt")]
     [JsonConverter(typeof(DateTimeToUnixEpoch))]
     public DateTime? CreatedAfterDate { get; set; }
+
+    [Display("NameFromTimeFilter")]
+    [JsonProperty("name")]
+    public string? Name { get; set; }
+
+
 }
