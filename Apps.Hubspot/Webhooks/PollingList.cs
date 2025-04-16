@@ -423,7 +423,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         return new ListResponse<PagePollingDto>(response.Select(x => new PagePollingDto(x, string.Empty)));
     }
     
-    public async Task<ListResponse<MarketingFormPollingDto>> GetAllMarketingForms(SearchPagesRequest input)
+    public async Task<ListResponse<MarketingFormPollingDto>> GetAllMarketingForms(TimeFilterRequest input)
     {
         var endpoint = $"{ApiEndpoints.MarketingFormsEndpoint}";
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
