@@ -54,33 +54,33 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
         return new(items);
     }
 
-    private List<GenericPageDto> ProcessTimeFilter(List<GenericPageDto> response, TimeFilterRequest timeFilterRequest)
-    {
-        if (timeFilterRequest.CreatedAt == null && timeFilterRequest.CreatedAfter == null && timeFilterRequest.CreatedBefore == null &&
-                   timeFilterRequest.UpdatedAt == null && timeFilterRequest.UpdatedAfter == null && timeFilterRequest.UpdatedBefore == null &&
-                   timeFilterRequest.PublishedAt == null && timeFilterRequest.PublishedAfter == null && timeFilterRequest.PublishedBefore == null &&
-                   timeFilterRequest.ArchivedAt == null && timeFilterRequest.ArchivedAfter == null && timeFilterRequest.ArchivedBefore == null)
-        {
-            return response;
-        }
+    //private List<GenericPageDto> ProcessTimeFilter(List<GenericPageDto> response, TimeFilterRequest timeFilterRequest)
+    //{
+    //    if (timeFilterRequest.CreatedAt == null && timeFilterRequest.CreatedAfter == null && timeFilterRequest.CreatedBefore == null &&
+    //               timeFilterRequest.UpdatedAt == null && timeFilterRequest.UpdatedAfter == null && timeFilterRequest.UpdatedBefore == null &&
+    //               timeFilterRequest.PublishedAt == null && timeFilterRequest.PublishedAfter == null && timeFilterRequest.PublishedBefore == null &&
+    //               timeFilterRequest.ArchivedAt == null && timeFilterRequest.ArchivedAfter == null && timeFilterRequest.ArchivedBefore == null)
+    //    {
+    //        return response;
+    //    }
 
-        var filtered = response
-            .Where(x => timeFilterRequest.CreatedAt != null && StringToDateTimeConverter.ToDateTime(x.Created) == timeFilterRequest.CreatedAt)
-            .Where(x => timeFilterRequest.CreatedAfter != null && StringToDateTimeConverter.ToDateTime(x.Created) >= timeFilterRequest.CreatedAfter)
-            .Where(x => timeFilterRequest.CreatedBefore != null && StringToDateTimeConverter.ToDateTime(x.Created) <= timeFilterRequest.CreatedBefore)
-            .Where(x => timeFilterRequest.UpdatedAt != null && StringToDateTimeConverter.ToDateTime(x.Updated) == timeFilterRequest.UpdatedAt)
-            .Where(x => timeFilterRequest.UpdatedAfter != null && StringToDateTimeConverter.ToDateTime(x.Updated) >= timeFilterRequest.UpdatedAfter)
-            .Where(x => timeFilterRequest.UpdatedBefore != null && StringToDateTimeConverter.ToDateTime(x.Updated) <= timeFilterRequest.UpdatedBefore)
-            .Where(x => timeFilterRequest.PublishedAt != null && StringToDateTimeConverter.ToDateTime(x.PublishDate) == timeFilterRequest.PublishedAt)
-            .Where(x => timeFilterRequest.PublishedAfter != null && StringToDateTimeConverter.ToDateTime(x.PublishDate) >= timeFilterRequest.PublishedAfter)
-            .Where(x => timeFilterRequest.PublishedBefore != null && StringToDateTimeConverter.ToDateTime(x.PublishDate) <= timeFilterRequest.PublishedBefore)
-            .Where(x => timeFilterRequest.ArchivedAt != null && StringToDateTimeConverter.ToDateTime(x.ArchivedAt) == timeFilterRequest.ArchivedAt)
-            .Where(x => timeFilterRequest.ArchivedAfter != null && StringToDateTimeConverter.ToDateTime(x.ArchivedAt) >= timeFilterRequest.ArchivedAfter)
-            .Where(x => timeFilterRequest.ArchivedBefore != null && StringToDateTimeConverter.ToDateTime(x.ArchivedAt) <= timeFilterRequest.ArchivedBefore)
-            .ToList();
+    //    var filtered = response
+    //        .Where(x => timeFilterRequest.CreatedAt != null && StringToDateTimeConverter.ToDateTime(x.Created) == timeFilterRequest.CreatedAt)
+    //        .Where(x => timeFilterRequest.CreatedAfter != null && StringToDateTimeConverter.ToDateTime(x.Created) >= timeFilterRequest.CreatedAfter)
+    //        .Where(x => timeFilterRequest.CreatedBefore != null && StringToDateTimeConverter.ToDateTime(x.Created) <= timeFilterRequest.CreatedBefore)
+    //        .Where(x => timeFilterRequest.UpdatedAt != null && StringToDateTimeConverter.ToDateTime(x.Updated) == timeFilterRequest.UpdatedAt)
+    //        .Where(x => timeFilterRequest.UpdatedAfter != null && StringToDateTimeConverter.ToDateTime(x.Updated) >= timeFilterRequest.UpdatedAfter)
+    //        .Where(x => timeFilterRequest.UpdatedBefore != null && StringToDateTimeConverter.ToDateTime(x.Updated) <= timeFilterRequest.UpdatedBefore)
+    //        .Where(x => timeFilterRequest.PublishedAt != null && StringToDateTimeConverter.ToDateTime(x.PublishDate) == timeFilterRequest.PublishedAt)
+    //        .Where(x => timeFilterRequest.PublishedAfter != null && StringToDateTimeConverter.ToDateTime(x.PublishDate) >= timeFilterRequest.PublishedAfter)
+    //        .Where(x => timeFilterRequest.PublishedBefore != null && StringToDateTimeConverter.ToDateTime(x.PublishDate) <= timeFilterRequest.PublishedBefore)
+    //        .Where(x => timeFilterRequest.ArchivedAt != null && StringToDateTimeConverter.ToDateTime(x.ArchivedAt) == timeFilterRequest.ArchivedAt)
+    //        .Where(x => timeFilterRequest.ArchivedAfter != null && StringToDateTimeConverter.ToDateTime(x.ArchivedAt) >= timeFilterRequest.ArchivedAfter)
+    //        .Where(x => timeFilterRequest.ArchivedBefore != null && StringToDateTimeConverter.ToDateTime(x.ArchivedAt) <= timeFilterRequest.ArchivedBefore)
+    //        .ToList();
 
-        return filtered;
-    }
+    //    return filtered;
+    //}
 
     [Action("Get site page translation language codes", Description = "Returns list of translated locales for site page based on ID")]
     public async Task<TranslatedLocalesResponse> GetListOfTranslatedLocales([ActionParameter] SitePageRequest request)
