@@ -7,63 +7,63 @@ namespace Apps.Hubspot.Models.Requests;
 public class TimeFilterRequest
 {
     [Display("Created at")]
-    [JsonProperty("createdAt")]
-    [JsonConverter(typeof(IsoDateTimeConverter))]
+    [JsonProperty("createdAt__eq")]
+    [JsonConverter(typeof(DateTimeToUnixEpoch))]
     public DateTime? CreatedAt { get; set; }
     
     [Display("Created after")]
-    [JsonProperty("createdAfter")]
-    [JsonConverter(typeof(IsoDateTimeConverter))]
+    [JsonProperty("createdAt__gt")]
+    [JsonConverter(typeof(DateTimeToUnixEpoch))]
     public DateTime? CreatedAfter { get; set; }
     
     [Display("Created before")]
-    [JsonProperty("createdBefore")]
-    [JsonConverter(typeof(IsoDateTimeConverter))]
+    [JsonProperty("createdAt__lt")]
+    [JsonConverter(typeof(DateTimeToUnixEpoch))]
     public DateTime? CreatedBefore { get; set; }
 
     [Display("Updated at")]
-    [JsonProperty("updatedAt")]
-    [JsonConverter(typeof(IsoDateTimeConverter))]
+    [JsonProperty("updatedAt__eq")]
+    [JsonConverter(typeof(DateTimeToUnixEpoch))]
     public DateTime? UpdatedAt { get; set; }
-    
+
     [Display("Updated after")]
-    [JsonProperty("updatedAfter")]
-    [JsonConverter(typeof(IsoDateTimeConverter))]
+    [JsonProperty("updatedAt__gt")]
+    [JsonConverter(typeof(DateTimeToUnixEpoch))]
     public DateTime? UpdatedAfter { get; set; }
-    
+
     [Display("Updated before")]
-    [JsonProperty("updatedBefore")]
-    [JsonConverter(typeof(IsoDateTimeConverter))]
+    [JsonProperty("updatedAt__lt")]
+    [JsonConverter(typeof(DateTimeToUnixEpoch))]
     public DateTime? UpdatedBefore { get; set; }
 
-    //[Display("Published at")]
-    //[JsonProperty("publishDate")]
-    //[JsonConverter(typeof(IsoDateTimeConverter))]
-    //public DateTime? PublishedAt { get; set; }
+    [Display("Published at")]
+    [JsonProperty("publishDate__eq")]
+    [JsonConverter(typeof(DateTimeToUnixEpoch))]
+    public DateTime? PublishedAt { get; set; }
 
-    //[Display("Published after")]
-    //[JsonProperty("publishDate__gte")]
-    //[JsonConverter(typeof(IsoDateTimeConverter))]
-    //public DateTime? PublishedAfter { get; set; }
+    [Display("Published after")]
+    [JsonProperty("publishDate__gt")]
+    [JsonConverter(typeof(DateTimeToUnixEpoch))]
+    public DateTime? PublishedAfter { get; set; }
 
-    //[Display("Published before")]
-    //[JsonProperty("publishDate__lte")]
-    //[JsonConverter(typeof(IsoDateTimeConverter))]
-    //public DateTime? PublishedBefore { get; set; }
+    [Display("Published before")]
+    [JsonProperty("publishDate__lt")]
+    [JsonConverter(typeof(DateTimeToUnixEpoch))]
+    public DateTime? PublishedBefore { get; set; }
 
-    //[Display("Archived at")]
-    //[JsonProperty("archivedAt__eq")]
-    //[JsonConverter(typeof(IsoDateTimeConverter))]
-    //public DateTime? ArchivedAt { get; set; }
+    [Display("Archived at")]
+    [JsonProperty("archivedAt__eq")]
+    [JsonConverter(typeof(DateTimeToUnixEpoch))]
+    public DateTime? ArchivedAt { get; set; }
 
-    //[Display("Archived after")]
-    //[JsonProperty("archivedAt__gte")]
-    //[JsonConverter(typeof(IsoDateTimeConverter))]
-    //public DateTime? ArchivedAfter { get; set; }
+    [Display("Archived after")]
+    [JsonProperty("archivedAt__gt")]
+    [JsonConverter(typeof(DateTimeToUnixEpoch))]
+    public DateTime? ArchivedAfter { get; set; }
 
-    //[Display("Archived before")]
-    //[JsonProperty("archivedAt__lte")]
-    //[JsonConverter(typeof(IsoDateTimeConverter))]
-    //public DateTime? ArchivedBefore { get; set; }
+    [Display("Archived before")]
+    [JsonProperty("archivedAt__lt")]
+    [JsonConverter(typeof(DateTimeToUnixEpoch))]
+    public DateTime? ArchivedBefore { get; set; }
 
 }
