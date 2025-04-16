@@ -35,5 +35,5 @@ public class SearchPagesRequest : TimeFilterRequest
     [Display("Created after Date")]
     [JsonProperty("createdAt__gt")]
     [JsonConverter(typeof(DateTimeToUnixEpoch))]
-    public DateTime? CreatedAfter { get; set; }
+    public DateTime? CreatedAfter3 { get; set; }
 }
