@@ -91,8 +91,11 @@ public class PageDto
 
     [Display("Translated from ID"), JsonProperty("translatedFromId")]
     public string TranslatedFromId { get; set; } = string.Empty;
-    
-    public PageDto DeepClone()
+
+    [Display("Query")]
+    public string? Query { get; set; }
+
+    public PageDto DeepClone(string query)
     {
         return new PageDto
         {
@@ -124,7 +127,8 @@ public class PageDto
             HeadHtml = string.Copy(HeadHtml),
             FooterHtml = string.Copy(FooterHtml),
             Name = string.Copy(Name),
-            TranslatedFromId = string.Copy(TranslatedFromId)
+            TranslatedFromId = string.Copy(TranslatedFromId),
+            Query = query
         };
     }
 }

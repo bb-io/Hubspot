@@ -50,7 +50,8 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
             response = response.Where(p => p.Translations == null || p.Translations.Keys.All(key => key != searchPageRequest.NotTranslatedInLanguage.ToLower())).ToList();
         }
 
-        var items = response.Select(x => x.DeepClone()).ToList();
+        var items = response.Select(x => x.DeepClone(endpoint)).ToList();
+
         return new(items);
     }
 
