@@ -6,20 +6,20 @@ namespace Apps.Hubspot.Models.Requests;
 
 public class TimeFilterRequest
 {
-    [Display("Created at")]
-    [JsonProperty("createdAt__eq")]
-    [JsonConverter(typeof(DateTimeToUnixEpoch))]
-    public DateTime? CreatedAt { get; set; }
+    //[Display("Created at")]
+    //[JsonProperty("createdAt__eq")]
+    //[JsonConverter(typeof(DateTimeToUnixEpoch))]
+    //public DateTime? CreatedAt { get; set; }
     
-    [Display("Created after")]
-    [JsonProperty("createdAt__gt")]
-    [JsonConverter(typeof(DateTimeToUnixEpoch))]
-    public DateTime? CreatedAfter { get; set; }
+    //[Display("Created after")]
+    //[JsonProperty("createdAt__gt")]
+    //[JsonConverter(typeof(DateTimeToUnixEpoch))]
+    //public DateTime? CreatedAfter { get; set; }
     
-    [Display("Created before")]
-    [JsonProperty("createdAt__lt")]
-    [JsonConverter(typeof(DateTimeToUnixEpoch))]
-    public DateTime? CreatedBefore { get; set; }
+    //[Display("Created before")]
+    //[JsonProperty("createdAt__lt")]
+    //[JsonConverter(typeof(DateTimeToUnixEpoch))]
+    //public DateTime? CreatedBefore { get; set; }
 
     [Display("Updated at")]
     [JsonProperty("updatedAt__eq")]
