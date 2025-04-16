@@ -19,7 +19,7 @@ public class TimeFilterRequest
     [Display("Created after milliseconds")]
     [JsonProperty("createdAt__gt")]
     //[JsonConverter(typeof(DateTimeToUnixEpoch))]
-    public long? CreatedAfter2 { get; set; }
+    public int? CreatedAfter2 { get; set; }
 
     [Display("Created before")]
     [JsonProperty("createdAt__lt")]
