@@ -20,6 +20,7 @@ using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using RestSharp;
 using Apps.Hubspot.Utils;
+using Apps.Hubspot.Utils.Converters;
 
 namespace Apps.Hubspot.Actions;
 
@@ -48,6 +49,7 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
         }
 
         var items = response.Select(x => x.DeepClone()).ToList();
+
         return new(items);
     }
 

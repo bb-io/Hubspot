@@ -1,11 +1,12 @@
 using Apps.Hubspot.DataSourceHandlers;
+using Apps.Hubspot.Utils.Converters;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Newtonsoft.Json;
 
 namespace Apps.Hubspot.Models.Requests;
 
-public class SearchPagesRequest : TimeFilterRequest
+public class SearchPagesRequest : PagesTimeFilterRequest
 {
     [Display("Not translated in language"), StaticDataSource(typeof(LanguageHandler))]
     [JsonIgnore]

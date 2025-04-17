@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace Apps.Hubspot.Utils.Converters;
 
-public class IsoDateTimeConverter : JsonConverter
+public class DateTimeToTimestamp : JsonConverter
 {
     public override bool CanConvert(Type objectType)
     {
@@ -12,7 +12,7 @@ public class IsoDateTimeConverter : JsonConverter
     public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
     {
         var dateTime = (DateTime)value;
-        writer.WriteValue(dateTime.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss.FFF'Z'"));
+        writer.WriteValue(TimeSpan.FromTicks(dateTime.Subtract(DateTime.UnixEpoch).Ticks).TotalMilliseconds.ToString());
     }
 
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)

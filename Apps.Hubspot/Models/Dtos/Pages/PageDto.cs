@@ -91,7 +91,10 @@ public class PageDto
 
     [Display("Translated from ID"), JsonProperty("translatedFromId")]
     public string TranslatedFromId { get; set; } = string.Empty;
-    
+
+    [Display("Query")]
+    public string? Query { get; set; }
+
     public PageDto DeepClone()
     {
         return new PageDto
