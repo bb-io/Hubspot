@@ -95,7 +95,7 @@ public class PageDto
     [Display("Query")]
     public string? Query { get; set; }
 
-    public PageDto DeepClone(string query)
+    public PageDto DeepClone()
     {
         return new PageDto
         {
@@ -127,8 +127,7 @@ public class PageDto
             HeadHtml = string.Copy(HeadHtml),
             FooterHtml = string.Copy(FooterHtml),
             Name = string.Copy(Name),
-            TranslatedFromId = string.Copy(TranslatedFromId),
-            Query = query //TODO: Remove this
+            TranslatedFromId = string.Copy(TranslatedFromId)
         };
     }
 }
