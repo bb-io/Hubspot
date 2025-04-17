@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace Apps.Hubspot.Utils.Converters;
 
-public class DateTimeToUnixEpoch : JsonConverter
+public class DateTimeToTimestamp : JsonConverter
 {
     public override bool CanConvert(Type objectType)
     {
