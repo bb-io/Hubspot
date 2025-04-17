@@ -35,34 +35,4 @@ public class TimeFilterRequest
     [JsonProperty("updatedBefore")]
     [JsonConverter(typeof(IsoDateTimeConverter))]
     public DateTime? UpdatedBefore { get; set; }
-
-    //[Display("Published at")]
-    //[JsonProperty("publishDate")]
-    //[JsonConverter(typeof(IsoDateTimeConverter))]
-    //public DateTime? PublishedAt { get; set; }
-
-    //[Display("Published after")]
-    //[JsonProperty("publishDate__gte")]
-    //[JsonConverter(typeof(IsoDateTimeConverter))]
-    //public DateTime? PublishedAfter { get; set; }
-
-    //[Display("Published before")]
-    //[JsonProperty("publishDate__lte")]
-    //[JsonConverter(typeof(IsoDateTimeConverter))]
-    //public DateTime? PublishedBefore { get; set; }
-
-    //[Display("Archived at")]
-    //[JsonProperty("archivedAt__eq")]
-    //[JsonConverter(typeof(IsoDateTimeConverter))]
-    //public DateTime? ArchivedAt { get; set; }
-
-    //[Display("Archived after")]
-    //[JsonProperty("archivedAt__gte")]
-    //[JsonConverter(typeof(IsoDateTimeConverter))]
-    //public DateTime? ArchivedAfter { get; set; }
-
-    //[Display("Archived before")]
-    //[JsonProperty("archivedAt__lte")]
-    //[JsonConverter(typeof(IsoDateTimeConverter))]
-    //public DateTime? ArchivedBefore { get; set; }
 }
