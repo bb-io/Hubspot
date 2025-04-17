@@ -13,7 +13,7 @@ public class TimeFilterRequest
     
     [Display("Created after")]
     [JsonProperty("createdAt__gt")]
-    [JsonConverter(typeof(DateTimeToUnixEpoch))]
+    //[JsonConverter(typeof(DateTimeToUnixEpoch))]
     public DateTime? CreatedAfter { get; set; }
 
     [Display("Created before")]
