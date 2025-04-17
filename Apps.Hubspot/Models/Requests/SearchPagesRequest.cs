@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace Apps.Hubspot.Models.Requests;
 
-public class SearchPagesRequest : TimeFilterRequest
+public class SearchPagesRequest : PagesTimeFilterRequest
 {
     [Display("Not translated in language"), StaticDataSource(typeof(LanguageHandler))]
     [JsonIgnore]
@@ -27,9 +27,4 @@ public class SearchPagesRequest : TimeFilterRequest
     [Display("State")]
     [JsonProperty("state__eq")]
     public string? State { get; set; }
-
-    //[Display("Created after milliseconds")]
-    //[JsonProperty("createdAt__gt")]
-    //public string? CreatedAfter2 { get; set; } //TODO: Remove
-
 }
