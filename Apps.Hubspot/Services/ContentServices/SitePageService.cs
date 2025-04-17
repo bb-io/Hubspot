@@ -101,7 +101,7 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
         var translationId = await GetOrCreateTranslationId(ApiEndpoints.SitePages, sourcePageId, targetLanguage, primaryLanguage);
         var pageDto = await UpdateTranslatedPage<PageDto>(ApiEndpoints.UpdatePage(translationId), new()
         {
-            Id = translationId,
+            ObjectId = translationId,
             HtmlTitle = resultEntity.PageInfo.Title,
             LayoutSections = resultEntity.Json
         });
