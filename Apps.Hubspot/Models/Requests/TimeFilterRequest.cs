@@ -65,15 +65,4 @@ public class TimeFilterRequest
     [JsonProperty("archivedAt__lt")]
     [JsonConverter(typeof(DateTimeToUnixEpoch))]
     public DateTime? ArchivedBefore { get; set; }
-
-    [Display("Created after Date")]
-    [JsonProperty("createdAt__gt")]
-    [JsonConverter(typeof(IsoDateTimeConverter))]
-    public DateTime? CreatedAfterDate { get; set; }
-
-    [Display("NameFromTimeFilter")]
-    [JsonProperty("name")]
-    public string? NameFromTimeFilter { get; set; }
-
-
 }

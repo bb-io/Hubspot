@@ -30,6 +30,6 @@ public class SearchPagesRequest : TimeFilterRequest
 
     [Display("Created after milliseconds")]
     [JsonProperty("createdAt__gt")]
-    public string? CreatedAfter2 { get; set; }
+    public string? CreatedAfter2 { get; set; } //TODO: Remove
 
 }

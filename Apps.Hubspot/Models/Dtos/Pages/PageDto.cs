@@ -128,7 +128,7 @@ public class PageDto
             FooterHtml = string.Copy(FooterHtml),
             Name = string.Copy(Name),
             TranslatedFromId = string.Copy(TranslatedFromId),
-            Query = query
+            Query = query //TODO: Remove this
         };
     }
 }
