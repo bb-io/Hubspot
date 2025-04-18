@@ -42,5 +42,35 @@ public static class ObjectExtensions
         return "?" + string.Join("&", array);
     }
 
-
+    public static Dictionary<string, string> AsHubspotQuery(this object obj)
+    {
+        var query = new Dictionary<string, string>();
+        var properties = obj.GetType().GetProperties();
+        
+        foreach (var property in properties)
+        {
+            var jsonProperty = property.GetCustomAttributes(typeof(JsonPropertyAttribute), false)
+                .FirstOrDefault() as JsonPropertyAttribute;
+                
+            var key = jsonProperty?.PropertyName ?? property.Name;
+            var value = property.GetValue(obj);
+            
+            if (value == null)
+                continue;
+            
+            // Special handling for DateTime values
+            if (value is DateTime dateTime)
+            {
+                // Convert to Unix timestamp in milliseconds for Hubspot API
+                var unixTime = new DateTimeOffset(dateTime).ToUnixTimeMilliseconds().ToString();
+                query[key] = unixTime;
+            }
+            else
+            {
+                query[key] = value.ToString();
+            }
+        }
+        
+        return query;
+    }
 }
