@@ -92,7 +92,7 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
         var resultEntity = await HtmlConverter.ToJsonAsync(targetLanguage, stream, uploadContentRequest, InvocationContext);
         string sourcePageId = await GetSourcePageId(uploadContentRequest, resultEntity.PageInfo.HtmlDocument);
         var content = await GetContentAsync(sourcePageId);
-        var primaryLanguage = string.IsNullOrEmpty(resultEntity.PageInfo.Language) ? content.Language : resultEntity.PageInfo.Language;
+        var primaryLanguage = !string.IsNullOrEmpty(content.Language) ? content.Language : resultEntity.PageInfo.Language;
         if (string.IsNullOrEmpty(primaryLanguage))
         {
             throw new PluginMisconfigurationException("You are creating a new multi-language variation of a page that has no primary language configured. Please select the primary language optional value");
@@ -101,7 +101,7 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
         var translationId = await GetOrCreateTranslationId(ApiEndpoints.SitePages, sourcePageId, targetLanguage, primaryLanguage);
         var pageDto = await UpdateTranslatedPage<PageDto>(ApiEndpoints.UpdatePage(translationId), new()
         {
-            ObjectId = translationId,
+            Id = translationId,
             HtmlTitle = resultEntity.PageInfo.Title,
             LayoutSections = resultEntity.Json
         });

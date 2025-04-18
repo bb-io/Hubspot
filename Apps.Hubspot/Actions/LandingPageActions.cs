@@ -109,7 +109,7 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
 
         var page = await UpdateTranslatedPage(ApiEndpoints.UpdateLandingPage(translationId), new()
         {
-            ObjectId = translationId,
+            Id = translationId,
             HtmlTitle = pageInfo.Title,
             LayoutSections = json
         });
