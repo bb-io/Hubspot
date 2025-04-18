@@ -371,7 +371,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
     
     private async Task<ListResponse<BlogPostPollingDto>> GetAllBlogPosts(SearchPagesRequest input)
     {
-        var query = input.AsQuery();
+        var query = input.AsHubspotQuery();
         var endpoint = ApiEndpoints.BlogPostsSegment.WithQuery(query);
 
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
@@ -389,7 +389,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
 
     private async Task<ListResponse<PagePollingDto>> GetAllSitePages(SearchPagesRequest input)
     {
-        var query = input.AsQuery();
+        var query = input.AsHubspotQuery();
         var endpoint = ApiEndpoints.SitePages.WithQuery(query);
 
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
@@ -407,7 +407,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
 
     private async Task<ListResponse<PagePollingDto>> GetAllLandingPages(SearchPagesRequest input)
     {
-        var query = input.AsQuery();
+        var query = input.AsHubspotQuery();
         var endpoint = ApiEndpoints.LandingPages.WithQuery(query);
 
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
@@ -455,7 +455,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
     
     public async Task<ListResponse<MarketingEmailPollingDto>> GetAllMarketingEmails(SearchEmailsRequest input)
     {
-        var query = input.AsQuery();
+        var query = input.AsHubspotQuery();
         var endpoint = $"{ApiEndpoints.MarketingEmailsEndpoint}".WithQuery(query);
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
 
