@@ -100,7 +100,7 @@ public class LandingPageService(InvocationContext invocationContext) : BaseConte
         var translationId = await GetOrCreateTranslationId(ApiEndpoints.LandingPages, sourcePageId, targetLanguage, primaryLanguage);
         var pageDto = await UpdateTranslatedPage<PageDto>(ApiEndpoints.UpdateLandingPage(translationId), new()
         {
-            ObjectId = translationId,
+            Id = translationId,
             HtmlTitle = resultEntity.PageInfo.Title,
             LayoutSections = resultEntity.Json
         });

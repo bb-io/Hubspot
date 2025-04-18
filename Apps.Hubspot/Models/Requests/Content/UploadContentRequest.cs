@@ -13,6 +13,6 @@ public class UploadContentRequest
     [Display("Create new content", Description = "If set to true for emails and forms, instead of updating the original item, it will create a new one. Default is false.")]
     public bool? CreateNew { get; set; }
 
-    [Display("Site Page ID", Description = " ID of site page you want to update.")]
+    [Display("Original item ID", Description = "ID of blog post, landing or site page you want to update.")]
     public string? SitePageId { get; set; }
 }

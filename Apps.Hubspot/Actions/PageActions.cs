@@ -129,7 +129,7 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
 
         var page = await UpdateTranslatedPage(ApiEndpoints.UpdatePage(translationId), new()
         {
-            ObjectId = translationId,
+            Id = translationId,
             HtmlTitle = pageInfo.Title,
             LayoutSections = json
         });
