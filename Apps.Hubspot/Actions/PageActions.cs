@@ -30,9 +30,9 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
 {
     [Action("Search site pages", Description = "Search for a list of site pages that match a certain criteria")]
     public async Task<ListResponse<PageDto>> GetAllSitePages([ActionParameter] SearchPagesRequest searchPageRequest,
-        [ActionParameter] SearchPagesAdditionalRequest additionalRequest)
+        [ActionParameter] SearchPagesAdditionalRequest additionalRequest, [ActionParameter][Display("Site name must be an exact match")]bool? exactMatch)
     {
-        var searchPageQuery = searchPageRequest.AsQuery();
+        var searchPageQuery = searchPageRequest.AsHubspotQuery();
 
         var additionalQuery = additionalRequest.AsQuery();
 
@@ -46,6 +46,11 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
         if (searchPageRequest.NotTranslatedInLanguage != null)
         {
             response = response.Where(p => p.Translations == null || p.Translations.Keys.All(key => key != searchPageRequest.NotTranslatedInLanguage.ToLower())).ToList();
+        }
+
+        if (exactMatch.HasValue && exactMatch.Value && !String.IsNullOrEmpty(searchPageRequest.Name))
+        {
+            response = response.Where(x => x.Name == searchPageRequest.Name).ToList();
         }
 
         var items = response.Select(x => x.DeepClone()).ToList();
