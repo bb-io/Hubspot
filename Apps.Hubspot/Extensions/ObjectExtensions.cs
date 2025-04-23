@@ -62,7 +62,7 @@ public static class ObjectExtensions
             if (value is DateTime dateTime)
             {
                 // Convert to Unix timestamp in milliseconds for Hubspot API
-                var unixTime = new DateTimeOffset(dateTime).ToUnixTimeMilliseconds().ToString();
+                var unixTime = new DateTimeOffset(dateTime.ToUniversalTime()).ToUnixTimeMilliseconds().ToString();
                 query[key] = unixTime;
             }
             else

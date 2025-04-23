@@ -29,18 +29,14 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
     : BasePageActions(invocationContext, fileManagementClient)
 {
     [Action("Search site pages", Description = "Search for a list of site pages that match a certain criteria")]
-    public async Task<ListResponse<PageDto>> GetAllSitePages([ActionParameter] SearchPagesRequest searchPageRequest,
-        [ActionParameter] SearchPagesAdditionalRequest additionalRequest, [ActionParameter][Display("Site name must be an exact match")]bool? exactMatch)
+    public async Task<ListResponse<PageDto>> GetAllSitePages([ActionParameter] SearchPagesRequest searchPageRequest)
     {
-        var searchPageQuery = searchPageRequest.AsHubspotQuery();
-
-        var additionalQuery = additionalRequest.AsQuery();
-
-        var query = searchPageQuery.Combine(additionalQuery);
+        var query = searchPageRequest.AsHubspotQuery();
 
         var endpoint = ApiEndpoints.SitePages.WithQuery(query);
 
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
+
         var response = await Client.Paginate<GenericPageDto>(request);
 
         if (searchPageRequest.NotTranslatedInLanguage != null)
@@ -48,9 +44,9 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
             response = response.Where(p => p.Translations == null || p.Translations.Keys.All(key => key != searchPageRequest.NotTranslatedInLanguage.ToLower())).ToList();
         }
 
-        if (exactMatch.HasValue && exactMatch.Value && !String.IsNullOrEmpty(searchPageRequest.Name))
+        if (!String.IsNullOrEmpty(searchPageRequest.UrlContains))
         {
-            response = response.Where(x => x.Name == searchPageRequest.Name).ToList();
+            response = response.Where(x => x.Url.Contains(searchPageRequest.UrlContains)).ToList();
         }
 
         var items = response.Select(x => x.DeepClone()).ToList();

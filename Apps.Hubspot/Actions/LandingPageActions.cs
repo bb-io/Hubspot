@@ -28,14 +28,9 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
     : BasePageActions(invocationContext, fileManagementClient)
 {
     [Action("Search landing pages", Description = "Search for a list of site pages that match a certain criteria")]
-    public async Task<ListResponse<PageDto>> GetAllLandingPages([ActionParameter] SearchPagesRequest searchPagesRequest,
-        [ActionParameter] SearchPagesAdditionalRequest additionalRequest)
+    public async Task<ListResponse<PageDto>> GetAllLandingPages([ActionParameter] SearchPagesRequest searchPagesRequest)
     {
-        var searchPagesQuery = searchPagesRequest.AsQuery();
-
-        var additionalQuery = additionalRequest.AsQuery();
-
-        var query = searchPagesQuery.Combine(additionalQuery);
+        var query = searchPagesRequest.AsHubspotQuery();
 
         var endpoint = ApiEndpoints.LandingPages.WithQuery(query);
 
@@ -45,6 +40,11 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
         if (searchPagesRequest.NotTranslatedInLanguage != null)
         {
             response = response.Where(p => p.Translations == null || p.Translations.Keys.All(key => key != searchPagesRequest.NotTranslatedInLanguage.ToLower())).ToList();
+        }
+
+        if (!String.IsNullOrEmpty(searchPagesRequest.UrlContains))
+        {
+            response = response.Where(p => p.Url.Contains(searchPagesRequest.UrlContains)).ToList();
         }
 
         return new(response);
