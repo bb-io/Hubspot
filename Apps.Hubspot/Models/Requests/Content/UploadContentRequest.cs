@@ -15,4 +15,8 @@ public class UploadContentRequest
 
     [Display("Original item ID", Description = "ID of blog post, landing or site page you want to update.")]
     public string? SitePageId { get; set; }
+
+    [Display("Update slug and meta description from file", Description = "Page metadata will be updated from the meta tags in the file.")]
+    public bool? UpdatePageMetdata { get; set; }
+
 }

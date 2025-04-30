@@ -3,6 +3,7 @@ using Apps.Hubspot.Constants;
 using Apps.Hubspot.Extensions;
 using Apps.Hubspot.HtmlConversion;
 using Apps.Hubspot.Models.Dtos.Pages;
+using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Models.Requests.Content;
 using Apps.Hubspot.Models.Responses;
 using Apps.Hubspot.Models.Responses.Content;
@@ -10,11 +11,15 @@ using Apps.Hubspot.Services.ContentServices.Abstract;
 using Apps.Hubspot.Utils.Converters;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
+using Blackbird.Applications.Sdk.Utils.Html.Extensions;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
 using RestSharp;
+using System.IO;
+using System.Text;
 
 namespace Apps.Hubspot.Services.ContentServices;
 
@@ -83,7 +88,7 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
         var page = await Client.ExecuteWithErrorHandling<GenericPageDto>(request);
         
         var htmlBytes =
-            HtmlConverter.ToHtml(page.LayoutSections, page.HtmlTitle, page.Language, id, ContentTypes.SitePage, null);
+            HtmlConverter.ToHtml(page.LayoutSections, page.HtmlTitle, page.Language, id, ContentTypes.SitePage, null, page.Slug, page.MetaDescription);
         return new MemoryStream(htmlBytes);
     }
 
@@ -99,12 +104,34 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
         }
 
         var translationId = await GetOrCreateTranslationId(ApiEndpoints.SitePages, sourcePageId, targetLanguage, primaryLanguage);
-        var pageDto = await UpdateTranslatedPage<PageDto>(ApiEndpoints.UpdatePage(translationId), new()
+        var updatedPage = new UpdateTranslatedPageRequest()
         {
             Id = translationId,
             HtmlTitle = resultEntity.PageInfo.Title,
             LayoutSections = resultEntity.Json
-        });
+        };
+        if (uploadContentRequest.UpdatePageMetdata.HasValue && uploadContentRequest.UpdatePageMetdata.Value)
+        {
+            
+            stream.Position = 0;
+            var fileBytes = await stream.GetByteData();
+
+            var fileString = Encoding.UTF8.GetString(fileBytes);
+            var document = fileString.AsHtmlDocument();
+
+            var slug = document.ExtractSlug();
+            var metaDescription = document.ExtractMetaDescription();
+
+            if (!String.IsNullOrEmpty(slug))
+            {
+                updatedPage.Slug = slug;
+            }
+            if (!String.IsNullOrEmpty(metaDescription))
+            {
+                updatedPage.metaDescription = metaDescription;
+            }
+        }
+        var pageDto = await UpdateTranslatedPage<PageDto>(ApiEndpoints.UpdatePage(translationId), updatedPage);
 
         return new()
         {

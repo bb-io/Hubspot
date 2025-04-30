@@ -84,7 +84,8 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
         }
 
         var htmlFile =
-            HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language, input.PageId, ContentTypes.SitePage, Properties);
+            HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language, input.PageId, ContentTypes.SitePage, Properties,
+            result.Slug, result.MetaDescription);
 
         FileReference file;
         var title = result.HtmlTitle ?? result.Name;
