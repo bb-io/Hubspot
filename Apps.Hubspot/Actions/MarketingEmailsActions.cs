@@ -61,7 +61,7 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
     public async Task<FileResponse> GetMarketingEmailHtml([ActionParameter] MarketingEmailRequest emailRequest, [ActionParameter] LocalizablePropertiesRequest Properties)
     {
         var email = await GetEmail(emailRequest.MarketingEmailId);
-        var html = HtmlConverter.ToHtml(email.Content, email.Name, email.Language, emailRequest.MarketingEmailId, ContentTypes.Email, Properties, email.BusinessUnitId);
+        var html = HtmlConverter.ToHtml(email.Content, email.Name, email.Language, emailRequest.MarketingEmailId, ContentTypes.Email, Properties, null, null, email.BusinessUnitId);
 
         var file = await FileManagementClient.UploadAsync(new MemoryStream(html), MediaTypeNames.Text.Html,
             $"{emailRequest}.html");

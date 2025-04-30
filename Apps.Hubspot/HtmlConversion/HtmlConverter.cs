@@ -45,7 +45,7 @@ public static class HtmlConverter
         string contentType)
     {
         var allFields = fieldGroups.SelectMany(group => group.Fields).ToList();
-        var (doc, bodyNode) = PrepareEmptyHtmlDocument(new JObject(), title, language, pageId, contentType);
+        var (doc, bodyNode) = PrepareEmptyHtmlDocument(new JObject(), title, language, pageId, null, null, contentType);
 
         foreach (var field in allFields)
         {
@@ -102,7 +102,7 @@ public static class HtmlConverter
         return Encoding.UTF8.GetBytes(doc.DocumentNode.OuterHtml);
     }
 
-    public static byte[] ToHtml(JObject emailContent, string title, string language, string pageId, string contentType, LocalizablePropertiesRequest? properties, string? businessUnitId = null)
+    public static byte[] ToHtml(JObject emailContent, string title,string language, string pageId, string contentType, LocalizablePropertiesRequest? properties, string slug, string metaDescription, string? businessUnitId = null)
     {
         if (properties?.PropertiesToInclude != null)
         {
@@ -142,7 +142,7 @@ public static class HtmlConverter
             })
             .ToList();
 
-        var (doc, bodyNode) = PrepareEmptyHtmlDocument(emailContent, title, language, pageId, contentType, businessUnitId);
+        var (doc, bodyNode) = PrepareEmptyHtmlDocument(emailContent, title, language, pageId, contentType, slug, metaDescription, businessUnitId);
         htmlNodes.ForEach(x => AddContentToHtml(x.Path, x.Html, bodyNode, doc.CreateElement("div")));
 
         return Encoding.UTF8.GetBytes(doc.DocumentNode.OuterHtml);
@@ -318,7 +318,7 @@ public static class HtmlConverter
     }
 
     private static (HtmlDocument document, HtmlNode bodyNode) PrepareEmptyHtmlDocument(JObject emailContent,
-        string title, string language, string pageId, string contentType, string? businessUnitId = null)
+        string title, string language, string pageId, string contentType, string? slug, string? metaDescription, string? businessUnitId = null)
     {
         var htmlDoc = new HtmlDocument();
         var htmlNode = htmlDoc.CreateElement("html");
@@ -332,12 +332,27 @@ public static class HtmlConverter
             var titleNode = htmlDoc.CreateElement("title");
             headNode.AppendChild(titleNode);
             titleNode.InnerHtml = title;
-        }
+        }        
 
         var metaNode = htmlDoc.CreateElement("meta");
         metaNode.SetAttributeValue("name", BlackbirdReferenceIdAttribute);
         metaNode.SetAttributeValue("content", pageId);
         headNode.AppendChild(metaNode);
+
+        if (!string.IsNullOrEmpty(slug))
+        {
+            var metaSlugNode = htmlDoc.CreateElement("meta");
+            metaSlugNode.SetAttributeValue("name", "slug");
+            metaSlugNode.SetAttributeValue("content", slug);
+            headNode.AppendChild(metaSlugNode);
+        }
+        if (!string.IsNullOrEmpty(metaDescription))
+        {
+            var metaDescriptionNode = htmlDoc.CreateElement("meta");
+            metaDescriptionNode.SetAttributeValue("name", "description");
+            metaDescriptionNode.SetAttributeValue("content", metaDescription);
+            headNode.AppendChild(metaDescriptionNode);
+        }
 
         var contentTypeMetaNode = htmlDoc.CreateElement("meta");
         contentTypeMetaNode.SetAttributeValue("name", BlackbirdContentTypeAttribute);

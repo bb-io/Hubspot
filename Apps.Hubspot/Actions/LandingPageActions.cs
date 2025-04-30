@@ -73,7 +73,8 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
         PluginMisconfigurationExceptionHelper.ThrowIsNullOrEmpty(input.PageId, nameof(input.PageId));
         var result = await GetPage<GenericPageDto>(ApiEndpoints.ALandingPage(input.PageId));
 
-        var htmlFile = HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language, input.PageId, ContentTypes.LandingPage, Properties);
+        var htmlFile = HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language, input.PageId, ContentTypes.LandingPage, Properties,
+            result.Slug, result.MetaDescription);
 
         FileReference file;
         using (var stream = new MemoryStream(htmlFile))
