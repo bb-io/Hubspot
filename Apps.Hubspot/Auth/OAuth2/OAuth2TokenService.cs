@@ -8,6 +8,7 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Sdk;
 using Newtonsoft.Json;
 using RestSharp;
+using System.Globalization;
 using System.Threading;
 
 namespace Apps.Hubspot.Auth.OAuth2;
@@ -68,8 +69,9 @@ public class OAuth2TokenService(InvocationContext invocationContext)
                                    $"Invalid response content: {responseContent}");
 
         var expiresIn = int.Parse(resultDictionary["expires_in"]);
-        var expiresAt = DateTime.UtcNow.AddSeconds(expiresIn);
-        resultDictionary.Add(CredsNames.ExpiresAt, expiresAt.ToString());
+        var customExpiresIn = Math.Max(0, expiresIn - 10); //
+        var expiresAt = DateTime.UtcNow.AddSeconds(customExpiresIn);
+        resultDictionary[CredsNames.ExpiresAt] = expiresAt.ToString("o", CultureInfo.InvariantCulture);
 
         return resultDictionary;
     }
