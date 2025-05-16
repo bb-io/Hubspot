@@ -135,7 +135,7 @@ public class BlogPostsActions(InvocationContext invocationContext, IFileManageme
         });
     }
 
-    [Action("Schedule a blog post for publishing",
+    [Action("Schedule blog post for publishing",
         Description = "Schedules a blog post for publishing on the given time")]
     public Task ScheduleABlogPostForPublish([ActionParameter] PublishBlogpostRequest request)
     {

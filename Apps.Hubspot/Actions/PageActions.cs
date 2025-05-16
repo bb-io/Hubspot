@@ -62,14 +62,14 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
         return await service.GetTranslationLanguageCodesAsync(request.PageId);
     }
 
-    [Action("Get a site page", Description = "Get information of a specific page")]
+    [Action("Get site page", Description = "Get information of a specific page")]
     public Task<PageDto> GetSitePage([ActionParameter] SitePageRequest input)
     {
         PluginMisconfigurationExceptionHelper.ThrowIsNullOrEmpty(input.PageId, nameof(input.PageId));
         return GetPage<PageDto>(ApiEndpoints.ASitePage(input.PageId));
     }
 
-    [Action("Get a site page as HTML file",
+    [Action("Get site page as HTML file",
         Description = "Get information of a specific page and return an HTML file of its content")]
     public async Task<FileLanguageResponse> GetSitePageAsHtml([ActionParameter] SitePageRequest input, 
         [ActionParameter] LocalizablePropertiesRequest Properties)
@@ -101,7 +101,7 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
         };
     }
 
-    [Action("Translate a site page from HTML file",
+    [Action("Translate site page from HTML file",
         Description = "Create a new translation for a site page based on a file searchPageRequest")]
     public async Task<TranslationResponse> TranslateSitePageFromFile(
         [ActionParameter] TranslateSitePageFromFileRequest request)
@@ -143,7 +143,7 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
         };
     }
 
-    [Action("Schedule a site-page for publishing",
+    [Action("Schedule site-page for publishing",
         Description = "Schedules a site page for publishing on the given time")]
     public Task ScheduleASitePageForPublish([ActionParameter] PublishSitePageRequest request)
     {
