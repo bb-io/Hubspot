@@ -7,6 +7,7 @@ using Apps.Hubspot.Actions.Base;
 using Apps.Hubspot.Api;
 using Apps.Hubspot.Constants;
 using Apps.Hubspot.Extensions;
+using Apps.Hubspot.HtmlConversion;
 using Apps.Hubspot.Models.Dtos.Blogs.Posts;
 using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Models.Requests.BlogPosts;
@@ -91,18 +92,17 @@ public class BlogPostsActions(InvocationContext invocationContext, IFileManageme
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
 
         var blogPost = await Client.ExecuteWithErrorHandling<BlogPostDto>(request);
-        var htmlFile = (blogPost.Name, blogPost.MetaDescription, blogPost.PostBody, input.BlogPost, ContentTypes.Blog).AsHtml();
+        var htmlFile = blogPost.ToHtml();
 
-        FileReference file;
-        using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(htmlFile)))
-        {
-            file = await FileManagementClient.UploadAsync(stream, MediaTypeNames.Text.Html, $"{blogPost.Name}.html");
-        }
-
+        await using var stream = new MemoryStream(Encoding.UTF8.GetBytes(htmlFile));
+        stream.Position = 0;
+        
+        FileReference file = await FileManagementClient.UploadAsync(stream, MediaTypeNames.Text.Html, $"{blogPost.Name}.html");
+        
         return new FileLanguageResponse
         {
             File = file,
-            FileLanguage = blogPost.Language,
+            FileLanguage = blogPost.Language!
         };
     }
 
