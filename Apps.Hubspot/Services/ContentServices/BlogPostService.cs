@@ -96,21 +96,24 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
         var document = fileString.AsHtmlDocument();
         
         var blogPostId = document.ExtractBlackbirdReferenceId() ?? throw new PluginMisconfigurationException("Blog post ID not found in the file. Please, make sure you generated HTML file with our app");
-        
-        var title = document.GetTitle();
-        var metaDescription = document.GetNodeFromHead("description");
-        var body = document.DocumentNode.SelectSingleNode("/html/body").InnerHtml;
+
+        var postRequest = new ManageBlogPostRequest
+        {
+            Name = document.GetTitle(),
+            PostBody = document.DocumentNode.SelectSingleNode("/html/body").InnerHtml
+        };
+
+        if (uploadContentRequest.UpdatePageMetdata == true)
+        {
+            postRequest.MetaDescription = document.GetNodeFromHead("description");
+            postRequest.Slug = document.GetSlug();
+        }
 
         var translationId = await GetOrCreateTranslationId(ApiEndpoints.BlogPostsSegment, blogPostId, targetLanguage);
         var blogPost = await UpdateFullBlogPostObjectAsync(new()
         {
             BlogPostId = translationId
-        }, new()
-        {
-            Name = title,
-            PostBody = body,
-            MetaDescription = metaDescription
-        });
+        }, postRequest);
 
         return new()
         {
