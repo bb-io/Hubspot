@@ -18,5 +18,4 @@ public class UploadContentRequest
 
     [Display("Update slug and meta description from file", Description = "Page metadata will be updated from the meta tags in the file.")]
     public bool? UpdatePageMetdata { get; set; }
-
 }

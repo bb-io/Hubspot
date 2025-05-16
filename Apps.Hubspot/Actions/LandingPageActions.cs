@@ -50,7 +50,7 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
         return new(response);
     }
 
-    [Action("Get a landing page", Description = "Get information of a specific landing page")]
+    [Action("Get landing page", Description = "Get information of a specific landing page")]
     public Task<PageDto> GetLandingPage([ActionParameter] LandingPageRequest input)
     {
         PluginMisconfigurationExceptionHelper.ThrowIsNullOrEmpty(input.PageId, nameof(input.PageId));
@@ -65,7 +65,7 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
         return await service.GetTranslationLanguageCodesAsync(request.PageId);
     }
 
-    [Action("Get a landing page as HTML file",
+    [Action("Get landing page as HTML file",
         Description = "Get information of a specific landing page and return an HTML file of its content")]
     public async Task<FileLanguageResponse> GetLandingPageAsHtml([ActionParameter] LandingPageRequest input, 
         [ActionParameter] LocalizablePropertiesRequest Properties)
@@ -89,7 +89,7 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
         };
     }
 
-    [Action("Translate a landing page from HTML file",
+    [Action("Translate landing page from HTML file",
         Description = "Create a new translation for a site page based on a file input")]
     public async Task<TranslationResponse> TranslateLandingPageFromFile(
         [ActionParameter] TranslateLandingPageFromFileRequest request)
@@ -122,7 +122,7 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
         };
     }
 
-    [Action("Schedule a landing page for publishing",
+    [Action("Schedule landing page for publishing",
         Description = "Schedules a landing page for publishing on the given time")]
     public Task ScheduleALandingPageForPublish([ActionParameter] PublishLandingPageRequest request)
     {

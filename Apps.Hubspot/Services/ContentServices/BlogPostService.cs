@@ -2,6 +2,7 @@
 using Apps.Hubspot.Api;
 using Apps.Hubspot.Constants;
 using Apps.Hubspot.Extensions;
+using Apps.Hubspot.HtmlConversion;
 using Apps.Hubspot.Models.Dtos.Blogs.Posts;
 using Apps.Hubspot.Models.Requests.BlogPosts;
 using Apps.Hubspot.Models.Requests.Content;
@@ -81,8 +82,11 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
         var endpoint = $"{ApiEndpoints.BlogPostsSegment}/{id}";
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
         var blogPost = await Client.ExecuteWithErrorHandling<BlogPostDto>(request);
-        var htmlFile = (blogPost.Name, blogPost.MetaDescription, blogPost.PostBody, id, ContentTypes.Blog).AsHtml();
-        return new MemoryStream(Encoding.UTF8.GetBytes(htmlFile));
+        var htmlFile = blogPost.ToHtml();
+        
+        var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(htmlFile));
+        memoryStream.Position = 0;
+        return memoryStream;
     }
 
     public override async Task<Metadata> UpdateContentFromHtmlAsync(string targetLanguage, Stream stream, UploadContentRequest uploadContentRequest)
@@ -92,21 +96,24 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
         var document = fileString.AsHtmlDocument();
         
         var blogPostId = document.ExtractBlackbirdReferenceId() ?? throw new PluginMisconfigurationException("Blog post ID not found in the file. Please, make sure you generated HTML file with our app");
-        
-        var title = document.GetTitle();
-        var metaDescription = document.GetNodeFromHead("description");
-        var body = document.DocumentNode.SelectSingleNode("/html/body").InnerHtml;
+
+        var postRequest = new ManageBlogPostRequest
+        {
+            Name = document.GetTitle(),
+            PostBody = document.DocumentNode.SelectSingleNode("/html/body").InnerHtml
+        };
+
+        if (uploadContentRequest.UpdatePageMetdata == true)
+        {
+            postRequest.MetaDescription = document.GetNodeFromHead("description");
+            postRequest.Slug = document.GetSlug();
+        }
 
         var translationId = await GetOrCreateTranslationId(ApiEndpoints.BlogPostsSegment, blogPostId, targetLanguage);
         var blogPost = await UpdateFullBlogPostObjectAsync(new()
         {
             BlogPostId = translationId
-        }, new()
-        {
-            Name = title,
-            PostBody = body,
-            MetaDescription = metaDescription
-        });
+        }, postRequest);
 
         return new()
         {

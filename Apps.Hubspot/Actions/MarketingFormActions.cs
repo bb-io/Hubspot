@@ -185,11 +185,8 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
 
         var request = new HubspotRequest(ApiEndpoints.MarketingFormsEndpoint, Method.Post, Creds)
          .WithJsonBody(createRequestBody);
-
         var response = await Client.ExecuteWithErrorHandling<MarketingFormDto>(request);
 
         return response;
-
     }
-
 }
