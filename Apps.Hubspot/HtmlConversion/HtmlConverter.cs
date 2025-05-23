@@ -45,7 +45,7 @@ public static class HtmlConverter
         string contentType)
     {
         var allFields = fieldGroups.SelectMany(group => group.Fields).ToList();
-        var (doc, bodyNode) = PrepareEmptyHtmlDocument(new JObject(), title, language, pageId, null, null, contentType);
+        var (doc, bodyNode) = PrepareEmptyHtmlDocument(new JObject(), title, language, pageId, contentType, null, null );
 
         foreach (var field in allFields)
         {
