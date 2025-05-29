@@ -20,7 +20,7 @@ public class BlogTagService(InvocationContext invocationContext) : BaseContentSe
 {
     public override async Task<List<Metadata>> SearchContentAsync(Dictionary<string, string> query)
     {
-        var endpoint = "/cms/v3/blogs/tags".WithQuery(query);
+        var endpoint = "/blogs/tags".WithQuery(query);
 
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
         var blogTags = await Client.Paginate<BlogTagDto>(request);
@@ -35,7 +35,7 @@ public class BlogTagService(InvocationContext invocationContext) : BaseContentSe
 
     public override Task DeleteContentAsync(string id)
     {
-        var endpoint = $"/cms/v3/blogs/tags/{id}";
+        var endpoint = $"/blogs/tags/{id}";
         var request = new HubspotRequest(endpoint, Method.Delete, Creds);
         return Client.ExecuteWithErrorHandling(request);
     }
@@ -78,7 +78,7 @@ public class BlogTagService(InvocationContext invocationContext) : BaseContentSe
         }
         else
         {
-            var endpoint = $"/cms/v3/blogs/tags/{tagWithTargetLanguage.Id}";
+            var endpoint = $"/blogs/tags/{tagWithTargetLanguage.Id}";
             var data = new
             {
                 name = blogTagObject.Name,
@@ -99,7 +99,7 @@ public class BlogTagService(InvocationContext invocationContext) : BaseContentSe
 
     private async Task<BlogTagDto> GetBlogTagByIdAsync(string id)
     {
-        var endpoint = $"/cms/v3/blogs/tags/{id}";
+        var endpoint = $"/blogs/tags/{id}";
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
         return await Client.ExecuteWithErrorHandling<BlogTagDto>(request);
     }
@@ -122,14 +122,14 @@ public class BlogTagService(InvocationContext invocationContext) : BaseContentSe
 
     private async Task<List<BlogTagDto>> GetBlogTagsAsync(Dictionary<string, string> query)
     {
-        var endpoint = "/cms/v3/blogs/tags".WithQuery(query);
+        var endpoint = "/blogs/tags".WithQuery(query);
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
         return await Client.Paginate<BlogTagDto>(request);
     }
 
     private async Task<BlogTagDto> CreateLanguageVariationAsync(BlogTagDto blogTag, string targetLanguage)
     {
-        var endpoint = "/cms/v3/blogs/tags/multi-language/create-language-variation";
+        var endpoint = "/blogs/tags/multi-language/create-language-variation";
         var request = new HubspotRequest(endpoint, Method.Post, Creds)
             .AddJsonBody(new
             {
