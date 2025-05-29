@@ -12,6 +12,7 @@ public class ContentTypeHandler : IStaticDataSourceItemHandler
         {
             new(ContentTypes.Blog, "Blog posts"),
             new(ContentTypes.BlogAuthor, "Blog authors"),
+            new(ContentTypes.BlogTag, "Blog tags"),
             new(ContentTypes.LandingPage, "Landing pages"),
             new(ContentTypes.SitePage, "Site pages"),
             new(ContentTypes.Email, "Marketing emails"),
