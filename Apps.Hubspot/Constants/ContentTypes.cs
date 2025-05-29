@@ -4,6 +4,7 @@ public static class ContentTypes
 {
     public const string Blog = "blog";
     public const string BlogAuthor = "blog_author";
+    public const string BlogTag = "blog_tag";
     public const string LandingPage = "landing_page";
     public const string SitePage = "site_page";
     public const string Email = "email";
