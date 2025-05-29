@@ -1,9 +1,7 @@
 ﻿using Apps.Hubspot.Constants;
 using Apps.Hubspot.Exceptions;
 using Apps.Hubspot.Models.Responses;
-using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Exceptions;
-using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using Blackbird.Applications.Sdk.Utils.RestSharp;
 using HtmlAgilityPack;
@@ -51,10 +49,10 @@ public class HubspotClient() : BlackBirdRestClient(new()
             {
                 return new PluginApplicationException($"Request was failed with the status: {response.StatusCode}");
             }
-            
+
             return new PluginApplicationException(response.ErrorMessage);
         }
-        
+
         var error = JsonConvert.DeserializeObject<Error>(response.Content)!;
         return new HubspotException(error);
     }
@@ -69,7 +67,9 @@ public class HubspotClient() : BlackBirdRestClient(new()
         do
         {
             if (!string.IsNullOrEmpty(after))
+            {
                 request.Resource = baseUrl.SetQueryParameter("after", after);
+            }
 
             response = await ExecuteWithErrorHandling<GetAllResponse<T>>(request);
             result.AddRange(response.Results);

@@ -24,6 +24,7 @@ public class ContentServicesFactory(InvocationContext invocationContext)
         return contentType switch
         {
             ContentTypes.Blog => new BlogPostService(invocationContext),
+            ContentTypes.BlogAuthor => new BlogAuthorService(invocationContext),
             ContentTypes.LandingPage => new LandingPageService(invocationContext),
             ContentTypes.Email => new MarketingEmailService(invocationContext),
             ContentTypes.Form => new MarketingFormService(invocationContext),
