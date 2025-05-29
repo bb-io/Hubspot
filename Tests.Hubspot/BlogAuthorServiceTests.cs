@@ -1,6 +1,8 @@
 using Apps.Hubspot.Services.ContentServices;
 using Newtonsoft.Json;
 using Tests.Hubspot.Base;
+using Apps.Hubspot.Models.Requests.Content;
+using Blackbird.Applications.Sdk.Common.Files;
 
 namespace Tests.Hubspot;
 
@@ -37,6 +39,28 @@ public class BlogAuthorServiceTests : TestBase
 
         Assert.IsNotNull(result);
         Assert.AreEqual(validId, result.Id);
+        Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
+    }
+
+    [TestMethod]
+    public async Task UpdateContentFromHtmlAsync_WithBirdieHtmlAndDeLanguage_ShouldReturnUpdatedMetadata()
+    {
+        // Arrange
+        var fileName = "Birdie.html";
+        var targetLanguage = "de";
+        
+        // Get the test file
+        var fileReference = new FileReference { Name = fileName };
+        var fileStream = await FileManager.DownloadAsync(fileReference);
+        
+        var uploadRequest = new UploadContentRequest();
+
+        // Act
+        var result = await _service.UpdateContentFromHtmlAsync(targetLanguage, fileStream, uploadRequest);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(targetLanguage, result.Language);
         Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
     }
 }

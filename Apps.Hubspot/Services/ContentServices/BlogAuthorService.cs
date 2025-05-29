@@ -80,9 +80,24 @@ public class BlogAuthorService(InvocationContext invocationContext) : BaseConten
         }
         else
         {
-            var endpoint = $"/blogs/authors/objectIds/{authorWithTargetLanguage.Id}";
+            var endpoint = $"/blogs/authors/{authorWithTargetLanguage.Id}";
+            var data = new
+            {
+                website = blogAuthorObject.Website,
+                displayName = blogAuthorObject.DisplayName,
+                facebook = blogAuthorObject.Facebook,
+                fullName = blogAuthorObject.FullName,
+                bio = blogAuthorObject.Bio,
+                linkedin = blogAuthorObject.Linkedin,
+                avatar = blogAuthorObject.Avatar,
+                twitter = blogAuthorObject.Twitter,
+                name = blogAuthorObject.Name,
+                email = blogAuthorObject.Email,
+                slug = blogAuthorObject.Slug
+            };
+
             var request = new HubspotRequest(endpoint, Method.Patch, Creds)
-                .AddJsonBody(blogAuthorObject);
+                .AddJsonBody(data);
             var updatedAuthor = await Client.ExecuteWithErrorHandling<BlogAuthorDto>(request);
             return ConvertBlogAuthorToMetadata(updatedAuthor);
         }
@@ -112,7 +127,7 @@ public class BlogAuthorService(InvocationContext invocationContext) : BaseConten
     {
         var endpoint = ApiEndpoints.BlogAuthorsSegment.WithQuery(query);
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
-        return await Client.ExecuteWithErrorHandling<List<BlogAuthorDto>>(request);
+        return await Client.Paginate<BlogAuthorDto>(request);
     }
 
     private async Task<BlogAuthorDto> GetBlogAuthorByIdAsync(string id)
