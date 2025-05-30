@@ -18,11 +18,13 @@ namespace Apps.Hubspot.Services.ContentServices;
 
 public class BlogCommentService(InvocationContext invocationContext) : BaseContentService(invocationContext)
 {
+    protected override HubspotClient Client { get; } = new(Urls.Api);
+
     public override async Task<List<Metadata>> SearchContentAsync(Dictionary<string, string> query)
     {
         var endpoint = ApiEndpoints.BlogCommentsSegment.WithQuery(query);
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
-        
+
         var response = await Client.ExecuteWithErrorHandling<GetBlogCommentsResponse>(request);
         return response.Objects.Select(x => ConvertBlogCommentToMetadata(x)).ToList();
     }

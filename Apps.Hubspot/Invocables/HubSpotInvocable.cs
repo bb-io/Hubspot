@@ -14,7 +14,7 @@ public abstract class HubSpotInvocable(InvocationContext invocationContext) : Ba
     protected IEnumerable<AuthenticationCredentialsProvider> Creds =>
         InvocationContext.AuthenticationCredentialsProviders;
     
-    protected HubspotClient Client { get; } = new();
+    protected virtual HubspotClient Client { get; } = new();
 
     public async Task<string> GetUserId()
     {

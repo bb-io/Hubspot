@@ -10,9 +10,9 @@ using RestSharp;
 
 namespace Apps.Hubspot.Api;
 
-public class HubspotClient() : BlackBirdRestClient(new()
+public class HubspotClient(string? baseUrl = null) : BlackBirdRestClient(new()
 {
-    BaseUrl = Urls.Api.ToUri()
+    BaseUrl = baseUrl == null ? Urls.CmsApi.ToUri() : baseUrl.ToUri(),
 })
 {
     protected override Exception ConfigureErrorException(RestResponse response)
