@@ -95,7 +95,8 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
         var fileString = Encoding.UTF8.GetString(fileBytes);
         var document = fileString.AsHtmlDocument();
         
-        var blogPostId = document.ExtractBlackbirdReferenceId() ?? throw new PluginMisconfigurationException("Blog post ID not found in the file. Please, make sure you generated HTML file with our app");
+        var blogPostId = document.ExtractBlackbirdReferenceId()
+            ?? throw new PluginMisconfigurationException("Blog post ID not found in the file. Please, make sure you generated HTML file with our app");
 
         var postRequest = new ManageBlogPostRequest
         {
