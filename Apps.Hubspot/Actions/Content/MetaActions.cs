@@ -10,6 +10,7 @@ using Apps.Hubspot.Utils;
 using Apps.Hubspot.Utils.Extensions;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Html.Extensions;
@@ -35,8 +36,8 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
         var timeQuery = timeFilter.AsQuery();
         var languageQuery = languageFilter.AsQuery();
         var searchContentQuery = searchContentRequest.AsQuery();
-        
-        var query = searchContentQuery.Combine(timeQuery,languageQuery,searchContentQuery);
+
+        var query = searchContentQuery.Combine(timeQuery, languageQuery, searchContentQuery);
 
         var metadata = await contentServices.ExecuteManyAsync(query);
 
@@ -82,6 +83,12 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
     public async Task<Metadata> UpdateContentFromHtml([ActionParameter] LanguageFileRequest languageFileRequest,
         [ActionParameter] UploadContentRequest uploadContentRequest)
     {
+        if (!languageFileRequest.File.Name.EndsWith(".html"))
+        {
+            var fileExtension = Path.GetExtension(languageFileRequest.File.Name);
+            throw new PluginMisconfigurationException($"The provided file is not an HTML file. Please provide a file with .html extension, but got {fileExtension} instead.");
+        }
+
         var fileMemory = await fileManagementClient.DownloadAsync(languageFileRequest.File);
         var memoryStream = new MemoryStream();
         await fileMemory.CopyToAsync(memoryStream);

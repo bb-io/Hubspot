@@ -110,6 +110,12 @@ public class BlogPostsActions(InvocationContext invocationContext, IFileManageme
     public async Task<BlogPostDto> TranslateBlogPostFromHtml(
         [ActionParameter] TranslateBlogPostFromHtmlRequest input)
     {
+        if (!input.File.Name.EndsWith(".html"))
+        {
+            var fileExtension = Path.GetExtension(input.File.Name);
+            throw new PluginMisconfigurationException($"The provided file is not an HTML file. Please provide a file with .html extension, but got {fileExtension} instead.");
+        }
+
         var file = await FileManagementClient.DownloadAsync(input.File);
         var fileBytes = await file.GetByteData();
 
