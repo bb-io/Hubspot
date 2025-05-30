@@ -79,9 +79,6 @@ public class BlogCommentDto
     [Display("Legacy ID")] 
     public long LegacyId { get; set; }
     
-    [Display("Extra context")] 
-    public string? ExtraContext { get; set; }
-    
     [Display("Parent")] 
     public BlogCommentDto? Parent { get; set; }
 }

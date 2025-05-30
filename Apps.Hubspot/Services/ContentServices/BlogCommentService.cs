@@ -12,6 +12,7 @@ using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
+using Newtonsoft.Json;
 using RestSharp;
 
 namespace Apps.Hubspot.Services.ContentServices;
