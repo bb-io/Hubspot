@@ -17,14 +17,14 @@ public class ContentServicesFactory(InvocationContext invocationContext)
         }
 
         return contentServices;
-    }
-      public IContentService GetContentService(string contentType)
+    }      public IContentService GetContentService(string contentType)
     {
         return contentType switch
         {
             ContentTypes.Blog => new BlogPostService(invocationContext),
             ContentTypes.BlogAuthor => new BlogAuthorService(invocationContext),
             ContentTypes.BlogTag => new BlogTagService(invocationContext),
+            ContentTypes.BlogComment => new BlogCommentService(invocationContext),
             ContentTypes.LandingPage => new LandingPageService(invocationContext),
             ContentTypes.Email => new MarketingEmailService(invocationContext),
             ContentTypes.Form => new MarketingFormService(invocationContext),

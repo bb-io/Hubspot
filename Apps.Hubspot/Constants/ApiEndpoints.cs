@@ -14,6 +14,7 @@ public static class ApiEndpoints
     public const string SitePages = $"{PagesSegment}/{SitePagesSegment}";
     public const string LandingPages = $"{PagesSegment}/{LandingPagesSegment}";
     public const string BlogAuthorsSegment = "/blogs/authors";
+    public const string BlogCommentsSegment = "/comments/v3/comments";
 
     public const string CreateTranslation = $"{SitePages}/multi-language/create-language-variation";
     public const string PublishPage = $"{SitePages}/schedule";
