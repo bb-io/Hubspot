@@ -18,7 +18,7 @@ namespace Apps.Hubspot.Services.ContentServices;
 
 public class BlogTagService(InvocationContext invocationContext) : BaseContentService(invocationContext)
 {
-    public override async Task<List<Metadata>> SearchContentAsync(Dictionary<string, string> query)
+    public override async Task<List<Metadata>> SearchContentAsync(Dictionary<string, string> query, SearchContentRequest searchContentRequest)
     {
         var endpoint = "/blogs/tags".WithQuery(query);
 
@@ -115,6 +115,8 @@ public class BlogTagService(InvocationContext invocationContext) : BaseContentSe
             Language = blogTag.Language,
             State = string.Empty, // Blog tags don't have a state field
             Published = true, // Tags are always considered published
+            Url = string.Empty, // Blog tags don't have a URL
+            Slug = blogTag.Slug,
             CreatedAt = StringToDateTimeConverter.ToDateTime(blogTag.Created),
             UpdatedAt = StringToDateTimeConverter.ToDateTime(blogTag.Updated)
         };

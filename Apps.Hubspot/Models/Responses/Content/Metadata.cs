@@ -22,6 +22,10 @@ public class Metadata
     
     public string State { get; set; } = string.Empty;
 
+    public string Url { get; set; } = string.Empty;
+
+    public string Slug { get; set; } = string.Empty;
+
     [Display("Created at")]
     public DateTime CreatedAt { get; set; }
 

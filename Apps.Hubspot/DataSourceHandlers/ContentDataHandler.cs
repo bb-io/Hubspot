@@ -34,7 +34,7 @@ public class ContentDataHandler(
         }
 
         var contentService = _factory.GetContentService(contentTypeFilter.ContentType);
-        var results = await contentService.SearchContentAsync(filters);
+        var results = await contentService.SearchContentAsync(filters, new());
 
         return results
             .Where(x => context.SearchString == null || x.Title.Contains(context.SearchString))
