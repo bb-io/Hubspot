@@ -33,7 +33,7 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
         {
             blogPosts = blogPosts.Where(x => x.Url.Contains(searchContentRequest.UrlContains, StringComparison.OrdinalIgnoreCase)).ToList();
         }
-
+        
         return blogPosts.Select(ConvertBlogPostToMetadata).ToList();
     }
 
