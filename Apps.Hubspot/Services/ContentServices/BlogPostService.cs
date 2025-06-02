@@ -25,6 +25,18 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
 {
     public override async Task<List<Metadata>> SearchContentAsync(Dictionary<string, string> query, SearchContentRequest searchContentRequest)
     {
+        string language = null;
+        if (query.TryGetValue("language", out string? value))
+        {
+            language = value;
+            query.Remove("language");
+        }
+        else if(query.TryGetValue("Language", out value))
+        {
+            language = value;
+            query.Remove("Language");
+        }
+
         var blogEndpoint = ApiEndpoints.BlogPostsSegment.WithQuery(query);
 
         var request = new HubspotRequest(blogEndpoint, Method.Get, Creds);
@@ -32,6 +44,10 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
         if (!string.IsNullOrEmpty(searchContentRequest.UrlContains))
         {
             blogPosts = blogPosts.Where(x => x.Url.Contains(searchContentRequest.UrlContains, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+        if (!string.IsNullOrEmpty(language))
+        {
+            blogPosts = blogPosts.Where(x => x.Language?.Equals(language, StringComparison.OrdinalIgnoreCase) == true).ToList();
         }
 
         return blogPosts.Select(ConvertBlogPostToMetadata).ToList();
