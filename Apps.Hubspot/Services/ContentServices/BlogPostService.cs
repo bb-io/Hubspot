@@ -141,6 +141,7 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
             Published = blogPost.CurrentlyPublished,
             Type = ContentTypes.Blog,
             Slug = blogPost.Slug,
+            Url = blogPost.Url,
             CreatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Created),
             UpdatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Updated)
         };
