@@ -38,9 +38,7 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
         var searchContentQuery = searchContentRequest.AsQuery();
 
         var query = searchContentQuery.Combine(timeQuery, languageQuery, searchContentQuery);
-
-        var metadata = await contentServices.ExecuteManyAsync(query);
-
+        var metadata = await contentServices.ExecuteManyAsync(query, searchContentRequest);
         return new(metadata);
     }
 

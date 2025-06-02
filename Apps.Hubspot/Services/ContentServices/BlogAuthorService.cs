@@ -18,7 +18,7 @@ namespace Apps.Hubspot.Services.ContentServices;
 
 public class BlogAuthorService(InvocationContext invocationContext) : BaseContentService(invocationContext)
 {
-    public override async Task<List<Metadata>> SearchContentAsync(Dictionary<string, string> query)
+    public override async Task<List<Metadata>> SearchContentAsync(Dictionary<string, string> query, SearchContentRequest searchContentRequest)
     {
         var endpoint = ApiEndpoints.BlogAuthorsSegment.WithQuery(query);
 
@@ -148,6 +148,8 @@ public class BlogAuthorService(InvocationContext invocationContext) : BaseConten
             Language = blogAuthor.Language,
             State = string.Empty, // Blog authors don't have a state field
             Published = true, // Authors are always considered published
+            Url = string.Empty, // Blog authors don't have a URL
+            Slug = blogAuthor.Slug,
             CreatedAt = StringToDateTimeConverter.ToDateTime(blogAuthor.Created),
             UpdatedAt = StringToDateTimeConverter.ToDateTime(blogAuthor.Updated)
         };

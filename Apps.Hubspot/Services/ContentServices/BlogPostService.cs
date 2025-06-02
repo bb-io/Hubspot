@@ -23,43 +23,24 @@ namespace Apps.Hubspot.Services.ContentServices;
 
 public class BlogPostService(InvocationContext invocationContext) : BaseContentService(invocationContext)
 {
-    public override async Task<List<Metadata>> SearchContentAsync(Dictionary<string, string> query)
+    public override async Task<List<Metadata>> SearchContentAsync(Dictionary<string, string> query, SearchContentRequest searchContentRequest)
     {
         var blogEndpoint = ApiEndpoints.BlogPostsSegment.WithQuery(query);
 
         var request = new HubspotRequest(blogEndpoint, Method.Get, Creds);
         var blogPosts = await Client.Paginate<BlogPostDto>(request);
-
-        return blogPosts.Select(x => new Metadata
+        if (!string.IsNullOrEmpty(searchContentRequest.UrlContains))
         {
-            Id = x.Id,
-            Title = x.Name,
-            Domain = x.Domain,
-            Type = ContentTypes.Blog,
-            Language = x.Language!,
-            State = x.CurrentState,
-            Published = x.CurrentlyPublished,
-            CreatedAt = StringToDateTimeConverter.ToDateTime(x.Created),
-            UpdatedAt = StringToDateTimeConverter.ToDateTime(x.Updated)
-        }).ToList();
+            blogPosts = blogPosts.Where(x => x.Url.Contains(searchContentRequest.UrlContains, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+        return blogPosts.Select(ConvertBlogPostToMetadata).ToList();
     }
 
     public override async Task<Metadata> GetContentAsync(string id)
-    {        
+    {
         var blogPost = await GetBlogPostAsync(id);
-
-        return new()
-        {
-            Id = blogPost.Id,
-            Title = blogPost.Name,
-            Domain = blogPost.Domain,
-            Language = blogPost.Language!,
-            State = blogPost.CurrentState,
-            Published = blogPost.CurrentlyPublished,
-            Type = ContentTypes.Blog,
-            CreatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Created),
-            UpdatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Updated)
-        };
+        return ConvertBlogPostToMetadata(blogPost);
     }
 
     public async Task<BlogPostDto> GetBlogPostAsync(string id)
@@ -83,7 +64,7 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
         var blogPost = await Client.ExecuteWithErrorHandling<BlogPostDto>(request);
         var htmlFile = blogPost.ToHtml();
-        
+
         var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(htmlFile));
         memoryStream.Position = 0;
         return memoryStream;
@@ -94,7 +75,7 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
         var fileBytes = await stream.GetByteData();
         var fileString = Encoding.UTF8.GetString(fileBytes);
         var document = fileString.AsHtmlDocument();
-        
+
         var blogPostId = document.ExtractBlackbirdReferenceId()
             ?? throw new PluginMisconfigurationException("Blog post ID not found in the file. Please, make sure you generated HTML file with our app");
 
@@ -116,18 +97,7 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
             BlogPostId = translationId
         }, postRequest);
 
-        return new()
-        {
-            Id = blogPost.Id,
-            Title = blogPost.Name,
-            Domain = blogPost.Domain,
-            Language = blogPost.Language!,
-            State = blogPost.CurrentState,
-            Published = blogPost.CurrentlyPublished,
-            Type = ContentTypes.Blog,
-            CreatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Created),
-            UpdatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Updated)
-        };
+        return ConvertBlogPostToMetadata(blogPost);
     }
 
     public override async Task<Metadata> UpdateContentAsync(string id, UpdateContentRequest updateContentRequest)
@@ -140,18 +110,7 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
             }, JsonConfig.Settings);
 
         var blogPost = await Client.ExecuteWithErrorHandling<BlogPostDto>(request);
-        return new()
-        {
-            Id = blogPost.Id,
-            Title = blogPost.Name,
-            Domain = blogPost.Domain,
-            Language = blogPost.Language!,
-            State = blogPost.CurrentState,
-            Published = blogPost.CurrentlyPublished,
-            Type = ContentTypes.Blog,
-            CreatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Created),
-            UpdatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Updated)
-        };
+        return ConvertBlogPostToMetadata(blogPost);
     }
 
     public override Task DeleteContentAsync(string id)
@@ -160,7 +119,7 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
         var request = new HubspotRequest(endpoint, Method.Delete, Creds);
         return Client.ExecuteWithErrorHandling(request);
     }
-    
+
     private Task<BlogPostDto> UpdateFullBlogPostObjectAsync(BlogPostRequest blogPost, ManageBlogPostRequest input)
     {
         var endpoint = $"{ApiEndpoints.BlogPostsSegment}/{blogPost.BlogPostId}";
@@ -168,5 +127,22 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
             .WithJsonBody(input, JsonConfig.Settings);
 
         return Client.ExecuteWithErrorHandling<BlogPostDto>(request);
+    }
+    
+    private Metadata ConvertBlogPostToMetadata(BlogPostDto blogPost)
+    {
+        return new Metadata
+        {
+            Id = blogPost.Id,
+            Title = blogPost.Name,
+            Domain = blogPost.Domain,
+            Language = blogPost.Language!,
+            State = blogPost.CurrentState,
+            Published = blogPost.CurrentlyPublished,
+            Type = ContentTypes.Blog,
+            Slug = blogPost.Slug,
+            CreatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Created),
+            UpdatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Updated)
+        };
     }
 }

@@ -16,34 +16,24 @@ using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using Blackbird.Applications.Sdk.Utils.Html.Extensions;
 using HtmlAgilityPack;
-using Newtonsoft.Json;
 using RestSharp;
-using System.IO;
 using System.Text;
 
 namespace Apps.Hubspot.Services.ContentServices;
 
 public class SitePageService(InvocationContext invocationContext) : BaseContentService(invocationContext)
 {
-    public override async Task<List<Metadata>> SearchContentAsync(Dictionary<string, string> query)
+    public override async Task<List<Metadata>> SearchContentAsync(Dictionary<string, string> query, SearchContentRequest searchContentRequest)
     {
         var endpoint = ApiEndpoints.SitePages.WithQuery(query);
-
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
         var response = await Client.Paginate<GenericPageDto>(request);
-
-        return response.Select(x => new Metadata
+        if(!string.IsNullOrEmpty(searchContentRequest.UrlContains))
         {
-            Id = x.Id,
-            Title = x.Name,
-            Domain = x.Domain,
-            Language = x.Language!,
-            State = x.CurrentState,
-            Published = x.Published,
-            Type = ContentTypes.SitePage,
-            CreatedAt = StringToDateTimeConverter.ToDateTime(x.Created),
-            UpdatedAt = StringToDateTimeConverter.ToDateTime(x.Updated)
-        }).ToList();
+            response = response.Where(page => page.Url?.Contains(searchContentRequest.UrlContains, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
+        }
+
+        return response.Select(ConvertPageToMetadata).ToList();
     }
     
     public override async Task<TranslatedLocalesResponse> GetTranslationLanguageCodesAsync(string id)
@@ -59,19 +49,7 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
         var url = ApiEndpoints.ASitePage(id);
         var request = new HubspotRequest(url, Method.Get, Creds);
         var page = await Client.ExecuteWithErrorHandling<PageDto>(request);
-        
-        return new()
-        {
-            Id = page.Id,
-            Title = page.Name,
-            Domain = page.Domain,
-            Language = page.Language!,
-            State = page.CurrentState,
-            Published = page.Published,
-            Type = ContentTypes.SitePage,
-            CreatedAt = StringToDateTimeConverter.ToDateTime(page.Created),
-            UpdatedAt = StringToDateTimeConverter.ToDateTime(page.Updated)
-        };
+        return ConvertPageToMetadata(page);
     }
 
     public async Task<PageWithTranslationsDto> GetPageAsync(string id)
@@ -131,19 +109,46 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
                 updatedPage.metaDescription = metaDescription;
             }
         }
-        var pageDto = await UpdateTranslatedPage<PageDto>(ApiEndpoints.UpdatePage(translationId), updatedPage);
 
-        return new()
+        var pageDto = await UpdateTranslatedPage<PageDto>(ApiEndpoints.UpdatePage(translationId), updatedPage);
+        return ConvertPageToMetadata(pageDto);
+    }
+
+    public override async Task<Metadata> UpdateContentAsync(string id, UpdateContentRequest updateContentRequest)
+    {        
+        var url = ApiEndpoints.ASitePage(id);
+        var request = new HubspotRequest(url, Method.Patch, Creds)
+            .WithJsonBody(new
+            {
+                name = updateContentRequest.Title,
+            });
+        
+        var page = await Client.ExecuteWithErrorHandling<PageDto>(request);
+        return ConvertPageToMetadata(page);
+    }
+
+    public override Task DeleteContentAsync(string id)
+    {        
+        var url = ApiEndpoints.ASitePage(id);
+        var request = new HubspotRequest(url, Method.Delete, Creds);
+        return Client.ExecuteWithErrorHandling(request);
+    }
+
+    private Metadata ConvertPageToMetadata(PageDto page)
+    {
+        return new Metadata
         {
-            Id = pageDto.Id,
-            Title = pageDto.Name,
-            Domain = pageDto.Domain,
-            Language = pageDto.Language!,
-            State = pageDto.CurrentState,
-            Published = pageDto.Published,
+            Id = page.Id,
+            Title = page.Name,
+            Domain = page.Domain,
+            Language = page.Language!,
+            State = page.CurrentState,
+            Published = page.Published,
             Type = ContentTypes.SitePage,
-            CreatedAt = StringToDateTimeConverter.ToDateTime(pageDto.Created),
-            UpdatedAt = StringToDateTimeConverter.ToDateTime(pageDto.Updated)
+            Url = page.Url,
+            Slug = page.Slug,
+            CreatedAt = StringToDateTimeConverter.ToDateTime(page.Created),
+            UpdatedAt = StringToDateTimeConverter.ToDateTime(page.Updated)
         };
     }
 
@@ -173,36 +178,5 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
         }
 
         return sourcePageId;
-    }
-
-    public override async Task<Metadata> UpdateContentAsync(string id, UpdateContentRequest updateContentRequest)
-    {        
-        var url = ApiEndpoints.ASitePage(id);
-        var request = new HubspotRequest(url, Method.Patch, Creds)
-            .WithJsonBody(new
-            {
-                name = updateContentRequest.Title,
-            });
-        
-        var page = await Client.ExecuteWithErrorHandling<PageDto>(request);
-        return new()
-        {
-            Id = page.Id,
-            Title = page.Name,
-            Domain = page.Domain,
-            Language = page.Language!,
-            State = page.CurrentState,
-            Published = page.Published,
-            Type = ContentTypes.SitePage,
-            CreatedAt = StringToDateTimeConverter.ToDateTime(page.Created),
-            UpdatedAt = StringToDateTimeConverter.ToDateTime(page.Updated)
-        };
-    }
-
-    public override Task DeleteContentAsync(string id)
-    {        
-        var url = ApiEndpoints.ASitePage(id);
-        var request = new HubspotRequest(url, Method.Delete, Creds);
-        return Client.ExecuteWithErrorHandling(request);
     }
 }

@@ -19,7 +19,7 @@ public class BlogAuthorServiceTests : TestBase
     [TestMethod]
     public async Task SearchContentAsync_WithDefaultParameters_ShouldReturnAuthors()
     {
-        var result = await _service.SearchContentAsync(new Dictionary<string, string>());
+        var result = await _service.SearchContentAsync(new Dictionary<string, string>(), new());
 
         Assert.IsNotNull(result);
         Assert.IsTrue(result.Any());
@@ -30,7 +30,7 @@ public class BlogAuthorServiceTests : TestBase
     public async Task GetContentAsync_WithValidId_ShouldReturnAuthor()
     {
         // First get a valid ID from search
-        var searchResult = await _service.SearchContentAsync(new Dictionary<string, string>());
+        var searchResult = await _service.SearchContentAsync(new Dictionary<string, string>(), new());
         var validId = searchResult.FirstOrDefault()?.Id;
         
         Assert.IsNotNull(validId, "No authors found to test with");

@@ -15,7 +15,7 @@ namespace Apps.Hubspot.Services.ContentServices.Abstract;
 public abstract class BaseContentService(InvocationContext invocationContext)
     : HubSpotInvocable(invocationContext), IContentService
 {
-    public abstract Task<List<Metadata>> SearchContentAsync(Dictionary<string, string> query);
+    public abstract Task<List<Metadata>> SearchContentAsync(Dictionary<string, string> query, SearchContentRequest searchContentRequest);
 
     public abstract Task<Metadata> GetContentAsync(string id);
     public abstract Task<TranslatedLocalesResponse> GetTranslationLanguageCodesAsync(string id);

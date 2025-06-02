@@ -21,7 +21,7 @@ public class BlogCommentService(InvocationContext invocationContext) : BaseConte
 {
     protected override HubspotClient Client { get; } = new(Urls.Api);
 
-    public override async Task<List<Metadata>> SearchContentAsync(Dictionary<string, string> query)
+    public override async Task<List<Metadata>> SearchContentAsync(Dictionary<string, string> query, SearchContentRequest searchContentRequest)
     {
         var endpoint = ApiEndpoints.BlogCommentsSegment.WithQuery(query);
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
@@ -104,6 +104,8 @@ public class BlogCommentService(InvocationContext invocationContext) : BaseConte
             Type = ContentTypes.BlogComment,
             State = blogComment.State,
             Published = blogComment.State == "APPROVED",
+            Url = string.Empty,
+            Slug = string.Empty,
             CreatedAt = DateTimeOffset.FromUnixTimeMilliseconds(blogComment.CreatedAt).DateTime,
             UpdatedAt = DateTimeOffset.FromUnixTimeMilliseconds(blogComment.CreatedAt).DateTime // Comments don't have UpdatedAt, using CreatedAt
         };

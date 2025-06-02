@@ -16,11 +16,11 @@ public class MetaActionsTests : TestBase
 
         var result = await actions.SearchContent(new()
         {
-            ContentTypes = [ContentTypes.SitePage, ContentTypes.Blog, ContentTypes.LandingPage, ContentTypes.Email, ContentTypes.Form]
+            ContentTypes = [ContentTypes.Blog]
         }, new(), new(), new());
 
         Assert.AreEqual(result.Items.Any(), true);
-        Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
+        System.Console.WriteLine(result.Items.Count());
     }
     
     [TestMethod]

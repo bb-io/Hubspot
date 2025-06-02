@@ -12,32 +12,19 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
-using Newtonsoft.Json;
 using RestSharp;
 
 namespace Apps.Hubspot.Services.ContentServices;
 
 public class MarketingFormService(InvocationContext invocationContext) : BaseContentService(invocationContext)
 {
-    public override async Task<List<Metadata>> SearchContentAsync(Dictionary<string, string> query)
+    public override async Task<List<Metadata>> SearchContentAsync(Dictionary<string, string> query, SearchContentRequest searchContentRequest)
     {
         var endpoint = $"{ApiEndpoints.MarketingFormsEndpoint}".WithQuery(query);
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
 
         var response = await Client.Paginate<MarketingFormDto>(request);
-
-        return response.Select(x => new Metadata
-        {
-            Id = x.Id,
-            Title = x.Name,
-            Domain = "NONE",
-            Language = x.Configuration?.Language ?? string.Empty,
-            State = "PUBLISHED",
-            Published = true,
-            Type = ContentTypes.Form,
-            CreatedAt = x.CreatedAt,
-            UpdatedAt = x.UpdatedAt
-        }).ToList();
+        return response.Select(ConvertToMetadata).ToList();
     }
 
     public override async Task<Metadata> GetContentAsync(string id)
@@ -45,19 +32,7 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
         var endpoint = $"{ApiEndpoints.MarketingFormsEndpoint}/{id}";
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
         var form = await Client.ExecuteWithErrorHandling<MarketingFormDto>(request);
-
-        return new()
-        {
-            Id = form.Id,
-            Title = form.Name,
-            Domain = "NONE",
-            Language = form.Configuration?.Language ?? string.Empty,
-            State = "PUBLISHED",
-            Published = true,
-            Type = ContentTypes.Form,
-            CreatedAt = form.CreatedAt,
-            UpdatedAt = form.UpdatedAt
-        };
+        return ConvertToMetadata(form);
     }
 
     public override Task<TranslatedLocalesResponse> GetTranslationLanguageCodesAsync(string id)
@@ -98,10 +73,30 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
         }
     }
 
+    public override async Task<Metadata> UpdateContentAsync(string id, UpdateContentRequest updateContentRequest)
+    {
+        var endpoint = $"{ApiEndpoints.MarketingFormsEndpoint}/{id}";
+        var request = new HubspotRequest(endpoint, Method.Patch, Creds)
+            .WithJsonBody(new
+            {
+                name = updateContentRequest.Title,
+            });
+
+        var form = await Client.ExecuteWithErrorHandling<MarketingFormDto>(request);
+        return ConvertToMetadata(form);
+    }
+
+    public override Task DeleteContentAsync(string id)
+    {
+        var endpoint = $"{ApiEndpoints.MarketingFormsEndpoint}/{id}";
+        var request = new HubspotRequest(endpoint, Method.Delete, Creds);
+        return Client.ExecuteWithErrorHandling(request);
+    }
+
     private async Task<Metadata> CreateNewFormFromHtmlAsync(FormHtmlEntities htmlEntity, string originalFormId, string targetLanguage)
     {
         var originalForm = await GetMarketingForm(new() { FormId = originalFormId });
-        
+
         var createEndpoint = $"{ApiEndpoints.MarketingFormsEndpoint}";
         var createRequest = new HubspotRequest(createEndpoint, Method.Post, Creds)
             .WithJsonBody(new
@@ -117,7 +112,7 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
 
         var newForm = await Client.ExecuteWithErrorHandling<MarketingFormDto>(createRequest);
         var fieldGroups = TransformFieldGroups(htmlEntity.FieldGroups, originalForm.FieldGroups);
-        
+
         var updateEndpoint = $"{ApiEndpoints.MarketingFormsEndpoint}/{newForm.Id}";
         var updateRequest = new HubspotRequest(updateEndpoint, Method.Patch, Creds)
             .WithJsonBody(new
@@ -134,7 +129,7 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
     {
         var existingForm = await GetMarketingForm(new() { FormId = formId });
         var fieldGroups = TransformFieldGroups(htmlEntity.FieldGroups, existingForm.FieldGroups);
-        
+
         var endpoint = $"{ApiEndpoints.MarketingFormsEndpoint}/{formId}";
         var request = new HubspotRequest(endpoint, Method.Patch, Creds)
             .WithJsonBody(new
@@ -146,15 +141,15 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
         var updatedForm = await Client.ExecuteWithErrorHandling<MarketingFormDto>(request);
         return ConvertToMetadata(updatedForm);
     }
-    
+
     private List<FieldGroupDto> TransformFieldGroups(List<FormHtmlEntity> htmlFieldEntities, List<FieldGroupDto> existingFieldGroups)
     {
         var existingFields = existingFieldGroups.SelectMany(g => g.Fields).ToList();
-        
+
         return htmlFieldEntities.Select(htmlField =>
         {
             var existingField = existingFields.FirstOrDefault(f => f.Name == htmlField.Name);
-            
+
             if (existingField != null)
             {
                 if (htmlField.Properties.TryGetValue("label", out var label))
@@ -162,14 +157,15 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
 
                 if (htmlField.Properties.TryGetValue("placeholder", out var placeholder))
                     existingField.Placeholder = placeholder;
-                    
+
                 if (htmlField.Properties.TryGetValue("description", out var description))
                     existingField.Description = description;
-                
+
                 if (htmlField.Options != null && existingField.Options != null)
                 {
                     existingField.Options = htmlField.Options
-                        .Select(htmlOption => {
+                        .Select(htmlOption =>
+                        {
                             var matchingOption = existingField.Options.FirstOrDefault(o => o.Value == htmlOption.Key);
                             if (matchingOption != null)
                             {
@@ -179,11 +175,11 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
                             return null;
                         })
                         .Where(o => o != null)
-                        .Select(o => o!) 
+                        .Select(o => o!)
                         .ToList();
                 }
-                
-                return existingFieldGroups.FirstOrDefault(g => g.Fields.Any(f => f.Name == htmlField.Name)) 
+
+                return existingFieldGroups.FirstOrDefault(g => g.Fields.Any(f => f.Name == htmlField.Name))
                     ?? CreateNewFieldGroup(htmlField);
             }
             else
@@ -192,7 +188,7 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
             }
         }).ToList();
     }
-    
+
     private FieldGroupDto CreateNewFieldGroup(FormHtmlEntity htmlField)
     {
         return new FieldGroupDto
@@ -216,7 +212,7 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
             }
         };
     }
-    
+
     private Metadata ConvertToMetadata(MarketingFormDto form)
     {
         return new Metadata
@@ -227,41 +223,12 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
             Language = form.Configuration?.Language ?? string.Empty,
             State = "PUBLISHED",
             Published = true,
+            Url = string.Empty,
             Type = ContentTypes.Form,
+            Slug = string.Empty,
             CreatedAt = form.CreatedAt,
             UpdatedAt = form.UpdatedAt
         };
-    }
-
-    public override async Task<Metadata> UpdateContentAsync(string id, UpdateContentRequest updateContentRequest)
-    {
-        var endpoint = $"{ApiEndpoints.MarketingFormsEndpoint}/{id}";
-        var request = new HubspotRequest(endpoint, Method.Patch, Creds)
-            .WithJsonBody(new
-            {
-                name = updateContentRequest.Title,
-            });
-
-        var form = await Client.ExecuteWithErrorHandling<MarketingFormDto>(request);
-        return new()
-        {
-            Id = form.Id,
-            Title = form.Name,
-            Domain = "NONE",
-            Language = form.Configuration?.Language ?? string.Empty,
-            State = "PUBLISHED",
-            Published = true,
-            Type = ContentTypes.Form,
-            CreatedAt = form.CreatedAt,
-            UpdatedAt = form.UpdatedAt
-        };
-    }
-
-    public override Task DeleteContentAsync(string id)
-    {
-        var endpoint = $"{ApiEndpoints.MarketingFormsEndpoint}/{id}";
-        var request = new HubspotRequest(endpoint, Method.Delete, Creds);
-        return Client.ExecuteWithErrorHandling(request);
     }
 
     private async Task<MarketingFormDto> GetMarketingForm(MarketingFormRequest formRequest)

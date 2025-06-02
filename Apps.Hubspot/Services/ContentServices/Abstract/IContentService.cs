@@ -6,7 +6,7 @@ namespace Apps.Hubspot.Services.ContentServices.Abstract;
 
 public interface IContentService
 {
-    public Task<List<Metadata>> SearchContentAsync(Dictionary<string, string> query);
+    public Task<List<Metadata>> SearchContentAsync(Dictionary<string, string> query, SearchContentRequest searchContentRequest);
     public Task<Metadata> GetContentAsync(string id);
     public Task<TranslatedLocalesResponse> GetTranslationLanguageCodesAsync(string id);
     public Task<Stream> DownloadContentAsync(string id);
