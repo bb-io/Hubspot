@@ -45,7 +45,7 @@ public static class HtmlConverter
         string contentType)
     {
         var allFields = fieldGroups.SelectMany(group => group.Fields).ToList();
-        var (doc, bodyNode) = PrepareEmptyHtmlDocument(new JObject(), title, language, pageId, contentType, null, null );
+        var (doc, bodyNode) = PrepareEmptyHtmlDocument(new JObject(), title, language, pageId, contentType, null, null, null );
 
         foreach (var field in allFields)
         {
@@ -102,7 +102,7 @@ public static class HtmlConverter
         return Encoding.UTF8.GetBytes(doc.DocumentNode.OuterHtml);
     }
 
-    public static byte[] ToHtml(JObject emailContent, string title,string language, string pageId, string contentType, LocalizablePropertiesRequest? properties, string slug, string metaDescription, string? businessUnitId = null)
+    public static byte[] ToHtml(JObject emailContent, string title,string language, string pageId, string contentType, LocalizablePropertiesRequest? properties, string slug, string metaDescription, string subject, string? businessUnitId = null)
     {
         if (properties?.PropertiesToInclude != null)
         {
@@ -142,7 +142,7 @@ public static class HtmlConverter
             })
             .ToList();
 
-        var (doc, bodyNode) = PrepareEmptyHtmlDocument(emailContent, title, language, pageId, contentType, slug, metaDescription, businessUnitId);
+        var (doc, bodyNode) = PrepareEmptyHtmlDocument(emailContent, title, language, pageId, contentType, slug, metaDescription, subject, businessUnitId);
         htmlNodes.ForEach(x => AddContentToHtml(x.Path, x.Html, bodyNode, doc.CreateElement("div")));
 
         return Encoding.UTF8.GetBytes(doc.DocumentNode.OuterHtml);
@@ -278,6 +278,17 @@ public static class HtmlConverter
         return referenceId;
     }
 
+    public static string? ExtractSubject(byte[] fileBytes)
+    {
+        var fileString = Encoding.UTF8.GetString(fileBytes);
+        var doc = new HtmlDocument();
+        doc.LoadHtml(fileString);
+        var subject = doc.DocumentNode.SelectSingleNode("//meta[@name='subject']")
+            ?.GetAttributeValue("content", null);
+
+        return subject;
+    }
+
     public static string? ExtractBusinessUnitId(byte[] fileBytes)
     {
         var fileString = Encoding.UTF8.GetString(fileBytes);
@@ -318,7 +329,7 @@ public static class HtmlConverter
     }
 
     private static (HtmlDocument document, HtmlNode bodyNode) PrepareEmptyHtmlDocument(JObject emailContent,
-        string title, string language, string pageId, string contentType, string? slug, string? metaDescription, string? businessUnitId = null)
+        string title, string language, string pageId, string contentType, string? slug, string? metaDescription, string? subject, string? businessUnitId = null)
     {
         var htmlDoc = new HtmlDocument();
         var htmlNode = htmlDoc.CreateElement("html");
@@ -365,6 +376,14 @@ public static class HtmlConverter
             metaBusinessUnitNode.SetAttributeValue("name", BusinessUnitId);
             metaBusinessUnitNode.SetAttributeValue("content", businessUnitId);
             headNode.AppendChild(metaBusinessUnitNode);
+        }
+
+        if (!string.IsNullOrWhiteSpace(subject))
+        {
+            var subjectNode = htmlDoc.CreateElement("meta");
+            subjectNode.SetAttributeValue("name", "subject");
+            subjectNode.SetAttributeValue("content", subject);
+            headNode.AppendChild(subjectNode);
         }
 
         var bodyNode = htmlDoc.CreateElement("body");

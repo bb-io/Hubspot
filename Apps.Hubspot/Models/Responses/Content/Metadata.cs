@@ -26,6 +26,8 @@ public class Metadata
 
     public string Slug { get; set; } = string.Empty;
 
+    public string Subject { get; set; } = string.Empty;
+
     [Display("Created at")]
     public DateTime CreatedAt { get; set; }
 

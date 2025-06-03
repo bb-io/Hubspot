@@ -226,6 +226,7 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
             Url = string.Empty,
             Type = ContentTypes.Form,
             Slug = string.Empty,
+            Subject = string.Empty,
             CreatedAt = form.CreatedAt,
             UpdatedAt = form.UpdatedAt
         };
