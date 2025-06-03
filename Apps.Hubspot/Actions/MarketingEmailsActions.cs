@@ -61,7 +61,7 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
     public async Task<FileResponse> GetMarketingEmailHtml([ActionParameter] MarketingEmailRequest emailRequest, [ActionParameter] LocalizablePropertiesRequest Properties)
     {
         var email = await GetEmail(emailRequest.MarketingEmailId);
-        var html = HtmlConverter.ToHtml(email.Content, email.Name, email.Language, emailRequest.MarketingEmailId, ContentTypes.Email, Properties, null, null, email.BusinessUnitId);
+        var html = HtmlConverter.ToHtml(email.Content, email.Name, email.Language, emailRequest.MarketingEmailId, ContentTypes.Email, Properties, null, null, email.Subject ,email.BusinessUnitId);
 
         var file = await FileManagementClient.UploadAsync(new MemoryStream(html), MediaTypeNames.Text.Html,
             $"{emailRequest}.html");
@@ -90,6 +90,7 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
          ?? blackbirdId
          ?? throw new PluginMisconfigurationException("Marketing email ID is required. Please provide it as an optional parameter or include it in the HTML file.");
 
+        var subject = HtmlConverter.ExtractSubject(fileBytes);
         var titleText = HtmlConverter.ExtractTitle(fileBytes);
         var language = HtmlConverter.ExtractLanguage(fileBytes);
         var businessUnitId = HtmlConverter.ExtractBusinessUnitId(fileBytes);
@@ -119,7 +120,9 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
             BusinessUnitId = string.IsNullOrEmpty(emailRequest.BusinessUnitId)
                 ? (string.IsNullOrEmpty(businessUnitId) ? email.BusinessUnitId : businessUnitId)
                 : emailRequest.BusinessUnitId,
-            Content = updatedContent
+            Content = updatedContent,
+            Subject = string.IsNullOrEmpty(emailRequest.Subject) ? subject :
+            emailRequest.Subject
         };
         var endpoint = $"{ApiEndpoints.MarketingEmailsEndpoint}{marketingEmailId}";
         var request = new HubspotRequest(endpoint, Method.Patch, Creds).WithJsonBody(updateRequest, JsonConfig.Settings);
@@ -146,6 +149,10 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
             .SelectSingleNode("/html/body")
             ?.GetAttributeValue("original", null);
 
+        var subject = htmlDoc.DocumentNode
+            .SelectSingleNode("//meta[@name='subject']")
+            ?.GetAttributeValue("content", null);
+
         if (!string.IsNullOrEmpty(originalContent))
         {
             originalContent = HttpUtility.HtmlDecode(originalContent);
@@ -156,6 +163,7 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
         {
             Name = input.Name ?? title,
             Language = input.Language ?? language ?? "en",
+            Subject = input.Subject ?? subject,
             BusinessUnitId = input.BusinessUnitId ?? businessUnitId ?? throw new PluginMisconfigurationException("Business Unit ID is required."),
             Content = new Models.Requests.Emails.Content
             {

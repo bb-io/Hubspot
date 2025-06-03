@@ -74,7 +74,7 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
         var result = await GetPage<GenericPageDto>(ApiEndpoints.ALandingPage(input.PageId));
 
         var htmlFile = HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language, input.PageId, ContentTypes.LandingPage, Properties,
-            result.Slug, result.MetaDescription);
+            result.Slug, result.MetaDescription, string.Empty);
 
         FileReference file;
         using (var stream = new MemoryStream(htmlFile))

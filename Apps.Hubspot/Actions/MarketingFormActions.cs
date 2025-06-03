@@ -82,13 +82,15 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
     {
         var file = await FileManagementClient.DownloadAsync(formRequest.File);
         var bytes = await file.GetByteData();
-        
-        var extractedFormId = HtmlConverter.ExtractBlackbirdId(bytes) ?? throw new PluginApplicationException(
-            "Could not extract form ID from HTML content. Please ensure that the form ID is present in the HTML content as meta tag with name 'blackbird-reference-id'.");
-        var formId = formRequest.FormId ?? extractedFormId
-            ?? throw new PluginMisconfigurationException(
-                "Could not extract form ID from HTML content. Please provide a Form ID in optional input of this action.");
-        var form = await GetMarketingForm(new() { FormId = extractedFormId });
+        string formId;
+        if (formRequest.FormId is null)
+        {
+            var extractedFormId = HtmlConverter.ExtractBlackbirdId(bytes) ?? throw new PluginMisconfigurationException(
+            "Could not extract form ID from HTML content. Please ensure that the form ID is present in the HTML content as meta tag with name 'blackbird-reference-id' or provide it as input to the action.");
+            formId = extractedFormId;
+        }
+        else { formId = formRequest.FormId; }
+        var form = await GetMarketingForm(new() { FormId = formId });
         
         var htmlEntity = HtmlConverter.ExtractFormHtmlEntities(bytes);
         form.Name = htmlEntity.FormName;
@@ -187,6 +189,12 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
          .WithJsonBody(createRequestBody);
         var response = await Client.ExecuteWithErrorHandling<MarketingFormDto>(request);
 
-        return response;
+        var updatedForm = await UpdateMarketingFormFromHtml(new UpdateMarketingFormRequest 
+        {
+            FormId = response.Id,
+            File = fileRequest.File
+        });
+
+        return updatedForm;
     }
 }

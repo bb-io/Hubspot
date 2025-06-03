@@ -66,7 +66,7 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
         var page = await Client.ExecuteWithErrorHandling<GenericPageDto>(request);
         
         var htmlBytes =
-            HtmlConverter.ToHtml(page.LayoutSections, page.HtmlTitle, page.Language, id, ContentTypes.SitePage, null, page.Slug, page.MetaDescription);
+            HtmlConverter.ToHtml(page.LayoutSections, page.HtmlTitle, page.Language, id, ContentTypes.SitePage, null, page.Slug, page.MetaDescription, string.Empty);
         return new MemoryStream(htmlBytes);
     }
 

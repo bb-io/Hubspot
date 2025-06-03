@@ -30,6 +30,9 @@ namespace Apps.Hubspot.Models.Requests.Emails
 
         [JsonProperty("content")]
         public Content? Content { get; set; }
+
+        [JsonProperty("subject")]
+        public string? Subject { get; set; }
     }
 
     public class Content

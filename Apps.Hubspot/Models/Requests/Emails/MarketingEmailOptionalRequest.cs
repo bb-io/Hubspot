@@ -16,6 +16,9 @@ public class MarketingEmailOptionalRequest
     [JsonProperty("name")]
     public string? Name { get; set; }
 
+    [JsonProperty("subject")]
+    public string? Subject { get; set; }
+
     [JsonProperty("language")]
     [StaticDataSource(typeof(LanguageHandler))]
     public string? Language { get; set; }
