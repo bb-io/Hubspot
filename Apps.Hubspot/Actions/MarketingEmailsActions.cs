@@ -64,7 +64,7 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
         var html = HtmlConverter.ToHtml(email.Content, email.Name, email.Language, emailRequest.MarketingEmailId, ContentTypes.Email, Properties, null, null, email.Subject ,email.BusinessUnitId);
 
         var file = await FileManagementClient.UploadAsync(new MemoryStream(html), MediaTypeNames.Text.Html,
-            $"{emailRequest}.html");
+            $"{email.Name}.html");
 
         return new()
         {
