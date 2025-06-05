@@ -33,4 +33,7 @@ public class Metadata
 
     [Display("Updated at")]
     public DateTime UpdatedAt { get; set; }
+
+    [Display("Translated from ID")]
+    public string? TranslatedFromId { get; set; }
 }
