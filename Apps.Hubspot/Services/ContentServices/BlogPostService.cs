@@ -76,8 +76,16 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
         var fileString = Encoding.UTF8.GetString(fileBytes);
         var document = fileString.AsHtmlDocument();
 
-        var blogPostId = document.ExtractBlackbirdReferenceId()
+        string blogPostId = "";
+        if (String.IsNullOrEmpty(uploadContentRequest.SitePageId))
+        {
+            blogPostId = document.ExtractBlackbirdReferenceId()
             ?? throw new PluginMisconfigurationException("Blog post ID not found in the file. Please, make sure you generated HTML file with our app");
+        }
+        else 
+        {
+            blogPostId = uploadContentRequest.SitePageId;
+        }
 
         var postRequest = new ManageBlogPostRequest
         {
@@ -143,7 +151,8 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
             Slug = blogPost.Slug,
             Url = blogPost.Url,
             CreatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Created),
-            UpdatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Updated)
+            UpdatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Updated),
+            TranslatedFromId = blogPost.TranslatedFromId
         };
     }
 }
