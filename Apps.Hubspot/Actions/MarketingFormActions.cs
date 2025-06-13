@@ -113,8 +113,26 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
                 {
                     field.Description = property;
                 }
-                
-                if(x.Options != null && field.Options != null)
+
+                if (x.Properties.TryGetValue("fieldType", out property))
+                {
+                    field.FieldType = property;
+                }
+                else if (string.IsNullOrEmpty(field.FieldType))
+                {
+                    field.FieldType = x.Options != null && x.Options.Any() ? "dropdown" : "single_line_text";
+                }
+
+                if (x.Properties.TryGetValue("objectTypeId", out property))
+                {
+                    field.ObjectTypeId = property;
+                }
+                else if (string.IsNullOrEmpty(field.ObjectTypeId))
+                {
+                    field.ObjectTypeId = "0-1";
+                }
+
+                if (x.Options != null && field.Options != null)
                 {
                     var options = x.Options.Select(z =>
                     {
@@ -139,10 +157,14 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
                     {
                         new()
                         {
+                            ObjectTypeId = x.Properties.GetValueOrDefault("objectTypeId") != null
+                            ? MapToValidObjectTypeId(x.Properties.GetValueOrDefault("objectTypeId"))
+                            : "0-1",
                             Name = x.Name,
                             Label = x.Properties.GetValueOrDefault("label") ?? string.Empty,
                             Placeholder = x.Properties.GetValueOrDefault("placeholder") ?? string.Empty,
                             Description = x.Properties.GetValueOrDefault("description") ?? string.Empty,
+                            FieldType = x.Properties.GetValueOrDefault("fieldType") ?? "single_line_text",
                             Options = x.Options?.Select(z => new OptionDto
                             {
                                 Value = z.Key,
@@ -166,6 +188,13 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
             });
         
         return await Client.ExecuteWithErrorHandling<MarketingFormDto>(request);
+    }
+
+    private string MapToValidObjectTypeId(string inputTypeId)
+    {
+        var validObjectTypeIds = new HashSet<string> { "0-1", "0-2" };
+        inputTypeId = inputTypeId?.ToLowerInvariant() ?? "0-1";
+        return validObjectTypeIds.Contains(inputTypeId) ? inputTypeId : "0-1";
     }
 
     [Action("Create marketing form from HTML", Description = "Create a marketing form from a HTML file content")]
