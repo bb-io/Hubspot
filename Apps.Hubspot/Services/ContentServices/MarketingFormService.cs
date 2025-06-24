@@ -132,7 +132,7 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
         var request = new HubspotRequest(endpoint, Method.Patch, Creds)
             .WithJsonBody(new
             {
-                name = htmlEntity.FormName,
+                name = String.IsNullOrEmpty(htmlEntity.FormName) ? existingForm.Name : htmlEntity.FormName,
                 fieldGroups
             });
 
