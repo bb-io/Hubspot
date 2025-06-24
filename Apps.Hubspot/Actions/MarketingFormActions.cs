@@ -95,7 +95,7 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
         var form = await GetMarketingForm(new() { FormId = formId });
         
         var htmlEntity = HtmlConverter.ExtractFormHtmlEntities(bytes);
-        form.Name = htmlEntity.FormName;
+        var formName = String.IsNullOrEmpty(htmlEntity.FormName) ? form.Name : htmlEntity.FormName ;
         var fieldGroups = htmlEntity.FieldGroups.Select(x =>
         {
             var field = form.FieldGroups.SelectMany(y => y.Fields).FirstOrDefault(y => y.Name == x.Name);
@@ -185,7 +185,7 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
         var request = new HubspotRequest(endpoint, Method.Patch, Creds)
             .WithJsonBody(new
             {
-                name = form.Name,
+                name = formName,
                 fieldGroups
             });
         
