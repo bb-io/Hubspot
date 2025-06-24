@@ -99,7 +99,7 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
         var createRequest = new HubspotRequest(createEndpoint, Method.Post, Creds)
             .WithJsonBody(new
             {
-                name = htmlEntity.FormName ?? "New Marketing Form",
+                name = String.IsNullOrEmpty(htmlEntity.FormName) ? "New Marketing Form" : htmlEntity.FormName,
                 formType = originalForm.FormType,
                 createdAt = DateTime.UtcNow,
                 configuration = new
