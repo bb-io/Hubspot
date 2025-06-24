@@ -61,10 +61,12 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
 
     [Action("Get marketing form content as HTML",
         Description = "Get content of a specific marketing form in HTML format")]
-    public async Task<FileResponse> GetMarketingFormAsHtml([ActionParameter] MarketingFormRequest formRequest)
+    public async Task<FileResponse> GetMarketingFormAsHtml([ActionParameter] MarketingFormRequest formRequest,
+        [ActionParameter][Display("Exclude title from file")] bool? ExcludeTitle)
     {
         var form = await GetMarketingForm(formRequest);
-        var html = HtmlConverter.ToHtml(form.FieldGroups, form.Name, form.Configuration.Language, form.Id, ContentTypes.Form);
+        var name = ExcludeTitle.HasValue && ExcludeTitle.Value ? "" : form.Name;
+        var html = HtmlConverter.ToHtml(form.FieldGroups, name, form.Configuration.Language, form.Id, ContentTypes.Form);
 
         var file = await FileManagementClient.UploadAsync(new MemoryStream(html), MediaTypeNames.Text.Html,
             $"{formRequest.FormId}.html");
@@ -93,7 +95,7 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
         var form = await GetMarketingForm(new() { FormId = formId });
         
         var htmlEntity = HtmlConverter.ExtractFormHtmlEntities(bytes);
-        form.Name = htmlEntity.FormName;
+        var formName = String.IsNullOrEmpty(htmlEntity.FormName) ? form.Name : htmlEntity.FormName ;
         var fieldGroups = htmlEntity.FieldGroups.Select(x =>
         {
             var field = form.FieldGroups.SelectMany(y => y.Fields).FirstOrDefault(y => y.Name == x.Name);
@@ -183,7 +185,7 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
         var request = new HubspotRequest(endpoint, Method.Patch, Creds)
             .WithJsonBody(new
             {
-                name = form.Name,
+                name = formName,
                 fieldGroups
             });
         

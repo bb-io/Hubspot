@@ -53,22 +53,20 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
     public override async Task<Metadata> UpdateContentFromHtmlAsync(string targetLanguage, Stream stream, UploadContentRequest uploadContentRequest)
     {
         var bytes = await stream.GetByteData();
-
         var extractedFormId = HtmlConverter.ExtractBlackbirdId(bytes);
         if (extractedFormId == null)
         {
             throw new PluginMisconfigurationException(
-                "Could not extract form ID from HTML content. Please ensure that the form ID is present in the HTML content as meta tag with name 'blackbird-reference-id', or set 'Create new' to true to create a new form instead.");
+                "Could not extract form ID from HTML content. Please ensure that the form ID is present in the HTML content as meta tag with name 'blackbird-reference-id'.");
         }
-
         var htmlEntity = HtmlConverter.ExtractFormHtmlEntities(bytes);
 
         if (uploadContentRequest.CreateNew == true)
         {
-            return await CreateNewFormFromHtmlAsync(htmlEntity, extractedFormId!, targetLanguage);
+            return await CreateNewFormFromHtmlAsync(htmlEntity, extractedFormId, targetLanguage);
         }
         else
-        {
+        {           
             return await UpdateExistingFormFromHtmlAsync(extractedFormId!, htmlEntity);
         }
     }
@@ -98,10 +96,11 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
         var originalForm = await GetMarketingForm(new() { FormId = originalFormId });
 
         var createEndpoint = $"{ApiEndpoints.MarketingFormsEndpoint}";
+        var formName = String.IsNullOrEmpty(htmlEntity.FormName) ? originalForm.Name : htmlEntity.FormName;
         var createRequest = new HubspotRequest(createEndpoint, Method.Post, Creds)
             .WithJsonBody(new
             {
-                name = htmlEntity.FormName ?? "New Marketing Form",
+                name = formName,
                 formType = originalForm.FormType,
                 createdAt = DateTime.UtcNow,
                 configuration = new
@@ -117,7 +116,7 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
         var updateRequest = new HubspotRequest(updateEndpoint, Method.Patch, Creds)
             .WithJsonBody(new
             {
-                name = htmlEntity.FormName,
+                name = formName,
                 fieldGroups
             });
 
@@ -134,7 +133,7 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
         var request = new HubspotRequest(endpoint, Method.Patch, Creds)
             .WithJsonBody(new
             {
-                name = htmlEntity.FormName,
+                name = String.IsNullOrEmpty(htmlEntity.FormName) ? existingForm.Name : htmlEntity.FormName,
                 fieldGroups
             });
 
