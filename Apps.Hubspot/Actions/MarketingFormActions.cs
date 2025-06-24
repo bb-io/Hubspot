@@ -61,10 +61,12 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
 
     [Action("Get marketing form content as HTML",
         Description = "Get content of a specific marketing form in HTML format")]
-    public async Task<FileResponse> GetMarketingFormAsHtml([ActionParameter] MarketingFormRequest formRequest)
+    public async Task<FileResponse> GetMarketingFormAsHtml([ActionParameter] MarketingFormRequest formRequest,
+        [ActionParameter][Display("Include title in file")] bool? IncludeTitle)
     {
         var form = await GetMarketingForm(formRequest);
-        var html = HtmlConverter.ToHtml(form.FieldGroups, form.Name, form.Configuration.Language, form.Id, ContentTypes.Form);
+        var name = IncludeTitle.HasValue && IncludeTitle.Value ? "" : form.Name;
+        var html = HtmlConverter.ToHtml(form.FieldGroups, name, form.Configuration.Language, form.Id, ContentTypes.Form);
 
         var file = await FileManagementClient.UploadAsync(new MemoryStream(html), MediaTypeNames.Text.Html,
             $"{formRequest.FormId}.html");

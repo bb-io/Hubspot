@@ -53,22 +53,20 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
     public override async Task<Metadata> UpdateContentFromHtmlAsync(string targetLanguage, Stream stream, UploadContentRequest uploadContentRequest)
     {
         var bytes = await stream.GetByteData();
-
         var extractedFormId = HtmlConverter.ExtractBlackbirdId(bytes);
         if (extractedFormId == null)
         {
             throw new PluginMisconfigurationException(
-                "Could not extract form ID from HTML content. Please ensure that the form ID is present in the HTML content as meta tag with name 'blackbird-reference-id', or set 'Create new' to true to create a new form instead.");
+                "Could not extract form ID from HTML content. Please ensure that the form ID is present in the HTML content as meta tag with name 'blackbird-reference-id'.");
         }
-
         var htmlEntity = HtmlConverter.ExtractFormHtmlEntities(bytes);
 
         if (uploadContentRequest.CreateNew == true)
         {
-            return await CreateNewFormFromHtmlAsync(htmlEntity, extractedFormId!, targetLanguage);
+            return await CreateNewFormFromHtmlAsync(htmlEntity, extractedFormId, targetLanguage);
         }
         else
-        {
+        {           
             return await UpdateExistingFormFromHtmlAsync(extractedFormId!, htmlEntity);
         }
     }

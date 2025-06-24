@@ -343,12 +343,15 @@ public static class HtmlConverter
             var titleNode = htmlDoc.CreateElement("title");
             headNode.AppendChild(titleNode);
             titleNode.InnerHtml = title;
-        }        
+        }
 
-        var metaNode = htmlDoc.CreateElement("meta");
-        metaNode.SetAttributeValue("name", BlackbirdReferenceIdAttribute);
-        metaNode.SetAttributeValue("content", pageId);
-        headNode.AppendChild(metaNode);
+        if (!string.IsNullOrEmpty(pageId)) 
+        {
+            var metaNode = htmlDoc.CreateElement("meta");
+            metaNode.SetAttributeValue("name", BlackbirdReferenceIdAttribute);
+            metaNode.SetAttributeValue("content", pageId);
+            headNode.AppendChild(metaNode);
+        }        
 
         if (!string.IsNullOrEmpty(slug))
         {
@@ -426,7 +429,7 @@ public static class HtmlConverter
         var memoryStream = new MemoryStream(bytes);
         doc.Load(memoryStream);
 
-        var title = doc.DocumentNode.SelectSingleNode("//title").InnerHtml;
+        var title = doc.DocumentNode.SelectSingleNode("//title")?.InnerHtml ?? "";
         var properties = new List<FormHtmlEntity>();
 
         var divs = doc.DocumentNode.SelectNodes("//div[@data-name]");
