@@ -96,10 +96,11 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
         var originalForm = await GetMarketingForm(new() { FormId = originalFormId });
 
         var createEndpoint = $"{ApiEndpoints.MarketingFormsEndpoint}";
+        var formName = String.IsNullOrEmpty(htmlEntity.FormName) ? originalForm.Name : htmlEntity.FormName;
         var createRequest = new HubspotRequest(createEndpoint, Method.Post, Creds)
             .WithJsonBody(new
             {
-                name = String.IsNullOrEmpty(htmlEntity.FormName) ? originalForm.Name : htmlEntity.FormName,
+                name = formName,
                 formType = originalForm.FormType,
                 createdAt = DateTime.UtcNow,
                 configuration = new
@@ -115,7 +116,7 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
         var updateRequest = new HubspotRequest(updateEndpoint, Method.Patch, Creds)
             .WithJsonBody(new
             {
-                name = htmlEntity.FormName,
+                name = formName,
                 fieldGroups
             });
 
