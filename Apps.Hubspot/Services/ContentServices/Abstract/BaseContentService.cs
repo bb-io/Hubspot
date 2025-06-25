@@ -53,6 +53,11 @@ public abstract class BaseContentService(InvocationContext invocationContext)
     {
         var request = new HubspotRequest($"{resourceUrlPart}/{resourceId}", Method.Get, Creds);
         var response = await Client.ExecuteWithErrorHandling<ObjectWithTranslations>(request);
+        
+        if(!string.IsNullOrEmpty(response.TranslatedFromId))
+        {
+            return response.TranslatedFromId;
+        }
 
         if (response.Translations is null || !response.Translations.ContainsKey(targetLanguage))
         {
@@ -62,8 +67,7 @@ public abstract class BaseContentService(InvocationContext invocationContext)
                 Language = targetLanguage,
                 PrimaryLanguage = primaryLanguage,
             };
-            var translationRequest = new HubspotRequest($"{resourceUrlPart}/multi-language/create-language-variation",
-                    Method.Post, Creds)
+            var translationRequest = new HubspotRequest($"{resourceUrlPart}/multi-language/create-language-variation", Method.Post, Creds)
                 .WithJsonBody(payload, JsonConfig.Settings);
 
             var translation = await Client.ExecuteWithErrorHandling<ObjectWithId>(translationRequest);

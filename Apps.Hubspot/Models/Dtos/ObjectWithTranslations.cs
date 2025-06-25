@@ -1,8 +1,15 @@
-﻿namespace Apps.Hubspot.Models.Dtos
+﻿using Newtonsoft.Json;
+
+namespace Apps.Hubspot.Models.Dtos;
+
+public class ObjectWithTranslations
 {
-    public class ObjectWithTranslations
-    {
-        public string Language { get; set; }
-        public Dictionary<string, ObjectWithId> Translations { get; set; }
-    }
+    [JsonProperty("language")]
+    public string Language { get; set; } = string.Empty;
+        
+    [JsonProperty("translatedFromId")]
+    public string? TranslatedFromId { get; set; }
+    
+    [JsonProperty("translations")]
+    public Dictionary<string, ObjectWithId>? Translations { get; set; } 
 }
