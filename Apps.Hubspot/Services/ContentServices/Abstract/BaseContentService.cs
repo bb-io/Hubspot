@@ -56,14 +56,20 @@ public abstract class BaseContentService(InvocationContext invocationContext)
 
         if (response.Translations is null || !response.Translations.ContainsKey(targetLanguage))
         {
+            var resourceToCreate = resourceId;
+            if(!string.IsNullOrEmpty(response.TranslatedFromId))
+            {
+                resourceToCreate = response.TranslatedFromId;
+            }
+            
             var payload = new LanguageVariationRequest
             {
-                Id = resourceId,
+                Id = resourceToCreate,
                 Language = targetLanguage,
                 PrimaryLanguage = primaryLanguage,
             };
-            var translationRequest = new HubspotRequest($"{resourceUrlPart}/multi-language/create-language-variation",
-                    Method.Post, Creds)
+            
+            var translationRequest = new HubspotRequest($"{resourceUrlPart}/multi-language/create-language-variation", Method.Post, Creds)
                 .WithJsonBody(payload, JsonConfig.Settings);
 
             var translation = await Client.ExecuteWithErrorHandling<ObjectWithId>(translationRequest);
