@@ -34,5 +34,27 @@ public class DataSourceTests : TestBase
         data.Should().NotBeNull();
         Console.WriteLine(JsonConvert.SerializeObject(data, Formatting.Indented));
     }
+
+    [TestMethod]
+    public async Task MarketingEmailDataHandler_IsSuccess()
+    {
+        var dataSource = new MarketingEmailDataHandler(InvocationContext);
+        var data = await dataSource.GetDataAsync(new(), default);
+
+        data.Should().NotBeNull();
+
+        Console.WriteLine(JsonConvert.SerializeObject(data, Formatting.Indented));
+    }
+
+    [TestMethod]
+    public async Task MarketingFormDataHandler_IsSuccess()
+    {
+        var dataSource = new MarketingFormDataHandler(InvocationContext);
+        var data = await dataSource.GetDataAsync(new(), default);
+
+        data.Should().NotBeNull();
+
+        Console.WriteLine(JsonConvert.SerializeObject(data, Formatting.Indented));
+    }
 }
 

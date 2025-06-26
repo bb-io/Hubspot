@@ -58,10 +58,14 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
 
     [Action("Get marketing email content as HTML",
         Description = "Get content of a specific marketing email in HTML format")]
-    public async Task<FileResponse> GetMarketingEmailHtml([ActionParameter] MarketingEmailRequest emailRequest, [ActionParameter] LocalizablePropertiesRequest Properties)
+    public async Task<FileResponse> GetMarketingEmailHtml([ActionParameter] MarketingEmailRequest emailRequest, 
+        [ActionParameter] LocalizablePropertiesRequest Properties, [ActionParameter][Display("Exclude title from file")] bool? ExcludeTitle)
     {
         var email = await GetEmail(emailRequest.MarketingEmailId);
-        var html = HtmlConverter.ToHtml(email.Content, email.Name, email.Language, emailRequest.MarketingEmailId, ContentTypes.Email, Properties, null, null, email.Subject ,email.BusinessUnitId);
+
+         var title = ExcludeTitle.HasValue && ExcludeTitle.Value? string.Empty: email.Name;
+
+        var html = HtmlConverter.ToHtml(email.Content, title, email.Language, emailRequest.MarketingEmailId, ContentTypes.Email, Properties, null, null, email.Subject ,email.BusinessUnitId);
 
         var file = await FileManagementClient.UploadAsync(new MemoryStream(html), MediaTypeNames.Text.Html,
             $"{email.Name}.html");
