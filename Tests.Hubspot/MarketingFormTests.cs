@@ -12,7 +12,7 @@ using Tests.Hubspot.Base;
 namespace Tests.Hubspot
 {
     [TestClass]
-    public class MarketingFormTests :TestBase
+    public class MarketingFormTests : TestBase
     {
         [TestMethod]
         public async Task CreateMarketingFormsTest()
@@ -23,8 +23,26 @@ namespace Tests.Hubspot
                 Name = "Test Form",
             };
 
-            var file = new FileRequest { File = new FileReference { Name = "Warhammer 40k.html" } };
-            var response = await action.CreateMarketingFormFromHtml(file,request);
+            var file = new FileRequest { File = new FileReference { Name = "Форма опитування n1.html" } };
+            var response = await action.CreateMarketingFormFromHtml(file, request);
+            Assert.IsNotNull(response);
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(response, Newtonsoft.Json.Formatting.Indented);
+            Console.WriteLine(json);
+        }
+    
+
+
+        [TestMethod]
+        public async Task GetMarketingFormsTest()
+        {
+            var action = new MarketingFormActions(InvocationContext, FileManager);
+            var request = new MarketingFormRequest
+            {
+                FormId= "c6ebcd7e-5974-45a4-8bdd-14d4467bece4"
+            };
+
+
+            var response = await action.GetMarketingFormAsHtml(request, false);
             Assert.IsNotNull(response);
             var json = Newtonsoft.Json.JsonConvert.SerializeObject(response, Newtonsoft.Json.Formatting.Indented);
             Console.WriteLine(json);

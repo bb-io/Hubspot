@@ -1,4 +1,5 @@
 using Apps.Hubspot.Actions;
+using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Models.Requests.Emails;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Exceptions;
@@ -40,5 +41,14 @@ public class MarketingEmailsActionsTests : TestBase
             $"Exception message '{exception.Message}' doesn't contain expected content about invalid HTML file");
         
         Console.WriteLine($"Actual exception: {exception.Message}");
+    }
+
+    [TestMethod]
+    public async Task GetMarketingEmail_WithInvalidHtml_ShouldThrowException()
+    {
+        var actions = new MarketingEmailsActions(InvocationContext, FileManager);
+
+        var response = await actions.GetMarketingEmailHtml(new MarketingEmailRequest { MarketingEmailId= "188266404464" },
+            new LocalizablePropertiesRequest { },true);
     }
 }
