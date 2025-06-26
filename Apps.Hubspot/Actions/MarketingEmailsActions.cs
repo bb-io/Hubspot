@@ -59,7 +59,7 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
     [Action("Get marketing email content as HTML",
         Description = "Get content of a specific marketing email in HTML format")]
     public async Task<FileResponse> GetMarketingEmailHtml([ActionParameter] MarketingEmailRequest emailRequest, 
-        [ActionParameter] LocalizablePropertiesRequest Properties, [Display("Exclude title from file")] bool? ExcludeTitle)
+        [ActionParameter] LocalizablePropertiesRequest Properties, [ActionParameter][Display("Exclude title from file")] bool? ExcludeTitle)
     {
         var email = await GetEmail(emailRequest.MarketingEmailId);
 
