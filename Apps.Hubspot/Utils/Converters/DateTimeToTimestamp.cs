@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using System.Globalization;
 
 namespace Apps.Hubspot.Utils.Converters;
 
@@ -12,7 +13,8 @@ public class DateTimeToTimestamp : JsonConverter
     public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
     {
         var dateTime = (DateTime)value;
-        writer.WriteValue(TimeSpan.FromTicks(dateTime.Subtract(DateTime.UnixEpoch).Ticks).TotalMilliseconds.ToString());
+        var timestamp = TimeSpan.FromTicks(dateTime.Subtract(DateTime.UnixEpoch).Ticks).TotalMilliseconds;
+        writer.WriteValue(timestamp.ToString("F0", CultureInfo.InvariantCulture));
     }
 
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
