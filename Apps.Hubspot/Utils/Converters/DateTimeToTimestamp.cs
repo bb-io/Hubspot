@@ -14,7 +14,7 @@ public class DateTimeToTimestamp : JsonConverter
     {
         var dateTime = (DateTime)value;
         var timestamp = TimeSpan.FromTicks(dateTime.Subtract(DateTime.UnixEpoch).Ticks).TotalMilliseconds;
-        writer.WriteValue(timestamp.ToString("N0", CultureInfo.InvariantCulture));
+        writer.WriteValue(timestamp.ToString("F0", CultureInfo.InvariantCulture));
     }
 
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
