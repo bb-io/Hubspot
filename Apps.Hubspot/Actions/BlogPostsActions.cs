@@ -30,7 +30,7 @@ public class BlogPostsActions(InvocationContext invocationContext, IFileManageme
     : BasePageActions(invocationContext, fileManagementClient)
 {
     [Action("Search blog posts", Description = "Search for a list of blog posts matching certain criteria")]
-    public async Task<ListResponse<BlogPostDto>> GetAllBlogPosts([ActionParameter] SearchPagesRequest input)
+    public async Task<ListResponse<BlogPostDto>> GetAllBlogPosts([ActionParameter] SearchBlogPostsRequest input)
     {
         var query = input.AsQuery();
         var endpoint = ApiEndpoints.BlogPostsSegment.WithQuery(query);
