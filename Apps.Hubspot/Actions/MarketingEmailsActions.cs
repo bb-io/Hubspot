@@ -140,7 +140,7 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
         var htmlFile = await FileManagementClient.DownloadAsync(fileRequest.File);
         var htmlDoc = new HtmlDocument();
         htmlDoc.Load(htmlFile);
-
+        
         var title = htmlDoc.DocumentNode.SelectSingleNode("//title")?.InnerHtml ?? "Default Title";
         var businessUnitId = htmlDoc.DocumentNode
             .SelectSingleNode("//meta[@name='business-unit-id']")
@@ -148,20 +148,15 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
         var language = htmlDoc.DocumentNode
             .SelectSingleNode("/html/body")
             ?.GetAttributeValue("lang", "en");
-
-        var originalContent = htmlDoc.DocumentNode
-            .SelectSingleNode("/html/body")
-            ?.GetAttributeValue("original", null);
-
         var subject = htmlDoc.DocumentNode
             .SelectSingleNode("//meta[@name='subject']")
             ?.GetAttributeValue("content", null);
 
-        if (!string.IsNullOrEmpty(originalContent))
-        {
-            originalContent = HttpUtility.HtmlDecode(originalContent);
-        }
-        JObject contentJson = string.IsNullOrEmpty(originalContent) ? new JObject() : JObject.Parse(originalContent);
+        using var memoryStream = new MemoryStream();
+        htmlFile.Position = 0;
+        await htmlFile.CopyToAsync(memoryStream);
+        memoryStream.Position = 0;
+        var (pageInfo, json) = HtmlConverter.ToJson(memoryStream);
 
         var createRequest = new CreateMarketingEmailOptionalRequest
         {
@@ -170,14 +165,14 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
             Subject = input.Subject ?? subject,
             BusinessUnitId = input.BusinessUnitId ?? businessUnitId ?? throw new PluginMisconfigurationException("Business Unit ID is required."),
             Content = new Models.Requests.Emails.Content
-            {
-                FlexAreas = contentJson["flexAreas"] as JObject,
-                Widgets = contentJson["widgets"] as JObject,
-                StyleSettings = contentJson["styleSettings"] as JObject,
-                TemplatePath = contentJson["templatePath"]?.ToString(),
-                PlainTextVersion = ""
-            }
-        };
+             {
+                 FlexAreas = json["flexAreas"] as JObject,
+                 Widgets = json["widgets"] as JObject,
+                 StyleSettings = json["styleSettings"] as JObject,
+                 TemplatePath = json["templatePath"]?.ToString(),
+                 PlainTextVersion = json["plainTextVersion"]?.ToString() ?? ""
+             }
+    };
 
         var request = new HubspotRequest(ApiEndpoints.MarketingEmailsEndpoint, Method.Post, Creds)
         .WithJsonBody(createRequest, JsonConfig.Settings);
