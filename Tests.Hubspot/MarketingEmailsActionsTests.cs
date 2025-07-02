@@ -1,8 +1,10 @@
 using Apps.Hubspot.Actions;
 using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Models.Requests.Emails;
+using Apps.Hubspot.Models.Requests.Files;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Exceptions;
+using Blackbird.Applications.Sdk.Common.Files;
 using Newtonsoft.Json;
 using System.Text;
 using Tests.Hubspot.Base;
@@ -50,5 +52,20 @@ public class MarketingEmailsActionsTests : TestBase
 
         var response = await actions.GetMarketingEmailHtml(new MarketingEmailRequest { MarketingEmailId= "188266404464" },
             new LocalizablePropertiesRequest { },true);
+    }
+
+    [TestMethod]
+    public async Task CreateMarketingEmailFromHtml_WithInvalidHtml_ShouldThrowException()
+    {
+        var actions = new MarketingEmailsActions(InvocationContext, FileManager);
+
+        var response = await actions.CreateMarketingEmailFromHtml(
+            new FileRequest { File= new FileReference { Name= "Warhammer 40k.html" } },
+            new CreateMarketingEmailOptionalRequest { Name= "[Test] Email 2_exec_compete_ja_jp", Language= "ja_jp" });
+
+        var json = JsonConvert.SerializeObject(response, Formatting.Indented);
+        Console.WriteLine($"Response: {json}");
+        Assert.IsNotNull(response);
+
     }
 }
