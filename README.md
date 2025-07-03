@@ -32,6 +32,7 @@ The app makes use of the `content` and `forms` OAuth scopes. You account needs t
 - Account > Settings access
    - App marketplace access
    - Website settings
+   - Developer tools
 
 ## Connecting
 
