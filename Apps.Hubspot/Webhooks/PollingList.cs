@@ -63,7 +63,9 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                     CreatedAt = StringToDateTimeConverter.ToDateTime(x.Created),
                     UpdatedAt = StringToDateTimeConverter.ToDateTime(x.Updated),
                     Type = ContentTypes.Blog,
-                    EventType = x.EventType
+                    EventType = x.EventType,
+                    Url = x.Url,
+                    Domain = x.Domain
                 }));
             }
         }
@@ -83,7 +85,9 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                     CreatedAt = StringToDateTimeConverter.ToDateTime(x.Created),
                     UpdatedAt = StringToDateTimeConverter.ToDateTime(x.Updated),
                     Type = ContentTypes.SitePage,
-                    EventType = x.EventType
+                    EventType = x.EventType,
+                    Url = x.Url,
+                    Domain = x.Domain
                 }));
             }
         }
@@ -103,7 +107,9 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                     CreatedAt = StringToDateTimeConverter.ToDateTime(x.Created),
                     UpdatedAt = StringToDateTimeConverter.ToDateTime(x.Updated),
                     Type = ContentTypes.LandingPage,
-                    EventType = x.EventType
+                    EventType = x.EventType,
+                    Url = x.Url,
+                    Domain = x.Domain
                 }));
             }
         }
