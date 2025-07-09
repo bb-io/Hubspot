@@ -65,7 +65,8 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                     Type = ContentTypes.Blog,
                     EventType = x.EventType,
                     Url = x.Url,
-                    Domain = x.Domain
+                    Domain = x.Domain,
+                    Slug = x.Slug
                 }));
             }
         }
@@ -87,7 +88,8 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                     Type = ContentTypes.SitePage,
                     EventType = x.EventType,
                     Url = x.Url,
-                    Domain = x.Domain
+                    Domain = x.Domain,
+                    Slug = x.Slug
                 }));
             }
         }
@@ -109,7 +111,8 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                     Type = ContentTypes.LandingPage,
                     EventType = x.EventType,
                     Url = x.Url,
-                    Domain = x.Domain
+                    Domain = x.Domain,
+                    Slug = x.Slug
                 }));
             }
         }
@@ -149,7 +152,8 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
                     CreatedAt = x.CreatedAt,
                     UpdatedAt = x.UpdatedAt ?? DateTime.MinValue,
                     Type = ContentTypes.Email,
-                    EventType = x.EventType
+                    EventType = x.EventType,
+                    Subject = x.Subject
                 }));
             }
         }
