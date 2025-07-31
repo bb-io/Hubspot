@@ -17,6 +17,7 @@ using RestSharp;
 using Apps.Hubspot.Models.Requests.Files;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using HtmlAgilityPack;
+using Newtonsoft.Json;
 
 namespace Apps.Hubspot.Actions;
 
@@ -166,7 +167,7 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
                             Label = x.Properties.GetValueOrDefault("label") ?? string.Empty,
                             Placeholder = x.Properties.GetValueOrDefault("placeholder") ?? string.Empty,
                             Description = x.Properties.GetValueOrDefault("description") ?? string.Empty,
-                            FieldType = x.Properties.GetValueOrDefault("fieldType") ?? "single_line_text",
+                            FieldType = x.FieldType,
                             Options = x.Options?.Select(z => new OptionDto
                             {
                                 Value = z.Key,
@@ -182,6 +183,7 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
         }).ToList();
         
         var endpoint = $"{ApiEndpoints.MarketingFormsEndpoint}/{formId}";
+        var json = JsonConvert.SerializeObject(fieldGroups, Formatting.Indented);
         var request = new HubspotRequest(endpoint, Method.Patch, Creds)
             .WithJsonBody(new
             {
@@ -215,7 +217,7 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
             Archived = input.Archived ?? extractedValues.Archived,
             Language = input.Language ?? extractedValues.Language
         }.GetRequestBody();
-
+        
         var request = new HubspotRequest(ApiEndpoints.MarketingFormsEndpoint, Method.Post, Creds)
          .WithJsonBody(createRequestBody);
         var response = await Client.ExecuteWithErrorHandling<MarketingFormDto>(request);

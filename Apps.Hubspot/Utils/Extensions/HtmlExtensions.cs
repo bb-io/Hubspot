@@ -114,8 +114,10 @@ public static class HtmlExtensions
     public static HtmlFormValues ExtractHtmlValuesForForm(HtmlDocument htmlDoc)
     {
         var nameMetaNode = htmlDoc.DocumentNode.SelectSingleNode("//meta[@name='name']");
-        var nameNode = nameMetaNode?.GetAttributeValue("content", null)
-                       ?? htmlDoc.DocumentNode.SelectSingleNode("//*[@id='name']")?.InnerText.Trim();
+        var titleNode = htmlDoc.DocumentNode.SelectSingleNode("//title");
+        var nameNode = titleNode?.InnerText.Trim()
+                  ?? nameMetaNode?.GetAttributeValue("content", null)
+                  ?? htmlDoc.DocumentNode.SelectSingleNode("//*[@id='name']")?.InnerText.Trim();
         var formName = nameNode ?? "Default Form Name";
 
         var typeMetaNode = htmlDoc.DocumentNode.SelectSingleNode("//meta[@name='type']");
