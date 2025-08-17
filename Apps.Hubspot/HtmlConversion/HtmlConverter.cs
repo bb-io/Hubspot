@@ -95,6 +95,7 @@ public static class HtmlConverter
             fieldDiv.InnerHtml = fieldContentBuilder.ToString();
 
             fieldDiv.SetAttributeValue("data-name", field.Name);
+            fieldDiv.SetAttributeValue("data-field-type", field.FieldType);
             bodyNode.AppendChild(fieldDiv);
         }
 
@@ -500,12 +501,13 @@ public static class HtmlConverter
                         }
                     }
                 }
-
-                // Create a FormHtmlEntity with the extracted data
+                
+                var fieldType = div.GetAttributeValue("data-field-type", "single_line_text");
                 var formHtmlEntity = new FormHtmlEntity(
                     Name: nameAttr,
                     Properties: propertiesDict,
-                    Options: optionsDict
+                    Options: optionsDict,
+                    FieldType: fieldType
                 );
 
                 properties.Add(formHtmlEntity);
