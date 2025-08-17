@@ -20,7 +20,7 @@ using HtmlAgilityPack;
 
 namespace Apps.Hubspot.Actions;
 
-[ActionList]
+[ActionList("Marketing forms")]
 public class MarketingFormActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : BaseActions(invocationContext, fileManagementClient)
 {

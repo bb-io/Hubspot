@@ -25,7 +25,7 @@ using Blackbird.Applications.Sdk.Common.Exceptions;
 
 namespace Apps.Hubspot.Actions;
 
-[ActionList]
+[ActionList("Blog posts")]
 public class BlogPostsActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : BasePageActions(invocationContext, fileManagementClient)
 {
