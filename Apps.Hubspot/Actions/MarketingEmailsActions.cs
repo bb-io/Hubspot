@@ -26,7 +26,7 @@ using RestSharp;
 
 namespace Apps.Hubspot.Actions;
 
-[ActionList]
+[ActionList("Marketing emails")]
 public class MarketingEmailsActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : BaseActions(invocationContext, fileManagementClient)
 {

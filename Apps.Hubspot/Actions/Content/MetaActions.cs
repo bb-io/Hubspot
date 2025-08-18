@@ -20,7 +20,7 @@ using System.Text;
 
 namespace Apps.Hubspot.Actions.Content;
 
-[ActionList]
+[ActionList("Content")]
 public class MetaActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : HubSpotInvocable(invocationContext)
 {

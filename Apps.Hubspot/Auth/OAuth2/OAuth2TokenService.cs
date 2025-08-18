@@ -1,15 +1,10 @@
-﻿using Apps.Hubspot.Api;
-using Apps.Hubspot.Constants;
-using Apps.Hubspot.Models.Requests;
-using Apps.Hubspot.Models.Responses;
+﻿using Apps.Hubspot.Constants;
+using Apps.Hubspot.Models.Dtos;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication.OAuth2;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using Blackbird.Applications.Sdk.Utils.Extensions.Sdk;
 using Newtonsoft.Json;
-using RestSharp;
 using System.Globalization;
-using System.Threading;
 
 namespace Apps.Hubspot.Auth.OAuth2;
 
@@ -62,18 +57,20 @@ public class OAuth2TokenService(InvocationContext invocationContext)
         CancellationToken token)
     {
         var responseContent = await ExecuteTokenRequest(parameters, token);
+        var tokenDto = JsonConvert.DeserializeObject<HubSpotTokenDto>(responseContent!)!;
 
-        var resultDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseContent)
-                                   ?.ToDictionary(r => r.Key, r => r.Value?.ToString())
-                               ?? throw new InvalidOperationException(
-                                   $"Invalid response content: {responseContent}");
-
-        var expiresIn = int.Parse(resultDictionary["expires_in"]);
-        var customExpiresIn = Math.Max(0, expiresIn - 10); //
+        var customExpiresIn = Math.Max(0, tokenDto.ExpiresIn - 10);
         var expiresAt = DateTime.UtcNow.AddSeconds(customExpiresIn);
-        resultDictionary[CredsNames.ExpiresAt] = expiresAt.ToString("o", CultureInfo.InvariantCulture);
-
-        return resultDictionary;
+        var expiresAtStr = expiresAt.ToString("o", CultureInfo.InvariantCulture);
+        
+        return new Dictionary<string, string>
+        {
+            { CredsNames.AccessToken, tokenDto.AccessToken },
+            { CredsNames.RefreshToken, tokenDto.RefreshToken ?? string.Empty },
+            { CredsNames.ExpiresAt, expiresAtStr },
+            { "token_type", tokenDto.TokenType ?? string.Empty },
+            { "hub_id", tokenDto.HubId?.ToString() ?? string.Empty }
+        };
     }
 
     private async Task<string> ExecuteTokenRequest(Dictionary<string, string> parameters,
@@ -82,6 +79,12 @@ public class OAuth2TokenService(InvocationContext invocationContext)
         using var client = new HttpClient();
         using var content = new FormUrlEncodedContent(parameters);
         using var response = await client.PostAsync(Urls.Token, content, cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            throw new Exception($"Error requesting token: {response.StatusCode} - {errorContent}");
+        }
 
         return await response.Content.ReadAsStringAsync(cancellationToken);
     }
