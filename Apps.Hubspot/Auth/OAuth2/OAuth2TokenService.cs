@@ -41,7 +41,7 @@ public class OAuth2TokenService(InvocationContext invocationContext)
             { "grant_type", "authorization_code" },
             { "client_id", ApplicationConstants.ClientId },
             { "client_secret", ApplicationConstants.ClientSecret },
-            { "redirect_uri", $"https://bridge.blackbird.io/api/AuthorizationCode" },
+            { "redirect_uri", $"{InvocationContext.UriInfo.BridgeServiceUrl.ToString().TrimEnd('/')}/AuthorizationCode" },
             { "code", code }
         };
         
