@@ -34,6 +34,8 @@ The app makes use of the `content` and `forms` OAuth scopes. You account needs t
    - Website settings
    - Developer tools
 
+> To use actions related to HubDB, your app needs to have access to `hubdb` scope.
+
 ## Connecting
 
 1. Navigate to apps and search for **Hubspot (CMS)**.
@@ -112,6 +114,14 @@ Note: the Hubspot API marks these endpoints in beta stage.
 - **Create marketing form from HTML** create a marketing form from a HTML file content, using metadata IDs: `name`, `type`, `language`, `archived`. If there is no specific metadata, then it search for HTML tag IDs: `name`, `type`, `language`, `archived`.
 
 > Important: when using the `Update/create .. from HTML` actions, please make sure that the HTML file was generated from the `Get .. as HTML` action. Otherwise, the HTML file may not be compatible with the Hubspot CMS and may cause errors when uploading.
+
+### HubDB
+
+- **Export table** Exports a HubDB table (draft or published) in the selected format
+- **Publish table** Publishes a HubDB table by copying draft data and schema to the published version
+- **Search rows** Gets HubDB table rows by table ID or name
+- **Search tables** Gets HubDB tables that match the search criteria
+- **Update row column** Updates a column value in a HubDB row (draft version)
 
 ## Events
 
