@@ -23,7 +23,7 @@ using Apps.Hubspot.Utils;
 
 namespace Apps.Hubspot.Actions;
 
-[ActionList]
+[ActionList("Landing page")]
 public class LandingPageActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : BasePageActions(invocationContext, fileManagementClient)
 {

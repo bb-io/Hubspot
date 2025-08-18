@@ -23,7 +23,7 @@ using Apps.Hubspot.Utils;
 
 namespace Apps.Hubspot.Actions;
 
-[ActionList]
+[ActionList("Pages")]
 public class PageActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) 
     : BasePageActions(invocationContext, fileManagementClient)
 {
