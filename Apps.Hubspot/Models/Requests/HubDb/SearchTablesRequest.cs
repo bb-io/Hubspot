@@ -10,10 +10,10 @@ namespace Apps.Hubspot.Models.Requests.HubDb
         public string Version { get; set; }
 
         [Display("Name contains")]
-        public string NameContains { get; set; }
+        public string? NameContains { get; set; }
 
         [Display("Label contains")]
-        public string LabelContains { get; set; }
+        public string? LabelContains { get; set; }
 
         [Display("Updated from")]
         public DateTime? UpdatedFrom { get; set; }

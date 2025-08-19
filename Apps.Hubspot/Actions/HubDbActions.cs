@@ -116,8 +116,8 @@ public class HubDbActions(InvocationContext invocationContext, IFileManagementCl
     }
 
     [Action("Search rows", Description = "Gets HubDB table rows by table ID or name")]
-    public async Task<SearchRowsResponse> SearchRows([ActionParameter] SearchRowsRequest input, 
-        [ActionParameter] TableVersionRequest version)
+    public async Task<SearchRowsResponse> SearchRows([ActionParameter] TableVersionRequest version,
+        [ActionParameter] SearchRowsRequest input )
     {
         if (string.IsNullOrWhiteSpace(input.TableIdOrName))
             throw new PluginMisconfigurationException("Table ID or name is required");

@@ -6,7 +6,7 @@ namespace Apps.Hubspot
 
         public const string Scope = "content forms";
 
-        public const string OptionalScope = "business_units_view.read";
+        public const string OptionalScope = "business_units_view.read hubdb";
         
         public const string ClientSecret = "#{HUBSPOTCMS_SECRET}#";
     }
