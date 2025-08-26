@@ -101,6 +101,7 @@ Note: the Hubspot API marks these endpoints in beta stage.
 - **Get marketing email content as HTML** returns a marketing email content from a (translated) HTML file. Field `Marketing Email ID` is required 
 - **Update marketing email content from HTML** updates a marketing email content from a (translated) HTML file. Fields `File` and `Marketing Email ID` is required.
 - **Create marketing email from HTML** creates a marketing email by extracting content from an uploaded HTML file
+- **Update marketing email** updates a marketing email.
 
 ### Marketing forms
 
