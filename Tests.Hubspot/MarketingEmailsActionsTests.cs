@@ -46,6 +46,25 @@ public class MarketingEmailsActionsTests : TestBase
     }
 
     [TestMethod]
+    public async Task UpdateMarketingEmail_ShouldThrowException()
+    {
+        var actions = new MarketingEmailsActions(InvocationContext, FileManager);
+
+        var exception = await  actions.UpdateMarketingEmailProperties(new UpdateMarketingEmailRequest
+        {
+            MarketingEmailId = "195139814009",
+            Name = "Updated Name WH40K 2",
+            Subject = "Updated Subject WH40K 2",
+            BusinessUnitId="0"
+        });
+
+        var json = JsonConvert.SerializeObject(exception, Formatting.Indented);
+        Console.WriteLine($"Response: {json}");
+        Assert.IsTrue(true);
+    }
+
+
+    [TestMethod]
     public async Task GetMarketingEmail_WithInvalidHtml_ShouldThrowException()
     {
         var actions = new MarketingEmailsActions(InvocationContext, FileManager);

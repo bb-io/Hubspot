@@ -76,6 +76,31 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
         };
     }
 
+    [Action("Update marketing email",Description = "Update marketing email")]
+    public async Task<MarketingEmailDto> UpdateMarketingEmailProperties(
+    [ActionParameter] UpdateMarketingEmailRequest input)
+    {
+        if (string.IsNullOrWhiteSpace(input.MarketingEmailId))
+            throw new PluginMisconfigurationException("Marketing email ID is required.");
+
+        var body = new Dictionary<string, object>();
+        if (!string.IsNullOrWhiteSpace(input.Name)) body["name"] = input.Name!;
+        if (!string.IsNullOrWhiteSpace(input.Subject)) body["subject"] = input.Subject!;
+        if (!string.IsNullOrWhiteSpace(input.Language)) body["language"] = input.Language!;
+        if (!string.IsNullOrWhiteSpace(input.State)) body["state"] = input.State!;
+        if (!string.IsNullOrWhiteSpace(input.BusinessUnitId)) body["businessUnitId"] = input.BusinessUnitId!;
+
+        if (body.Count == 0)
+            throw new PluginMisconfigurationException("Provide at least one property to update (Title, Subject, Language, State, or Business unit).");
+
+        var endpoint = $"{ApiEndpoints.MarketingEmailsEndpoint}{input.MarketingEmailId}";
+        var request = new HubspotRequest(endpoint, Method.Patch, Creds)
+            .WithJsonBody(body, JsonConfig.Settings);
+
+        return await Client.ExecuteWithErrorHandling<MarketingEmailDto>(request);
+    }
+
+
     [Action("Update marketing email content from HTML",
         Description = "Update content of a specific marketing email from HTML file")]
     public async Task UpdateMarketingEmail([ActionParameter] MarketingEmailOptionalRequest emailRequest,
