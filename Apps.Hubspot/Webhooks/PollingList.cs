@@ -19,6 +19,7 @@ using Apps.Hubspot.Webhooks.Models;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Polling;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
+using Blackbird.Applications.SDK.Blueprints;
 using RestSharp;
 
 namespace Apps.Hubspot.Webhooks;
@@ -29,6 +30,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
     private const string UpdatedPollingEvent = "updated";
     private const string CreatedPollingEvent = "created";
 
+    [BlueprintEventDefinition(BlueprintEvent.ContentCreatedOrUpdatedMultiple)]
     [PollingEvent("On content created or updated",
         Description =
             "Triggered at specified time intervals and returns all blog posts, landing pages, site pages, emails, and forms that were updated or created during the specified time interval")]
@@ -55,7 +57,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
             {
                 metadata.AddRange(blogPosts.Result.BlogPosts.Select(x => new MetadataPollingDto
                 {
-                    Id = x.Id,
+                    ContentId = x.Id,
                     Language = x.Language,
                     Title = x.Name,
                     State = x.CurrentState,
@@ -78,7 +80,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
             {
                 metadata.AddRange(sitePages.Result.Pages.Select(x => new MetadataPollingDto
                 {
-                    Id = x.Id,
+                    ContentId = x.Id,
                     Language = x.Language,
                     Title = x.Name,
                     State = x.CurrentState,
@@ -101,7 +103,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
             {
                 metadata.AddRange(landingPages.Result.Pages.Select(x => new MetadataPollingDto
                 {
-                    Id = x.Id,
+                    ContentId = x.Id,
                     Language = x.Language,
                     Title = x.Name,
                     State = x.CurrentState,
@@ -124,7 +126,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
             {
                 metadata.AddRange(marketingForms.Result.Forms.Select(x => new MetadataPollingDto
                 {
-                    Id = x.Id,
+                    ContentId = x.Id,
                     Language = x.Configuration.Language,
                     Title = x.Name,
                     State = "PUBLISHED",
@@ -144,7 +146,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
             {
                 metadata.AddRange(marketingEmails.Result.Emails.Select(x => new MetadataPollingDto
                 {
-                    Id = x.Id,
+                    ContentId = x.Id,
                     Language = x.Language,
                     Title = x.Name,
                     State = x.State,

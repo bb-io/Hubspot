@@ -30,14 +30,14 @@ public class BlogCommentServiceTests : TestBase
     {
         // First get a valid ID from search
         var searchResult = await _service.SearchContentAsync(new Dictionary<string, string>(), new());
-        var validId = searchResult.FirstOrDefault()?.Id;
+        var validId = searchResult.FirstOrDefault()?.ContentId;
         
         Assert.IsNotNull(validId, "No comments found to test with");
 
         var result = await _service.GetContentAsync(validId);
 
         Assert.IsNotNull(result);
-        Assert.AreEqual(validId, result.Id);
+        Assert.AreEqual(validId, result.ContentId);
         Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
     }
 

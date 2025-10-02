@@ -145,12 +145,12 @@ public class MetaActionsTests : TestBase
         var actions = new MetaActions(InvocationContext, FileManager);
         await actions.UpdateContentFromHtml(new()
         {
-            File = new()
+            Content = new()
             {
                 Name = "the first cup (1).html",
                 ContentType = "text/html"
             },
-            TargetLanguage = "de"
+            Locale = "de"
         }, new()
         {
             EnableInternalLinkLocalization = true,
@@ -164,12 +164,12 @@ public class MetaActionsTests : TestBase
         var actions = new MetaActions(InvocationContext, FileManager);
         await actions.UpdateContentFromHtml(new()
         {
-            File = new()
+            Content = new()
             {
                 Name = "Форма опитування n1.html",
                 ContentType = "text/html"
             },
-            TargetLanguage = "en"
+            Locale = "en"
         }, new()
         {
             CreateNew = true
@@ -182,12 +182,12 @@ public class MetaActionsTests : TestBase
         var actions = new MetaActions(InvocationContext, FileManager);
         await actions.UpdateContentFromHtml(new()
         {
-            File = new()
+            Content = new()
             {
                 Name = "Warhammer 40k.html",
                 ContentType = "text/html"
             },
-            TargetLanguage = "uk"
+            Locale = "uk"
         }, new()
         {
             CreateNew = true

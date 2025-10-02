@@ -95,7 +95,7 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
 
         return new()
         {
-            File = file,
+            Content = file,
             FileLanguage = result.Language,
         };
     }

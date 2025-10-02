@@ -101,7 +101,7 @@ public class BlogPostsActions(InvocationContext invocationContext, IFileManageme
         
         return new FileLanguageResponse
         {
-            File = file,
+            Content = file,
             FileLanguage = blogPost.Language!
         };
     }

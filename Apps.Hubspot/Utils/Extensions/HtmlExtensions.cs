@@ -29,6 +29,19 @@ public static class HtmlExtensions
             $"</html>";
     }
 
+    public static void SetReferenceId(this HtmlDocument doc, string newId)
+    {
+        var metaNode = doc.DocumentNode.SelectSingleNode($"//meta[@name='{BlackbirdReferenceIdAttribute}']");
+        if (metaNode == null)
+        {
+            metaNode = doc.CreateElement("meta");
+            metaNode.SetAttributeValue("name", BlackbirdReferenceIdAttribute);
+            doc.DocumentNode.SelectSingleNode("//head")?.AppendChild(metaNode);
+        }
+
+        metaNode.SetAttributeValue("content", newId);
+    }
+
     public static string GetNodeFromHead(this HtmlDocument doc, string nodeName)
     {
         return GetHtmlText(doc, $"html/head/{nodeName}");

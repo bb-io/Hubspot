@@ -113,7 +113,7 @@ public class LandingPageService(InvocationContext invocationContext) : BaseConte
     {
         return new Metadata
         {
-            Id = page.Id,
+            ContentId = page.Id,
             Title = page.Name,
             Domain = page.Domain,
             Language = page.Language!,

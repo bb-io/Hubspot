@@ -216,7 +216,7 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
     {
         return new Metadata
         {
-            Id = form.Id,
+            ContentId = form.Id,
             Title = form.Name,
             Domain = "NONE",
             Language = form.Configuration?.Language ?? string.Empty,

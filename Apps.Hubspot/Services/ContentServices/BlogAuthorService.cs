@@ -141,7 +141,7 @@ public class BlogAuthorService(InvocationContext invocationContext) : BaseConten
     {
         return new Metadata
         {
-            Id = blogAuthor.Id,
+            ContentId = blogAuthor.Id,
             Title = blogAuthor.Name,
             Domain = string.Empty, // Blog authors don't have domain
             Type = ContentTypes.BlogAuthor,
