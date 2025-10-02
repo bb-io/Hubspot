@@ -38,7 +38,7 @@ public class ContentDataHandler(
 
         return results
             .Where(x => context.SearchString == null || x.Title.Contains(context.SearchString))
-            .Select(lp => new DataSourceItem { Value = lp.Id, DisplayName = lp.Title })
+            .Select(lp => new DataSourceItem { Value = lp.ContentId, DisplayName = lp.Title })
             .ToList();
     }
 }

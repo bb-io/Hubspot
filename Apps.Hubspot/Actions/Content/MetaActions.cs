@@ -3,7 +3,6 @@ using Apps.Hubspot.Invocables;
 using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Models.Requests.Content;
 using Apps.Hubspot.Models.Responses;
-using Apps.Hubspot.Models.Responses.Content;
 using Apps.Hubspot.Models.Responses.Files;
 using Apps.Hubspot.Services;
 using Apps.Hubspot.Utils;
@@ -12,11 +11,15 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Html.Extensions;
+using Blackbird.Applications.SDK.Blueprints;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
+using Blackbird.Filters.Transformations;
+using Blackbird.Filters.Xliff.Xliff1;
+using Blackbird.Filters.Xliff.Xliff2;
 using System.Net.Mime;
 using System.Text;
+using Metadata = Apps.Hubspot.Models.Responses.Content.Metadata;
 
 namespace Apps.Hubspot.Actions.Content;
 
@@ -26,6 +29,7 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
 {
     private readonly ContentServicesFactory _factory = new(invocationContext);
 
+    [BlueprintActionDefinition(BlueprintAction.SearchContent)]
     [Action("Search content", Description = "Search for any type of content")]
     public async Task<ListResponse<Metadata>> SearchContent([ActionParameter] ContentTypesFilter typesFilter,
         [ActionParameter] LanguageFilter languageFilter,
@@ -61,6 +65,7 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
         return await contentService.GetContentAsync(contentRequest.ContentId);
     }
 
+    [BlueprintActionDefinition(BlueprintAction.DownloadContent)]
     [Action("Download content", Description = "Download content as HTML for a specific content type based on its ID")]
     public async Task<FileLanguageResponse> DownloadContent([ActionParameter] GetContentRequest contentRequest)
     {
@@ -72,35 +77,43 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
 
         return new()
         {
-            File = fileReference,
+            Content = fileReference,
             FileLanguage = content.Language
         };
     }
 
+    [BlueprintActionDefinition(BlueprintAction.UploadContent)]
     [Action("Upload content", Description = "Update content from an HTML file")]
-    public async Task<Metadata> UpdateContentFromHtml([ActionParameter] LanguageFileRequest languageFileRequest,
+    public async Task<Metadata> UpdateContentFromHtml(
+        [ActionParameter] LanguageFileRequest languageFileRequest,
         [ActionParameter] UploadContentRequest uploadContentRequest)
     {
-        if (!languageFileRequest.File.Name.EndsWith(".html"))
+        var fileMemory = await fileManagementClient.DownloadAsync(languageFileRequest.Content);
+        string fileString;
+        using (var reader = new StreamReader(fileMemory, Encoding.UTF8))
+            fileString = await reader.ReadToEndAsync();
+
+        if (Xliff2Serializer.IsXliff2(fileString) || Xliff1Serializer.IsXliff1(fileString))
         {
-            var fileExtension = Path.GetExtension(languageFileRequest.File.Name);
-            throw new PluginMisconfigurationException($"The provided file is not an HTML file. Please provide a file with .html extension, but got {fileExtension} instead.");
+            fileString = Transformation.Parse(fileString, languageFileRequest.Content.Name)
+                                       .Target()
+                                       .Serialize()
+                           ?? throw new PluginMisconfigurationException("XLIFF did not contain files");
         }
 
-        var fileMemory = await fileManagementClient.DownloadAsync(languageFileRequest.File);
-        var memoryStream = new MemoryStream();
-        await fileMemory.CopyToAsync(memoryStream);
-        memoryStream.Position = 0;
-
-        var fileBytes = await memoryStream.GetByteData();
-        memoryStream.Position = 0;
-
-        var fileString = Encoding.UTF8.GetString(fileBytes);
         var document = fileString.AsHtmlDocument();
         var contentType = document.ExtractContentType();
 
+        if (!string.IsNullOrEmpty(languageFileRequest.ContentId))
+        {
+            document.SetReferenceId(languageFileRequest.ContentId);
+            fileString = document.DocumentNode.OuterHtml;
+        }
+
+        using var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(fileString));
+
         var contentService = _factory.GetContentService(contentType);
-        return await contentService.UpdateContentFromHtmlAsync(languageFileRequest.TargetLanguage, memoryStream, uploadContentRequest);
+        return await contentService.UpdateContentFromHtmlAsync(languageFileRequest.Locale, memoryStream, uploadContentRequest);
     }
 
     [Action("Update content", Description = "Update content based on specified criteria using its ID")]

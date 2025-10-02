@@ -1,11 +1,12 @@
 ﻿using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.SDK.Blueprints.Interfaces.CMS;
 
 namespace Apps.Hubspot.Models.Responses.Content;
 
-public class Metadata
+public class Metadata : IDownloadContentInput
 {
     [Display("Content ID")]
-    public string Id { get; set; } = string.Empty;
+    public string ContentId { get; set; } = string.Empty;
 
     public string Title { get; set; } = string.Empty;
     

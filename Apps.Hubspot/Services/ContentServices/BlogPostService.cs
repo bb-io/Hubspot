@@ -141,7 +141,7 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
     {
         return new Metadata
         {
-            Id = blogPost.Id,
+            ContentId = blogPost.Id,
             Title = blogPost.Name,
             Domain = blogPost.Domain,
             Language = blogPost.Language!,

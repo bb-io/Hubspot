@@ -113,7 +113,7 @@ public class MarketingEmailService(InvocationContext invocationContext) : BaseCo
     {
         return new Metadata
         {
-            Id = email.Id,
+            ContentId = email.Id,
             Title = email.Name,
             Domain = email.ActiveDomain,
             Language = email.Language!,

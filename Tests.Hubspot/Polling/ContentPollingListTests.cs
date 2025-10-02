@@ -85,7 +85,7 @@ public class ContentPollingListTests : TestBase
             Console.WriteLine($"Found content items: {response.Result.Metadata.Count}");
             foreach (var item in response.Result.Metadata.Take(5)) // Log first 5 items
             {
-                Console.WriteLine($"Item: {item.Id}, Type: {item.Type}, Title: {item.Title}, Updated: {item.UpdatedAt}");
+                Console.WriteLine($"Item: {item.ContentId}, Type: {item.Type}, Title: {item.Title}, Updated: {item.UpdatedAt}");
             }
         }
     }
@@ -130,7 +130,7 @@ public class ContentPollingListTests : TestBase
             Console.WriteLine($"Found blog items: {response.Result.Metadata.Count}");
             foreach (var item in response.Result.Metadata.Take(5))
             {
-                Console.WriteLine($"Blog: {item.Id}, Title: {item.Title}, Updated: {item.UpdatedAt}");
+                Console.WriteLine($"Blog: {item.ContentId}, Title: {item.Title}, Updated: {item.UpdatedAt}");
             }
         }
     }
@@ -175,7 +175,7 @@ public class ContentPollingListTests : TestBase
             Console.WriteLine($"Found published items: {response.Result.Metadata.Count}");
             foreach (var item in response.Result.Metadata.Take(5))
             {
-                Console.WriteLine($"Published Item: {item.Id}, Type: {item.Type}, Title: {item.Title}");
+                Console.WriteLine($"Published Item: {item.ContentId}, Type: {item.Type}, Title: {item.Title}");
             }
         }
     }
@@ -221,7 +221,7 @@ public class ContentPollingListTests : TestBase
             Console.WriteLine($"Found filtered items: {response.Result.Metadata.Count}");
             foreach (var item in response.Result.Metadata.Take(5))
             {
-                Console.WriteLine($"Filtered Item: {item.Id}, Type: {item.Type}, Title: {item.Title}");
+                Console.WriteLine($"Filtered Item: {item.ContentId}, Type: {item.Type}, Title: {item.Title}");
             }
         }
     }

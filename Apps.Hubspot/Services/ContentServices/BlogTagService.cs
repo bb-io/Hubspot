@@ -108,7 +108,7 @@ public class BlogTagService(InvocationContext invocationContext) : BaseContentSe
     {
         return new Metadata
         {
-            Id = blogTag.Id,
+            ContentId = blogTag.Id,
             Title = blogTag.Name,
             Domain = string.Empty, // Blog tags don't have domain
             Type = ContentTypes.BlogTag,

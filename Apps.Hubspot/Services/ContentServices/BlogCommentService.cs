@@ -99,7 +99,7 @@ public class BlogCommentService(InvocationContext invocationContext) : BaseConte
     {
         return new Metadata
         {
-            Id = blogComment.Id,
+            ContentId = blogComment.Id,
             Title = blogComment.ContentTitle,
             Type = ContentTypes.BlogComment,
             State = blogComment.State,

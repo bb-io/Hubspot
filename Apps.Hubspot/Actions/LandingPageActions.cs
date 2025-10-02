@@ -84,7 +84,7 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
 
         return new()
         {
-            File = file,
+            Content = file,
             FileLanguage = result.Language
         };
     }
