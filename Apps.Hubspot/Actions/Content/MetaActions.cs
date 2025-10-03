@@ -36,13 +36,35 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
         [ActionParameter] TimeFilterRequest timeFilter,
         [ActionParameter] SearchContentRequest searchContentRequest)
     {
+        if (searchContentRequest.UpdatedByUserIdsWhitelist?.Any() == true && 
+            searchContentRequest.UpdatedByUserIdsBlacklist?.Any() == true)
+        {
+            throw new PluginMisconfigurationException("You cannot specify both whitelist and blacklist for updated by user IDs. Please use only one of them.");
+        }
+
         var contentServices = _factory.GetContentServices(typesFilter.ContentTypes);
         var timeQuery = timeFilter.AsQuery();
         var languageQuery = languageFilter.AsQuery();
         var searchContentQuery = searchContentRequest.AsQuery();
 
+        if (searchContentRequest.UpdatedByUserIdsWhitelist?.Count() == 1)
+        {
+            searchContentQuery.Add("updatedById__eq", searchContentRequest.UpdatedByUserIdsWhitelist.First());
+        }
+
         var query = searchContentQuery.Combine(timeQuery, languageQuery, searchContentQuery);
         var metadata = await contentServices.ExecuteManyAsync(query, searchContentRequest);
+
+        if (searchContentRequest.UpdatedByUserIdsWhitelist?.Any() == true && searchContentRequest.UpdatedByUserIdsWhitelist.Count() > 1)
+        {
+            metadata = metadata.Where(m => !string.IsNullOrEmpty(m.UpdatedByUserId) && searchContentRequest.UpdatedByUserIdsWhitelist.Contains(m.UpdatedByUserId)).ToList();
+        }
+
+        if (searchContentRequest.UpdatedByUserIdsBlacklist?.Any() == true)
+        {
+            metadata = metadata.Where(m => string.IsNullOrEmpty(m.UpdatedByUserId) || !searchContentRequest.UpdatedByUserIdsBlacklist.Contains(m.UpdatedByUserId)).ToList();
+        }
+
         return new(metadata);
     }
 

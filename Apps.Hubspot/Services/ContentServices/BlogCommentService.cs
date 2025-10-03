@@ -107,7 +107,8 @@ public class BlogCommentService(InvocationContext invocationContext) : BaseConte
             Url = string.Empty,
             Slug = string.Empty,
             CreatedAt = DateTimeOffset.FromUnixTimeMilliseconds(blogComment.CreatedAt).DateTime,
-            UpdatedAt = DateTimeOffset.FromUnixTimeMilliseconds(blogComment.CreatedAt).DateTime // Comments don't have UpdatedAt, using CreatedAt
+            UpdatedAt = DateTimeOffset.FromUnixTimeMilliseconds(blogComment.CreatedAt).DateTime, // Comments don't have UpdatedAt, using CreatedAt
+            UpdatedByUserId = string.Empty
         };
     }
 }

@@ -37,4 +37,7 @@ public class Metadata : IDownloadContentInput
 
     [Display("Translated from ID")]
     public string? TranslatedFromId { get; set; }
+
+    [Display("Updated by user ID")]
+    public string? UpdatedByUserId { get; set; }
 }

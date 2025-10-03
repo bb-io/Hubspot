@@ -151,7 +151,8 @@ public class BlogAuthorService(InvocationContext invocationContext) : BaseConten
             Url = string.Empty, // Blog authors don't have a URL
             Slug = blogAuthor.Slug,
             CreatedAt = StringToDateTimeConverter.ToDateTime(blogAuthor.Created),
-            UpdatedAt = StringToDateTimeConverter.ToDateTime(blogAuthor.Updated)
+            UpdatedAt = StringToDateTimeConverter.ToDateTime(blogAuthor.Updated),
+            UpdatedByUserId = string.Empty // Blog authors don't have an updatedById field
         };
     }
 }

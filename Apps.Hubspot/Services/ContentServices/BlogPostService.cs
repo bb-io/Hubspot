@@ -152,7 +152,8 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
             Url = blogPost.Url,
             CreatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Created),
             UpdatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Updated),
-            TranslatedFromId = blogPost.TranslatedFromId
+            TranslatedFromId = blogPost.TranslatedFromId,
+            UpdatedByUserId = blogPost.UpdatedById
         };
     }
 }

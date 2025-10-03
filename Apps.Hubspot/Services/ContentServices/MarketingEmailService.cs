@@ -124,7 +124,8 @@ public class MarketingEmailService(InvocationContext invocationContext) : BaseCo
             Subject = email.Subject,
             Url = string.Empty,
             Slug = string.Empty,
-            UpdatedAt = email.UpdatedAt ?? DateTime.MinValue
+            UpdatedAt = email.UpdatedAt ?? DateTime.MinValue,
+            UpdatedByUserId = string.Empty
         };
     }
 

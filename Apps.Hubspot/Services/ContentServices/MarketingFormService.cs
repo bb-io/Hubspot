@@ -227,7 +227,8 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
             Slug = string.Empty,
             Subject = string.Empty,
             CreatedAt = form.CreatedAt,
-            UpdatedAt = form.UpdatedAt
+            UpdatedAt = form.UpdatedAt,
+            UpdatedByUserId = string.Empty
         };
     }
 

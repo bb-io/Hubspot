@@ -118,7 +118,8 @@ public class BlogTagService(InvocationContext invocationContext) : BaseContentSe
             Url = string.Empty, // Blog tags don't have a URL
             Slug = blogTag.Slug,
             CreatedAt = StringToDateTimeConverter.ToDateTime(blogTag.Created),
-            UpdatedAt = StringToDateTimeConverter.ToDateTime(blogTag.Updated)
+            UpdatedAt = StringToDateTimeConverter.ToDateTime(blogTag.Updated),
+            UpdatedByUserId = string.Empty
         };
     }
 

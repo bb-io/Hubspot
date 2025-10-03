@@ -34,4 +34,12 @@ public class SearchContentRequest
     [Display("Title equals")]
     [JsonProperty("name__eq")]
     public string? NameEquals { get; set; }
+
+    [Display("Updated by user IDs (whitelist)")]
+    [JsonIgnore]
+    public IEnumerable<string>? UpdatedByUserIdsWhitelist { get; set; }
+
+    [Display("Updated by user IDs (blacklist)")]
+    [JsonIgnore]
+    public IEnumerable<string>? UpdatedByUserIdsBlacklist { get; set; }
 }
