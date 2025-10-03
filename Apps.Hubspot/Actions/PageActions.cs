@@ -30,7 +30,18 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
     [Action("Search site pages", Description = "Search for a list of site pages that match a certain criteria")]
     public async Task<ListResponse<PageDto>> GetAllSitePages([ActionParameter] SearchPagesRequest searchPageRequest)
     {
+        if (searchPageRequest.UpdatedByUserIdsWhitelist?.Any() == true && 
+            searchPageRequest.UpdatedByUserIdsBlacklist?.Any() == true)
+        {
+            throw new PluginMisconfigurationException("You cannot specify both whitelist and blacklist for updated by user IDs. Please use only one of them.");
+        }
+
         var query = searchPageRequest.AsHubspotQuery();
+
+        if (searchPageRequest.UpdatedByUserIdsWhitelist?.Count() == 1)
+        {
+            query.Add("updatedById__eq", searchPageRequest.UpdatedByUserIdsWhitelist.First());
+        }
 
         var endpoint = ApiEndpoints.SitePages.WithQuery(query);
 
@@ -46,6 +57,16 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
         if (!String.IsNullOrEmpty(searchPageRequest.UrlContains))
         {
             response = response.Where(x => x.Url.Contains(searchPageRequest.UrlContains)).ToList();
+        }
+
+        if (searchPageRequest.UpdatedByUserIdsWhitelist?.Any() == true && searchPageRequest.UpdatedByUserIdsWhitelist.Count() > 1)
+        {
+            response = response.Where(p => searchPageRequest.UpdatedByUserIdsWhitelist.Contains(p.UpdatedById)).ToList();
+        }
+
+        if (searchPageRequest.UpdatedByUserIdsBlacklist?.Any() == true)
+        {
+            response = response.Where(p => !searchPageRequest.UpdatedByUserIdsBlacklist.Contains(p.UpdatedById)).ToList();
         }
 
         var items = response.Select(x => x.DeepClone()).ToList();

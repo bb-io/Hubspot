@@ -45,4 +45,12 @@ public class SearchPagesRequest : PagesTimeFilterRequest
     [Display("Url contains")]
     [JsonIgnore]
     public string? UrlContains { get; set; }
+
+    [Display("Updated by user IDs (whitelist)")]
+    [JsonIgnore]
+    public IEnumerable<string>? UpdatedByUserIdsWhitelist { get; set; }
+
+    [Display("Updated by user IDs (blacklist)")]
+    [JsonIgnore]
+    public IEnumerable<string>? UpdatedByUserIdsBlacklist { get; set; }
 }

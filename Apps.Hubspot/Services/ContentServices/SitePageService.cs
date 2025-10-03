@@ -149,7 +149,8 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
             Slug = page.Slug,
             CreatedAt = StringToDateTimeConverter.ToDateTime(page.Created),
             UpdatedAt = StringToDateTimeConverter.ToDateTime(page.Updated),
-            TranslatedFromId = page.TranslatedFromId
+            TranslatedFromId = page.TranslatedFromId,
+            UpdatedByUserId = page.UpdatedById
         };
     }
 

@@ -124,7 +124,8 @@ public class LandingPageService(InvocationContext invocationContext) : BaseConte
             Slug = page.Slug,
             CreatedAt = StringToDateTimeConverter.ToDateTime(page.Created),
             UpdatedAt = StringToDateTimeConverter.ToDateTime(page.Updated),
-            TranslatedFromId = page.TranslatedFromId
+            TranslatedFromId = page.TranslatedFromId,
+            UpdatedByUserId = page.UpdatedById
         };
     }
 }

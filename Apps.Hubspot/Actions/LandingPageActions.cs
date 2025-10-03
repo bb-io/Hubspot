@@ -30,7 +30,17 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
     [Action("Search landing pages", Description = "Search for a list of site pages that match a certain criteria")]
     public async Task<ListResponse<PageDto>> GetAllLandingPages([ActionParameter] SearchPagesRequest searchPagesRequest)
     {
+        if (searchPagesRequest.UpdatedByUserIdsWhitelist?.Any() == true && 
+            searchPagesRequest.UpdatedByUserIdsBlacklist?.Any() == true)
+        {
+            throw new PluginMisconfigurationException("You cannot specify both whitelist and blacklist for updated by user IDs. Please use only one of them.");
+        }
+
         var query = searchPagesRequest.AsHubspotQuery();
+        if (searchPagesRequest.UpdatedByUserIdsWhitelist?.Count() == 1)
+        {
+            query.Add("updatedById__eq", searchPagesRequest.UpdatedByUserIdsWhitelist.First());
+        }
 
         var endpoint = ApiEndpoints.LandingPages.WithQuery(query);
 
@@ -45,6 +55,16 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
         if (!String.IsNullOrEmpty(searchPagesRequest.UrlContains))
         {
             response = response.Where(p => p.Url.Contains(searchPagesRequest.UrlContains)).ToList();
+        }
+
+        if (searchPagesRequest.UpdatedByUserIdsWhitelist?.Any() == true && searchPagesRequest.UpdatedByUserIdsWhitelist.Count() > 1)
+        {
+            response = response.Where(p => searchPagesRequest.UpdatedByUserIdsWhitelist.Contains(p.UpdatedById)).ToList();
+        }
+
+        if (searchPagesRequest.UpdatedByUserIdsBlacklist?.Any() == true)
+        {
+            response = response.Where(p => !searchPagesRequest.UpdatedByUserIdsBlacklist.Contains(p.UpdatedById)).ToList();
         }
 
         return new(response);
