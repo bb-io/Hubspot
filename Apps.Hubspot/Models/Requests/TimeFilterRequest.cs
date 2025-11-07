@@ -34,5 +34,5 @@ public class TimeFilterRequest
     [Display("Updated before")]
     [JsonProperty("updatedBefore")]
     [JsonConverter(typeof(IsoDateTimeConverter))]
-    public DateTime? UpdatedBefore { get; set; }    
+    public DateTime? UpdatedBefore { get; set; }
 }

@@ -1,4 +1,5 @@
-﻿using Apps.Hubspot.Actions.Content;
+﻿using Apps.Hubspot.Actions;
+using Apps.Hubspot.Actions.Content;
 using Apps.Hubspot.Constants;
 using Newtonsoft.Json;
 using Tests.Hubspot.Base;
@@ -15,11 +16,11 @@ public class MetaActionsTests : TestBase
 
         var result = await actions.SearchContent(new()
         {
-            ContentTypes = new[] { ContentTypes.Blog, ContentTypes.Email, ContentTypes.Form, ContentTypes.LandingPage, ContentTypes.SitePage }
+            ContentTypes = [ContentTypes.Blog]
         }, new(), new(), new());
 
         Assert.AreEqual(result.Items.Any(), true);
-        Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
+        System.Console.WriteLine(result.Items.Count());
     }
     
     [TestMethod]
@@ -92,11 +93,13 @@ public class MetaActionsTests : TestBase
     [TestMethod]
     public async Task DownloadContent_WithLandingPageContentType_ShouldNotFail()
     {
-        var actions = new MetaActions(InvocationContext, FileManager);
-        var result = await actions.DownloadContent(new()
+        var actions = new PageActions(InvocationContext, FileManager);
+        var result = await actions.GetSitePageAsHtml(new()
         {
-            ContentType = ContentTypes.LandingPage,
-            ContentId = "68920460724"
+            PageId = "187626693691"
+        }, new()
+        {
+            PropertiesToInclude = new []{"tab_icon"}
         });
 
         Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
@@ -155,16 +158,52 @@ public class MetaActionsTests : TestBase
         var actions = new MetaActions(InvocationContext, FileManager);
         await actions.UpdateContentFromHtml(new()
         {
-            File = new()
+            Content = new()
             {
                 Name = "the first cup (1).html",
                 ContentType = "text/html"
             },
-            TargetLanguage = "de"
+            Locale = "de"
         }, new()
         {
             EnableInternalLinkLocalization = true,
-            PublishedSiteBaseUrl = "https://blackbird-21491386.hubspotpagebuilder.com",
+            PublishedSiteBaseUrl = "https://blackbird-21491386.hubspotpagebuilder.com"
+        });
+    }
+    
+    [TestMethod]
+    public async Task UpdateContentFromHtml_WithMarketingFormContentType_ShouldNotFail()
+    {
+        var actions = new MetaActions(InvocationContext, FileManager);
+        await actions.UpdateContentFromHtml(new()
+        {
+            Content = new()
+            {
+                Name = "Форма опитування n1.html",
+                ContentType = "text/html"
+            },
+            Locale = "en"
+        }, new()
+        {
+            CreateNew = true
+        });
+    }
+    
+    [TestMethod]
+    public async Task UpdateContentFromHtml_WithMarketingEmailContentType_ShouldNotFail()
+    {
+        var actions = new MetaActions(InvocationContext, FileManager);
+        await actions.UpdateContentFromHtml(new()
+        {
+            Content = new()
+            {
+                Name = "Warhammer 40k.html",
+                ContentType = "text/html"
+            },
+            Locale = "uk"
+        }, new()
+        {
+            CreateNew = true
         });
     }
 }

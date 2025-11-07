@@ -23,44 +23,54 @@ using Apps.Hubspot.Utils;
 
 namespace Apps.Hubspot.Actions;
 
-[ActionList]
+[ActionList("Landing page")]
 public class LandingPageActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : BasePageActions(invocationContext, fileManagementClient)
 {
     [Action("Search landing pages", Description = "Search for a list of site pages that match a certain criteria")]
-    public async Task<ListResponse<PageDto>> GetAllLandingPages([ActionParameter] SearchPagesRequest input,
-        [ActionParameter] SearchPagesAdditionalRequest additionalRequest)
+    public async Task<ListResponse<PageDto>> GetAllLandingPages([ActionParameter] SearchPagesRequest searchPagesRequest)
     {
-        var query = input.AsQuery();
+        if (searchPagesRequest.UpdatedByUserIdsWhitelist?.Any() == true && 
+            searchPagesRequest.UpdatedByUserIdsBlacklist?.Any() == true)
+        {
+            throw new PluginMisconfigurationException("You cannot specify both whitelist and blacklist for updated by user IDs. Please use only one of them.");
+        }
+
+        var query = searchPagesRequest.AsHubspotQuery();
+        if (searchPagesRequest.UpdatedByUserIdsWhitelist?.Count() == 1)
+        {
+            query.Add("updatedById__eq", searchPagesRequest.UpdatedByUserIdsWhitelist.First());
+        }
+
         var endpoint = ApiEndpoints.LandingPages.WithQuery(query);
 
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
         var response = await Client.Paginate<GenericPageDto>(request);
 
-        if (input.NotTranslatedInLanguage != null)
+        if (searchPagesRequest.NotTranslatedInLanguage != null)
         {
-            response = response.Where(p => p.Translations == null || p.Translations.Keys.All(key => key != input.NotTranslatedInLanguage.ToLower())).ToList();
-        }
-        
-        if (!string.IsNullOrEmpty(input.Language))
-        {
-            response = response.Where(x => x.Language == input.Language).ToList();
+            response = response.Where(p => p.Translations == null || p.Translations.Keys.All(key => key != searchPagesRequest.NotTranslatedInLanguage.ToLower())).ToList();
         }
 
-        if (!string.IsNullOrEmpty(additionalRequest.PageDomain))
+        if (!String.IsNullOrEmpty(searchPagesRequest.UrlContains))
         {
-            response = response.Where(x => x.Domain == additionalRequest.PageDomain).ToList();
+            response = response.Where(p => p.Url.Contains(searchPagesRequest.UrlContains)).ToList();
         }
-        
-        if (!string.IsNullOrEmpty(additionalRequest.PageCurrentState))
+
+        if (searchPagesRequest.UpdatedByUserIdsWhitelist?.Any() == true && searchPagesRequest.UpdatedByUserIdsWhitelist.Count() > 1)
         {
-            response = response.Where(x => x.CurrentState == additionalRequest.PageCurrentState).ToList();
+            response = response.Where(p => searchPagesRequest.UpdatedByUserIdsWhitelist.Contains(p.UpdatedById)).ToList();
+        }
+
+        if (searchPagesRequest.UpdatedByUserIdsBlacklist?.Any() == true)
+        {
+            response = response.Where(p => !searchPagesRequest.UpdatedByUserIdsBlacklist.Contains(p.UpdatedById)).ToList();
         }
 
         return new(response);
     }
 
-    [Action("Get a landing page", Description = "Get information of a specific landing page")]
+    [Action("Get landing page", Description = "Get information of a specific landing page")]
     public Task<PageDto> GetLandingPage([ActionParameter] LandingPageRequest input)
     {
         PluginMisconfigurationExceptionHelper.ThrowIsNullOrEmpty(input.PageId, nameof(input.PageId));
@@ -75,7 +85,7 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
         return await service.GetTranslationLanguageCodesAsync(request.PageId);
     }
 
-    [Action("Get a landing page as HTML file",
+    [Action("Get landing page as HTML file",
         Description = "Get information of a specific landing page and return an HTML file of its content")]
     public async Task<FileLanguageResponse> GetLandingPageAsHtml([ActionParameter] LandingPageRequest input, 
         [ActionParameter] LocalizablePropertiesRequest Properties)
@@ -83,7 +93,8 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
         PluginMisconfigurationExceptionHelper.ThrowIsNullOrEmpty(input.PageId, nameof(input.PageId));
         var result = await GetPage<GenericPageDto>(ApiEndpoints.ALandingPage(input.PageId));
 
-        var htmlFile = HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language, input.PageId, ContentTypes.LandingPage, Properties);
+        var htmlFile = HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language, input.PageId, ContentTypes.LandingPage, Properties,
+            result.Slug, result.MetaDescription, string.Empty);
 
         FileReference file;
         using (var stream = new MemoryStream(htmlFile))
@@ -93,12 +104,12 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
 
         return new()
         {
-            File = file,
+            Content = file,
             FileLanguage = result.Language
         };
     }
 
-    [Action("Translate a landing page from HTML file",
+    [Action("Translate landing page from HTML file",
         Description = "Create a new translation for a site page based on a file input")]
     public async Task<TranslationResponse> TranslateLandingPageFromFile(
         [ActionParameter] TranslateLandingPageFromFileRequest request)
@@ -131,7 +142,7 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
         };
     }
 
-    [Action("Schedule a landing page for publishing",
+    [Action("Schedule landing page for publishing",
         Description = "Schedules a landing page for publishing on the given time")]
     public Task ScheduleALandingPageForPublish([ActionParameter] PublishLandingPageRequest request)
     {

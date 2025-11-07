@@ -1,4 +1,4 @@
-﻿using Apps.Hubspot.Models.Dtos.Forms;
+﻿using Apps.Hubspot.Webhooks.Models;
 using Blackbird.Applications.Sdk.Common;
 
 namespace Apps.Hubspot.Models.Responses.Forms;
@@ -6,12 +6,12 @@ namespace Apps.Hubspot.Models.Responses.Forms;
 public class MarketingFormsResponse
 {
     [Display("Marketing forms")]
-    public List<MarketingFormDto> Forms { get; set; } = new();
+    public List<MarketingFormPollingDto> Forms { get; set; } = new();
     
     public MarketingFormsResponse()
     { }
     
-    public MarketingFormsResponse(List<MarketingFormDto> pages)
+    public MarketingFormsResponse(List<MarketingFormPollingDto> pages)
     {
         Forms = pages;
     }

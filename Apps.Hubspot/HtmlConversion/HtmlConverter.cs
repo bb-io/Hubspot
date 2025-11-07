@@ -7,6 +7,7 @@ using Apps.Hubspot.Models.Requests.Content;
 using Apps.Hubspot.Models.Responses.Pages;
 using Apps.Hubspot.Providers;
 using Apps.Hubspot.Services.ContentServices;
+using Apps.Hubspot.Utils.Extensions;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using HtmlAgilityPack;
@@ -44,7 +45,7 @@ public static class HtmlConverter
         string contentType)
     {
         var allFields = fieldGroups.SelectMany(group => group.Fields).ToList();
-        var (doc, bodyNode) = PrepareEmptyHtmlDocument(new JObject(), title, language, pageId, contentType);
+        var (doc, bodyNode) = PrepareEmptyHtmlDocument(new JObject(), title, language, pageId, contentType, null, null, null );
 
         foreach (var field in allFields)
         {
@@ -94,6 +95,7 @@ public static class HtmlConverter
             fieldDiv.InnerHtml = fieldContentBuilder.ToString();
 
             fieldDiv.SetAttributeValue("data-name", field.Name);
+            fieldDiv.SetAttributeValue("data-field-type", field.FieldType);
             bodyNode.AppendChild(fieldDiv);
         }
 
@@ -101,7 +103,7 @@ public static class HtmlConverter
         return Encoding.UTF8.GetBytes(doc.DocumentNode.OuterHtml);
     }
 
-    public static byte[] ToHtml(JObject emailContent, string title, string language, string pageId, string contentType, LocalizablePropertiesRequest? properties, string? businessUnitId = null)
+    public static byte[] ToHtml(JObject emailContent, string title,string language, string pageId, string contentType, LocalizablePropertiesRequest? properties, string slug, string metaDescription, string subject, string? businessUnitId = null)
     {
         if (properties?.PropertiesToInclude != null)
         {
@@ -141,7 +143,7 @@ public static class HtmlConverter
             })
             .ToList();
 
-        var (doc, bodyNode) = PrepareEmptyHtmlDocument(emailContent, title, language, pageId, contentType, businessUnitId);
+        var (doc, bodyNode) = PrepareEmptyHtmlDocument(emailContent, title, language, pageId, contentType, slug, metaDescription, subject, businessUnitId);
         htmlNodes.ForEach(x => AddContentToHtml(x.Path, x.Html, bodyNode, doc.CreateElement("div")));
 
         return Encoding.UTF8.GetBytes(doc.DocumentNode.OuterHtml);
@@ -193,7 +195,7 @@ public static class HtmlConverter
         }
 
         var originalAttributeValue = HttpUtility.HtmlDecode(bodyNode.Attributes[OriginalContentAttribute].Value);
-        var originalJson = JObject.Parse(originalAttributeValue);
+        var originalJson = JObjectExtensions.ToJObjectWithExceptionHandling(originalAttributeValue);
         if(updateOriginalJson && !string.IsNullOrEmpty(targetLanguage) && invocationContext != null)
         {
             originalJson = UpdateContentIds(originalJson, targetLanguage, invocationContext);
@@ -277,6 +279,17 @@ public static class HtmlConverter
         return referenceId;
     }
 
+    public static string? ExtractSubject(byte[] fileBytes)
+    {
+        var fileString = Encoding.UTF8.GetString(fileBytes);
+        var doc = new HtmlDocument();
+        doc.LoadHtml(fileString);
+        var subject = doc.DocumentNode.SelectSingleNode("//meta[@name='subject']")
+            ?.GetAttributeValue("content", null);
+
+        return subject;
+    }
+
     public static string? ExtractBusinessUnitId(byte[] fileBytes)
     {
         var fileString = Encoding.UTF8.GetString(fileBytes);
@@ -317,7 +330,7 @@ public static class HtmlConverter
     }
 
     private static (HtmlDocument document, HtmlNode bodyNode) PrepareEmptyHtmlDocument(JObject emailContent,
-        string title, string language, string pageId, string contentType, string? businessUnitId = null)
+        string title, string language, string pageId, string contentType, string? slug, string? metaDescription, string? subject, string? businessUnitId = null)
     {
         var htmlDoc = new HtmlDocument();
         var htmlNode = htmlDoc.CreateElement("html");
@@ -333,10 +346,28 @@ public static class HtmlConverter
             titleNode.InnerHtml = title;
         }
 
-        var metaNode = htmlDoc.CreateElement("meta");
-        metaNode.SetAttributeValue("name", BlackbirdReferenceIdAttribute);
-        metaNode.SetAttributeValue("content", pageId);
-        headNode.AppendChild(metaNode);
+        if (!string.IsNullOrEmpty(pageId)) 
+        {
+            var metaNode = htmlDoc.CreateElement("meta");
+            metaNode.SetAttributeValue("name", BlackbirdReferenceIdAttribute);
+            metaNode.SetAttributeValue("content", pageId);
+            headNode.AppendChild(metaNode);
+        }        
+
+        if (!string.IsNullOrEmpty(slug))
+        {
+            var metaSlugNode = htmlDoc.CreateElement("meta");
+            metaSlugNode.SetAttributeValue("name", "slug");
+            metaSlugNode.SetAttributeValue("content", slug);
+            headNode.AppendChild(metaSlugNode);
+        }
+        if (!string.IsNullOrEmpty(metaDescription))
+        {
+            var metaDescriptionNode = htmlDoc.CreateElement("meta");
+            metaDescriptionNode.SetAttributeValue("name", "description");
+            metaDescriptionNode.SetAttributeValue("content", metaDescription);
+            headNode.AppendChild(metaDescriptionNode);
+        }
 
         var contentTypeMetaNode = htmlDoc.CreateElement("meta");
         contentTypeMetaNode.SetAttributeValue("name", BlackbirdContentTypeAttribute);
@@ -349,6 +380,14 @@ public static class HtmlConverter
             metaBusinessUnitNode.SetAttributeValue("name", BusinessUnitId);
             metaBusinessUnitNode.SetAttributeValue("content", businessUnitId);
             headNode.AppendChild(metaBusinessUnitNode);
+        }
+
+        if (!string.IsNullOrWhiteSpace(subject))
+        {
+            var subjectNode = htmlDoc.CreateElement("meta");
+            subjectNode.SetAttributeValue("name", "subject");
+            subjectNode.SetAttributeValue("content", subject);
+            headNode.AppendChild(subjectNode);
         }
 
         var bodyNode = htmlDoc.CreateElement("body");
@@ -365,11 +404,23 @@ public static class HtmlConverter
         var doc = new HtmlDocument();
         doc.Load(file);
 
+        var bodyNode = doc.DocumentNode.SelectSingleNode("/html/body");
+        if (bodyNode == null)
+        {
+            throw new PluginMisconfigurationException("Invalid HTML structure: missing body element. Please use a valid Hubspot marketing email HTML file.");
+        }
+
+        var originalAttr = bodyNode.Attributes[OriginalContentAttribute];
+        if (originalAttr == null)
+        {
+            throw new PluginMisconfigurationException("The HTML file is missing required attributes. Please ensure you're using the file generated by 'Get marketing email content as HTML' action.");
+        }
+
         return new()
         {
             HtmlDocument = doc,
             Title = doc.DocumentNode.SelectSingleNode("//title")?.InnerHtml ?? string.Empty,
-            Language = doc.DocumentNode.SelectSingleNode("/html/body").Attributes[LanguageAttribute]?.Value
+            Language = bodyNode.Attributes[LanguageAttribute]?.Value
         };
     }
 
@@ -379,7 +430,7 @@ public static class HtmlConverter
         var memoryStream = new MemoryStream(bytes);
         doc.Load(memoryStream);
 
-        var title = doc.DocumentNode.SelectSingleNode("//title").InnerHtml;
+        var title = doc.DocumentNode.SelectSingleNode("//title")?.InnerHtml ?? "";
         var properties = new List<FormHtmlEntity>();
 
         var divs = doc.DocumentNode.SelectNodes("//div[@data-name]");
@@ -450,12 +501,13 @@ public static class HtmlConverter
                         }
                     }
                 }
-
-                // Create a FormHtmlEntity with the extracted data
+                
+                var fieldType = div.GetAttributeValue("data-field-type", "single_line_text");
                 var formHtmlEntity = new FormHtmlEntity(
                     Name: nameAttr,
                     Properties: propertiesDict,
-                    Options: optionsDict
+                    Options: optionsDict,
+                    FieldType: fieldType
                 );
 
                 properties.Add(formHtmlEntity);

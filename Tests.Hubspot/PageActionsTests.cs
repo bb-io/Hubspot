@@ -12,9 +12,9 @@ public class PageActionsTests : TestBase
     {
         var actions = new PageActions(InvocationContext, FileManager);
 
-        var result = await actions.GetAllSitePages(new(), new()
+        var result = await actions.GetAllSitePages( new()
         {
-            PageCurrentState = "PUBLISHED"
+            State = "PUBLISHED_OR_SCHEDULED"
         });
 
         Assert.AreEqual(result.Items.Any(), true);

@@ -7,14 +7,12 @@ namespace Apps.Hubspot.Models.Requests.Emails;
 
 public class SearchEmailsRequest : TimeFilterRequest
 {
-    [Display("Published")]
-    [JsonProperty("isPublished")]
-    public bool? IsPublished { get; set; }
-
     [Display("Archived")]
     [JsonProperty("archived")]
     public bool? Archived { get; set; }
 
     [StaticDataSource(typeof(LanguageHandler))]
+    [Display("Language")]
+    [JsonProperty("language")]
     public string? Language { get; set; }
 }

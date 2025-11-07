@@ -204,13 +204,13 @@ namespace Apps.Hubspot.DataSourceHandlers
             { "vi", "Vietnamese" },
             { "vi-vn", "Vietnamese (Vietnam)" },
             { "zh", "Chinese" },
-            { "zh-cn", "Chinese (China)" },
-            { "zh-hans", "Chinese (Simplified)" },
-            { "zh-hant", "Chinese (Traditional)" },
+            { "zh-cn", "Chinese (Simplified, China)" },
+            { "zh-hans", "Chinese (Simplified, Hans)" },
+            { "zh-hant", "Chinese (Traditional, Hant)" },
             { "zh-hk", "Chinese (Hong Kong SAR China)" },
             { "zh-mo", "Chinese (Macao SAR China)" },
             { "zh-sg", "Chinese (Singapore)" },
-            { "zh-tw", "Chinese (Taiwan)" },
+            { "zh-tw", "Chinese (Traditional, Taiwan)" },
         };
 
 

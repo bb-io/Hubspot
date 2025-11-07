@@ -7,6 +7,7 @@ using Apps.Hubspot.Actions.Base;
 using Apps.Hubspot.Api;
 using Apps.Hubspot.Constants;
 using Apps.Hubspot.Extensions;
+using Apps.Hubspot.HtmlConversion;
 using Apps.Hubspot.Models.Dtos.Blogs.Posts;
 using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Models.Requests.BlogPosts;
@@ -21,16 +22,15 @@ using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using Blackbird.Applications.Sdk.Utils.Html.Extensions;
 using Apps.Hubspot.Utils.Extensions;
 using Blackbird.Applications.Sdk.Common.Exceptions;
-using HtmlExtensions = Blackbird.Applications.Sdk.Utils.Html.Extensions.HtmlExtensions;
 
 namespace Apps.Hubspot.Actions;
 
-[ActionList]
+[ActionList("Blog posts")]
 public class BlogPostsActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : BasePageActions(invocationContext, fileManagementClient)
 {
     [Action("Search blog posts", Description = "Search for a list of blog posts matching certain criteria")]
-    public async Task<ListResponse<BlogPostDto>> GetAllBlogPosts([ActionParameter] SearchPagesRequest input)
+    public async Task<ListResponse<BlogPostDto>> GetAllBlogPosts([ActionParameter] SearchBlogPostsRequest input)
     {
         var query = input.AsQuery();
         var endpoint = ApiEndpoints.BlogPostsSegment.WithQuery(query);
@@ -42,12 +42,6 @@ public class BlogPostsActions(InvocationContext invocationContext, IFileManageme
         {
             response = response.Where(p => p.Translations == null || p.Translations.Keys.All(key => key != input.NotTranslatedInLanguage.ToLower())).ToList();
         }
-        
-        if (!string.IsNullOrEmpty(input.Language))
-        {
-            response = response.Where(x => x.Language == input.Language).ToList();
-        }
-
         return new(response);
     }
 
@@ -98,18 +92,17 @@ public class BlogPostsActions(InvocationContext invocationContext, IFileManageme
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
 
         var blogPost = await Client.ExecuteWithErrorHandling<BlogPostDto>(request);
-        var htmlFile = (blogPost.Name, blogPost.MetaDescription, blogPost.PostBody, input.BlogPost, ContentTypes.Blog).AsHtml();
+        var htmlFile = blogPost.ToHtml();
 
-        FileReference file;
-        using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(htmlFile)))
-        {
-            file = await FileManagementClient.UploadAsync(stream, MediaTypeNames.Text.Html, $"{blogPost.Name}.html");
-        }
-
+        await using var stream = new MemoryStream(Encoding.UTF8.GetBytes(htmlFile));
+        stream.Position = 0;
+        
+        FileReference file = await FileManagementClient.UploadAsync(stream, MediaTypeNames.Text.Html, $"{blogPost.Name}.html");
+        
         return new FileLanguageResponse
         {
-            File = file,
-            FileLanguage = blogPost.Language,
+            Content = file,
+            FileLanguage = blogPost.Language!
         };
     }
 
@@ -117,6 +110,12 @@ public class BlogPostsActions(InvocationContext invocationContext, IFileManageme
     public async Task<BlogPostDto> TranslateBlogPostFromHtml(
         [ActionParameter] TranslateBlogPostFromHtmlRequest input)
     {
+        if (!input.File.Name.EndsWith(".html"))
+        {
+            var fileExtension = Path.GetExtension(input.File.Name);
+            throw new PluginMisconfigurationException($"The provided file is not an HTML file. Please provide a file with .html extension, but got {fileExtension} instead.");
+        }
+
         var file = await FileManagementClient.DownloadAsync(input.File);
         var fileBytes = await file.GetByteData();
 
@@ -142,7 +141,7 @@ public class BlogPostsActions(InvocationContext invocationContext, IFileManageme
         });
     }
 
-    [Action("Schedule a blog post for publishing",
+    [Action("Schedule blog post for publishing",
         Description = "Schedules a blog post for publishing on the given time")]
     public Task ScheduleABlogPostForPublish([ActionParameter] PublishBlogpostRequest request)
     {

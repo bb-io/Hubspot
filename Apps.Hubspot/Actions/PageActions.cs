@@ -23,41 +23,54 @@ using Apps.Hubspot.Utils;
 
 namespace Apps.Hubspot.Actions;
 
-[ActionList]
+[ActionList("Pages")]
 public class PageActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) 
     : BasePageActions(invocationContext, fileManagementClient)
 {
     [Action("Search site pages", Description = "Search for a list of site pages that match a certain criteria")]
-    public async Task<ListResponse<PageDto>> GetAllSitePages([ActionParameter] SearchPagesRequest input,
-        [ActionParameter] SearchPagesAdditionalRequest additionalRequest)
+    public async Task<ListResponse<PageDto>> GetAllSitePages([ActionParameter] SearchPagesRequest searchPageRequest)
     {
-        var query = input.AsQuery();
+        if (searchPageRequest.UpdatedByUserIdsWhitelist?.Any() == true && 
+            searchPageRequest.UpdatedByUserIdsBlacklist?.Any() == true)
+        {
+            throw new PluginMisconfigurationException("You cannot specify both whitelist and blacklist for updated by user IDs. Please use only one of them.");
+        }
+
+        var query = searchPageRequest.AsHubspotQuery();
+
+        if (searchPageRequest.UpdatedByUserIdsWhitelist?.Count() == 1)
+        {
+            query.Add("updatedById__eq", searchPageRequest.UpdatedByUserIdsWhitelist.First());
+        }
+
         var endpoint = ApiEndpoints.SitePages.WithQuery(query);
 
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
+
         var response = await Client.Paginate<GenericPageDto>(request);
 
-        if (input.NotTranslatedInLanguage != null)
+        if (searchPageRequest.NotTranslatedInLanguage != null)
         {
-            response = response.Where(p => p.Translations == null || p.Translations.Keys.All(key => key != input.NotTranslatedInLanguage.ToLower())).ToList();
+            response = response.Where(p => p.Translations == null || p.Translations.Keys.All(key => key != searchPageRequest.NotTranslatedInLanguage.ToLower())).ToList();
         }
 
-        if (!string.IsNullOrEmpty(input.Language))
+        if (!String.IsNullOrEmpty(searchPageRequest.UrlContains))
         {
-            response = response.Where(x => x.Language == input.Language).ToList();
+            response = response.Where(x => x.Url.Contains(searchPageRequest.UrlContains)).ToList();
         }
 
-        if (!string.IsNullOrEmpty(additionalRequest.PageDomain))
+        if (searchPageRequest.UpdatedByUserIdsWhitelist?.Any() == true && searchPageRequest.UpdatedByUserIdsWhitelist.Count() > 1)
         {
-            response = response.Where(x => x.Domain == additionalRequest.PageDomain).ToList();
+            response = response.Where(p => searchPageRequest.UpdatedByUserIdsWhitelist.Contains(p.UpdatedById)).ToList();
         }
-        
-        if (!string.IsNullOrEmpty(additionalRequest.PageCurrentState))
+
+        if (searchPageRequest.UpdatedByUserIdsBlacklist?.Any() == true)
         {
-            response = response.Where(x => x.CurrentState == additionalRequest.PageCurrentState).ToList();
+            response = response.Where(p => !searchPageRequest.UpdatedByUserIdsBlacklist.Contains(p.UpdatedById)).ToList();
         }
 
         var items = response.Select(x => x.DeepClone()).ToList();
+
         return new(items);
     }
 
@@ -69,14 +82,14 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
         return await service.GetTranslationLanguageCodesAsync(request.PageId);
     }
 
-    [Action("Get a site page", Description = "Get information of a specific page")]
+    [Action("Get site page", Description = "Get information of a specific page")]
     public Task<PageDto> GetSitePage([ActionParameter] SitePageRequest input)
     {
         PluginMisconfigurationExceptionHelper.ThrowIsNullOrEmpty(input.PageId, nameof(input.PageId));
         return GetPage<PageDto>(ApiEndpoints.ASitePage(input.PageId));
     }
 
-    [Action("Get a site page as HTML file",
+    [Action("Get site page as HTML file",
         Description = "Get information of a specific page and return an HTML file of its content")]
     public async Task<FileLanguageResponse> GetSitePageAsHtml([ActionParameter] SitePageRequest input, 
         [ActionParameter] LocalizablePropertiesRequest Properties)
@@ -84,13 +97,15 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
         PluginMisconfigurationExceptionHelper.ThrowIsNullOrEmpty(input.PageId, nameof(input.PageId));
 
         var result = await GetPage<GenericPageDto>(ApiEndpoints.ASitePage(input.PageId));
+        
         if(string.IsNullOrEmpty(result.Language))
         {
             throw new PluginMisconfigurationException("The page does not have a language set. Please set the language and try again");
         }
 
         var htmlFile =
-            HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language, input.PageId, ContentTypes.SitePage, Properties);
+            HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language, input.PageId, ContentTypes.SitePage, Properties,
+            result.Slug, result.MetaDescription, string.Empty);
 
         FileReference file;
         var title = result.HtmlTitle ?? result.Name;
@@ -101,30 +116,30 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
 
         return new()
         {
-            File = file,
+            Content = file,
             FileLanguage = result.Language,
         };
     }
 
-    [Action("Translate a site page from HTML file",
-        Description = "Create a new translation for a site page based on a file input")]
+    [Action("Translate site page from HTML file",
+        Description = "Create a new translation for a site page based on a file searchPageRequest")]
     public async Task<TranslationResponse> TranslateSitePageFromFile(
         [ActionParameter] TranslateSitePageFromFileRequest request)
     {
         if (request.File == null)
         {
-            throw new PluginMisconfigurationException("The file input is not found. Please check the input and try again");
+            throw new PluginMisconfigurationException("The file searchPageRequest is not found. Please check the searchPageRequest and try again");
         }
 
         if (string.IsNullOrWhiteSpace(request.TargetLanguage))
         {
-            throw new PluginMisconfigurationException("The target language is not found. Please check the input and try again");
+            throw new PluginMisconfigurationException("The target language is not found. Please check the searchPageRequest and try again");
         }
 
         var file = await FileManagementClient.DownloadAsync(request.File);
         var (pageInfo, json) = HtmlConverter.ToJson(file);
 
-        var sourcePageId = request.SourcePageId ?? pageInfo.HtmlDocument.ExtractBlackbirdReferenceId() ?? throw new PluginMisconfigurationException("The source page ID is missing. Provide it as an optional input");
+        var sourcePageId = request.SourcePageId ?? pageInfo.HtmlDocument.ExtractBlackbirdReferenceId() ?? throw new PluginMisconfigurationException("The source page ID is missing. Provide it as an optional searchPageRequest");
         var primaryLanguage = string.IsNullOrEmpty(pageInfo.Language) ? request.PrimaryLanguage : pageInfo.Language;
         if (string.IsNullOrEmpty(primaryLanguage))
         {
@@ -148,7 +163,7 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
         };
     }
 
-    [Action("Schedule a site-page for publishing",
+    [Action("Schedule site-page for publishing",
         Description = "Schedules a site page for publishing on the given time")]
     public Task ScheduleASitePageForPublish([ActionParameter] PublishSitePageRequest request)
     {

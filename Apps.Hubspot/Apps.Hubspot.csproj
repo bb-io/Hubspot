@@ -5,15 +5,16 @@
     <Nullable>enable</Nullable>
     <Product>Hubspot CMS</Product>
     <Description>Hubspot CMS features including blogs and pages</Description>
-    <Version>1.0.47</Version>
+    <Version>1.1.24</Version>
     <AssemblyName>Apps.Hubspot</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Blackbird.Applications.Sdk.Common" Version="2.11.0" />
+    <PackageReference Include="Blackbird.Applications.SDK.Blueprints" Version="1.0.0-rc.10308" />
     <PackageReference Include="Blackbird.Applications.SDK.Extensions.FileManagement" Version="1.0.1" />
-    <PackageReference Include="Blackbird.Applications.Sdk.Utils" Version="1.0.25" />
+    <PackageReference Include="Blackbird.Applications.Sdk.Utils" Version="1.0.26" />
     <PackageReference Include="Blackbird.Applications.Sdk.Utils.Html" Version="1.0.1" />
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.72" />
+    <PackageReference Include="Blackbird.Filters" Version="1.1.34" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.12.3" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource CopyToOutputDirectory="Always" Include="image\icon.jpg"></EmbeddedResource>

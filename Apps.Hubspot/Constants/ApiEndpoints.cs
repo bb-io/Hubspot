@@ -13,6 +13,8 @@ public static class ApiEndpoints
     public const string BlogPostsSegment = "/blogs/posts";
     public const string SitePages = $"{PagesSegment}/{SitePagesSegment}";
     public const string LandingPages = $"{PagesSegment}/{LandingPagesSegment}";
+    public const string BlogAuthorsSegment = "/blogs/authors";
+    public const string BlogCommentsSegment = "/comments/v3/comments";
 
     public const string CreateTranslation = $"{SitePages}/multi-language/create-language-variation";
     public const string PublishPage = $"{SitePages}/schedule";
@@ -22,6 +24,7 @@ public static class ApiEndpoints
 
     public static string ALandingPage(string landingPageId) => $"{LandingPages}/{landingPageId}";
     public static string UpdateLandingPage(string landingPageId) => $"{LandingPages}/{landingPageId}";
-    public static string ASitePage(string sitePageId) => $"{SitePages}/{sitePageId}";
+    public static string ASitePage(string sitePageId, string? languageCode = default) => $"{SitePages}/{sitePageId}";
+
     public static string UpdatePage(string sitePageId) => $"{SitePages}/{sitePageId}";
 }

@@ -17,10 +17,11 @@ using RestSharp;
 using Apps.Hubspot.Models.Requests.Files;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using HtmlAgilityPack;
+using Newtonsoft.Json;
 
 namespace Apps.Hubspot.Actions;
 
-[ActionList]
+[ActionList("Marketing forms")]
 public class MarketingFormActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : BaseActions(invocationContext, fileManagementClient)
 {
@@ -61,10 +62,12 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
 
     [Action("Get marketing form content as HTML",
         Description = "Get content of a specific marketing form in HTML format")]
-    public async Task<FileResponse> GetMarketingFormAsHtml([ActionParameter] MarketingFormRequest formRequest)
+    public async Task<FileResponse> GetMarketingFormAsHtml([ActionParameter] MarketingFormRequest formRequest,
+        [ActionParameter][Display("Exclude title from file")] bool? ExcludeTitle)
     {
         var form = await GetMarketingForm(formRequest);
-        var html = HtmlConverter.ToHtml(form.FieldGroups, form.Name, form.Configuration.Language, form.Id, ContentTypes.Form);
+        var name = ExcludeTitle.HasValue && ExcludeTitle.Value ? "" : form.Name;
+        var html = HtmlConverter.ToHtml(form.FieldGroups, name, form.Configuration.Language, form.Id, ContentTypes.Form);
 
         var file = await FileManagementClient.UploadAsync(new MemoryStream(html), MediaTypeNames.Text.Html,
             $"{formRequest.FormId}.html");
@@ -82,16 +85,18 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
     {
         var file = await FileManagementClient.DownloadAsync(formRequest.File);
         var bytes = await file.GetByteData();
-        
-        var extractedFormId = HtmlConverter.ExtractBlackbirdId(bytes) ?? throw new PluginApplicationException(
-            "Could not extract form ID from HTML content. Please ensure that the form ID is present in the HTML content as meta tag with name 'blackbird-reference-id'.");
-        var formId = formRequest.FormId ?? extractedFormId
-            ?? throw new PluginMisconfigurationException(
-                "Could not extract form ID from HTML content. Please provide a Form ID in optional input of this action.");
-        var form = await GetMarketingForm(new() { FormId = extractedFormId });
+        string formId;
+        if (formRequest.FormId is null)
+        {
+            var extractedFormId = HtmlConverter.ExtractBlackbirdId(bytes) ?? throw new PluginMisconfigurationException(
+            "Could not extract form ID from HTML content. Please ensure that the form ID is present in the HTML content as meta tag with name 'blackbird-reference-id' or provide it as input to the action.");
+            formId = extractedFormId;
+        }
+        else { formId = formRequest.FormId; }
+        var form = await GetMarketingForm(new() { FormId = formId });
         
         var htmlEntity = HtmlConverter.ExtractFormHtmlEntities(bytes);
-        form.Name = htmlEntity.FormName;
+        var formName = String.IsNullOrEmpty(htmlEntity.FormName) ? form.Name : htmlEntity.FormName ;
         var fieldGroups = htmlEntity.FieldGroups.Select(x =>
         {
             var field = form.FieldGroups.SelectMany(y => y.Fields).FirstOrDefault(y => y.Name == x.Name);
@@ -111,8 +116,26 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
                 {
                     field.Description = property;
                 }
-                
-                if(x.Options != null && field.Options != null)
+
+                if (x.Properties.TryGetValue("fieldType", out property))
+                {
+                    field.FieldType = property;
+                }
+                else if (string.IsNullOrEmpty(field.FieldType))
+                {
+                    field.FieldType = x.Options != null && x.Options.Any() ? "dropdown" : "single_line_text";
+                }
+
+                if (x.Properties.TryGetValue("objectTypeId", out property))
+                {
+                    field.ObjectTypeId = property;
+                }
+                else if (string.IsNullOrEmpty(field.ObjectTypeId))
+                {
+                    field.ObjectTypeId = "0-1";
+                }
+
+                if (x.Options != null && field.Options != null)
                 {
                     var options = x.Options.Select(z =>
                     {
@@ -137,10 +160,14 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
                     {
                         new()
                         {
+                            ObjectTypeId = x.Properties.GetValueOrDefault("objectTypeId") != null
+                            ? MapToValidObjectTypeId(x.Properties.GetValueOrDefault("objectTypeId"))
+                            : "0-1",
                             Name = x.Name,
                             Label = x.Properties.GetValueOrDefault("label") ?? string.Empty,
                             Placeholder = x.Properties.GetValueOrDefault("placeholder") ?? string.Empty,
                             Description = x.Properties.GetValueOrDefault("description") ?? string.Empty,
+                            FieldType = x.FieldType,
                             Options = x.Options?.Select(z => new OptionDto
                             {
                                 Value = z.Key,
@@ -156,14 +183,22 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
         }).ToList();
         
         var endpoint = $"{ApiEndpoints.MarketingFormsEndpoint}/{formId}";
+        var json = JsonConvert.SerializeObject(fieldGroups, Formatting.Indented);
         var request = new HubspotRequest(endpoint, Method.Patch, Creds)
             .WithJsonBody(new
             {
-                name = form.Name,
+                name = formName,
                 fieldGroups
             });
         
         return await Client.ExecuteWithErrorHandling<MarketingFormDto>(request);
+    }
+
+    private string MapToValidObjectTypeId(string inputTypeId)
+    {
+        var validObjectTypeIds = new HashSet<string> { "0-1", "0-2" };
+        inputTypeId = inputTypeId?.ToLowerInvariant() ?? "0-1";
+        return validObjectTypeIds.Contains(inputTypeId) ? inputTypeId : "0-1";
     }
 
     [Action("Create marketing form from HTML", Description = "Create a marketing form from a HTML file content")]
@@ -175,8 +210,6 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
         htmlDoc.Load(htmlFile);
 
         var extractedValues = Apps.Hubspot.Utils.Extensions.HtmlExtensions.ExtractHtmlValuesForForm(htmlDoc);
-
-
         var createRequestBody = new CreateMarketingFormFromHtmlRequest
         {
             Name = input.Name ?? extractedValues.Name,
@@ -184,14 +217,17 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
             Archived = input.Archived ?? extractedValues.Archived,
             Language = input.Language ?? extractedValues.Language
         }.GetRequestBody();
-
+        
         var request = new HubspotRequest(ApiEndpoints.MarketingFormsEndpoint, Method.Post, Creds)
          .WithJsonBody(createRequestBody);
-
         var response = await Client.ExecuteWithErrorHandling<MarketingFormDto>(request);
 
-        return response;
+        var updatedForm = await UpdateMarketingFormFromHtml(new UpdateMarketingFormRequest 
+        {
+            FormId = response.Id,
+            File = fileRequest.File
+        });
 
+        return updatedForm;
     }
-
 }

@@ -1,11 +1,12 @@
 ﻿using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.SDK.Blueprints.Interfaces.CMS;
 
 namespace Apps.Hubspot.Models.Responses.Content;
 
-public class Metadata
+public class Metadata : IDownloadContentInput
 {
     [Display("Content ID")]
-    public string Id { get; set; } = string.Empty;
+    public string ContentId { get; set; } = string.Empty;
 
     public string Title { get; set; } = string.Empty;
     
@@ -22,9 +23,21 @@ public class Metadata
     
     public string State { get; set; } = string.Empty;
 
+    public string Url { get; set; } = string.Empty;
+
+    public string Slug { get; set; } = string.Empty;
+
+    public string Subject { get; set; } = string.Empty;
+
     [Display("Created at")]
     public DateTime CreatedAt { get; set; }
 
     [Display("Updated at")]
     public DateTime UpdatedAt { get; set; }
+
+    [Display("Translated from ID")]
+    public string? TranslatedFromId { get; set; }
+
+    [Display("Updated by user ID")]
+    public string? UpdatedByUserId { get; set; }
 }

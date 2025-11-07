@@ -1,52 +1,68 @@
-﻿using System.Net.Mime;
-using System.Text;
-using Apps.Hubspot.Extensions;
-using Apps.Hubspot.Models.Requests;
-using Apps.Hubspot.Models.Responses;
-using Blackbird.Applications.Sdk.Common.Actions;
-using Blackbird.Applications.Sdk.Common;
-using Blackbird.Applications.Sdk.Common.Invocation;
-using Apps.Hubspot.Models.Requests.Content;
+﻿using Apps.Hubspot.Extensions;
 using Apps.Hubspot.Invocables;
-using Apps.Hubspot.Models.Responses.Content;
+using Apps.Hubspot.Models.Requests;
+using Apps.Hubspot.Models.Requests.Content;
+using Apps.Hubspot.Models.Responses;
 using Apps.Hubspot.Models.Responses.Files;
 using Apps.Hubspot.Services;
-using Apps.Hubspot.Utils.Extensions;
-using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
-using Blackbird.Applications.Sdk.Utils.Extensions.Files;
-using Blackbird.Applications.Sdk.Utils.Html.Extensions;
 using Apps.Hubspot.Utils;
+using Apps.Hubspot.Utils.Extensions;
+using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Exceptions;
+using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Utils.Html.Extensions;
+using Blackbird.Applications.SDK.Blueprints;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
+using Blackbird.Filters.Transformations;
+using Blackbird.Filters.Xliff.Xliff1;
+using Blackbird.Filters.Xliff.Xliff2;
+using System.Net.Mime;
+using System.Text;
+using Metadata = Apps.Hubspot.Models.Responses.Content.Metadata;
 
 namespace Apps.Hubspot.Actions.Content;
 
-[ActionList]
+[ActionList("Content")]
 public class MetaActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : HubSpotInvocable(invocationContext)
 {
     private readonly ContentServicesFactory _factory = new(invocationContext);
 
+    [BlueprintActionDefinition(BlueprintAction.SearchContent)]
     [Action("Search content", Description = "Search for any type of content")]
     public async Task<ListResponse<Metadata>> SearchContent([ActionParameter] ContentTypesFilter typesFilter,
         [ActionParameter] LanguageFilter languageFilter,
         [ActionParameter] TimeFilterRequest timeFilter,
         [ActionParameter] SearchContentRequest searchContentRequest)
     {
+        if (searchContentRequest.UpdatedByUserIdsWhitelist?.Any() == true && 
+            searchContentRequest.UpdatedByUserIdsBlacklist?.Any() == true)
+        {
+            throw new PluginMisconfigurationException("You cannot specify both whitelist and blacklist for updated by user IDs. Please use only one of them.");
+        }
+
         var contentServices = _factory.GetContentServices(typesFilter.ContentTypes);
-        var query = timeFilter.AsQuery();
-        var metadata = await contentServices.ExecuteManyAsync(query);
-        if (!string.IsNullOrEmpty(languageFilter.Language))
+        var timeQuery = timeFilter.AsQuery();
+        var languageQuery = languageFilter.AsQuery();
+        var searchContentQuery = searchContentRequest.AsQuery();
+
+        if (searchContentRequest.UpdatedByUserIdsWhitelist?.Count() == 1)
         {
-            metadata = metadata.Where(x => x.Language == languageFilter.Language).ToList();
+            searchContentQuery.Add("updatedById__eq", searchContentRequest.UpdatedByUserIdsWhitelist.First());
         }
 
-        if (!string.IsNullOrEmpty(searchContentRequest.Domain))
+        var query = searchContentQuery.Combine(timeQuery, languageQuery, searchContentQuery);
+        var metadata = await contentServices.ExecuteManyAsync(query, searchContentRequest);
+
+        if (searchContentRequest.UpdatedByUserIdsWhitelist?.Any() == true && searchContentRequest.UpdatedByUserIdsWhitelist.Count() > 1)
         {
-            metadata = metadata.Where(x => x.Domain == searchContentRequest.Domain).ToList();
+            metadata = metadata.Where(m => !string.IsNullOrEmpty(m.UpdatedByUserId) && searchContentRequest.UpdatedByUserIdsWhitelist.Contains(m.UpdatedByUserId)).ToList();
         }
 
-        if (!string.IsNullOrEmpty(searchContentRequest.CurrentState))
+        if (searchContentRequest.UpdatedByUserIdsBlacklist?.Any() == true)
         {
-            metadata = metadata.Where(x => x.State == searchContentRequest.CurrentState).ToList();
+            metadata = metadata.Where(m => string.IsNullOrEmpty(m.UpdatedByUserId) || !searchContentRequest.UpdatedByUserIdsBlacklist.Contains(m.UpdatedByUserId)).ToList();
         }
 
         return new(metadata);
@@ -71,6 +87,7 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
         return await contentService.GetContentAsync(contentRequest.ContentId);
     }
 
+    [BlueprintActionDefinition(BlueprintAction.DownloadContent)]
     [Action("Download content", Description = "Download content as HTML for a specific content type based on its ID")]
     public async Task<FileLanguageResponse> DownloadContent([ActionParameter] GetContentRequest contentRequest)
     {
@@ -82,29 +99,43 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
 
         return new()
         {
-            File = fileReference,
+            Content = fileReference,
             FileLanguage = content.Language
         };
     }
 
+    [BlueprintActionDefinition(BlueprintAction.UploadContent)]
     [Action("Upload content", Description = "Update content from an HTML file")]
-    public async Task UpdateContentFromHtml([ActionParameter] LanguageFileRequest languageFileRequest,
+    public async Task<Metadata> UpdateContentFromHtml(
+        [ActionParameter] LanguageFileRequest languageFileRequest,
         [ActionParameter] UploadContentRequest uploadContentRequest)
     {
-        var fileMemory = await fileManagementClient.DownloadAsync(languageFileRequest.File);
-        var memoryStream = new MemoryStream();
-        await fileMemory.CopyToAsync(memoryStream);
-        memoryStream.Position = 0;
+        var fileMemory = await fileManagementClient.DownloadAsync(languageFileRequest.Content);
+        string fileString;
+        using (var reader = new StreamReader(fileMemory, Encoding.UTF8))
+            fileString = await reader.ReadToEndAsync();
 
-        var fileBytes = await memoryStream.GetByteData();
-        memoryStream.Position = 0;
+        if (Xliff2Serializer.IsXliff2(fileString) || Xliff1Serializer.IsXliff1(fileString))
+        {
+            fileString = Transformation.Parse(fileString, languageFileRequest.Content.Name)
+                                       .Target()
+                                       .Serialize()
+                           ?? throw new PluginMisconfigurationException("XLIFF did not contain files");
+        }
 
-        var fileString = Encoding.UTF8.GetString(fileBytes);
         var document = fileString.AsHtmlDocument();
         var contentType = document.ExtractContentType();
 
+        if (!string.IsNullOrEmpty(languageFileRequest.ContentId))
+        {
+            document.SetReferenceId(languageFileRequest.ContentId);
+            fileString = document.DocumentNode.OuterHtml;
+        }
+
+        using var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(fileString));
+
         var contentService = _factory.GetContentService(contentType);
-        await contentService.UpdateContentFromHtmlAsync(languageFileRequest.TargetLanguage, memoryStream, uploadContentRequest);
+        return await contentService.UpdateContentFromHtmlAsync(languageFileRequest.Locale, memoryStream, uploadContentRequest);
     }
 
     [Action("Update content", Description = "Update content based on specified criteria using its ID")]
