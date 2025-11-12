@@ -1,8 +1,13 @@
-﻿using System.Web;
+﻿using Apps.Hubspot.Constants;
+using Apps.Hubspot.Models;
+using Apps.Hubspot.Models.Dtos.Blogs.Posts;
 using Apps.Hubspot.Models.Dtos.Emails;
 using Apps.Hubspot.Models.Dtos.Forms;
+using Apps.Hubspot.Models.Requests.Emails;
+using Apps.Hubspot.Models.Responses;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using HtmlAgilityPack;
+using System.Web;
 
 namespace Apps.Hubspot.Utils.Extensions;
 
@@ -12,19 +17,33 @@ public static class HtmlExtensions
     private const string BlackbirdContentTypeAttribute = "blackbird-content-type";
     private const string BlackbirdSlugAttribute = "slug";
 
-    public static string AsHtml(this (string title, string metaDescription, string body, string pageId, string slug, string contentType) tuple)
+    private const string BlacklakeUcid = "blackbird-ucid";
+    private const string BlacklakeContentName = "blackbird-content-name";
+    private const string BlacklakeAdminUrl = "blackbird-admin-url";
+    private const string BlacklakePublicUrl = "blackbird-public-url";
+    private const string BlacklakeSystemName = "blackbird-system-name";
+    private const string BlacklakeSystemRef = "blackbird-system-ref";
+
+    public static string AsHtml(this BlogPostDto post, ActivityInfo info)
     {
+        var sourceId = post.TranslatedFromId ?? post.Id;
         return
-            $"<html>" +
+            $"<html lang=\"{post.Language}\">" +
                 $"<head>" +
-                    $"<title>{tuple.title}</title>" +
-                    $"<meta name=\"{BlackbirdReferenceIdAttribute}\" content=\"{tuple.pageId}\">" +
-                    $"<meta name=\"{BlackbirdContentTypeAttribute}\" content=\"{tuple.contentType}\">" +
-                    $"<meta name=\"{BlackbirdSlugAttribute}\" content=\"{tuple.slug}\">" +
-                    $"<description>{tuple.metaDescription}</description>" +
+                    $"<title data-blackbird-key=\"{sourceId}-title\">{post.Name}</title>" +
+                    $"<meta name=\"{BlackbirdReferenceIdAttribute}\" content=\"{post.Id}\">" +
+                    $"<meta name=\"{BlackbirdContentTypeAttribute}\" content=\"{ContentTypes.Blog}\">" +
+                    $"<meta name=\"{BlackbirdSlugAttribute}\" content=\"{post.Slug}\">" +
+                    $"<meta name=\"{BlacklakeUcid}\" content=\"{post.Id}\">" +
+                    $"<meta name=\"{BlacklakeContentName}\" content=\"{post.Name}\">" +
+                    $"<meta name=\"{BlacklakeAdminUrl}\" content=\"https://app.hubspot.com/blog/{info.PortalId}/editor/{post.Id}/content\">" +
+                    $"<meta name=\"{BlacklakePublicUrl}\" content=\"{post.Url}\">" +
+                    $"<meta name=\"{BlacklakeSystemName}\" content=\"Hubspot\">" +
+                    $"<meta name=\"{BlacklakeSystemRef}\" content=\"https://www.hubspot.com\">" +
+                    $"<description data-blackbird-key=\"{sourceId}-description\">{post.MetaDescription}</description>" +
                 $"</head>" +
-                $"<body>" +
-                    $"{tuple.body}" +
+                $"<body its-rev-tool=\"Hubspot\" its-rev-tool-ref=\"https://www.hubspot.com\" >" +
+                    $"{post.PostBody}" +
                 $"</body>" +
             $"</html>";
     }

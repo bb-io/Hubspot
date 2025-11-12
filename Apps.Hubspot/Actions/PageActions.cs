@@ -103,9 +103,11 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
             throw new PluginMisconfigurationException("The page does not have a language set. Please set the language and try again");
         }
 
+        var activityInfo = await GetActivityInfo();
+
         var htmlFile =
-            HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language, input.PageId, ContentTypes.SitePage, Properties,
-            result.Slug, result.MetaDescription, string.Empty);
+            HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language, input.PageId, result.TranslatedFromId, ContentTypes.SitePage, Properties,
+            result.Slug, result.Url, $"https://app.hubspot.com/pages/{activityInfo.PortalId}/editor/{input.PageId}/content", result.MetaDescription, string.Empty);
 
         FileReference file;
         var title = result.HtmlTitle ?? result.Name;

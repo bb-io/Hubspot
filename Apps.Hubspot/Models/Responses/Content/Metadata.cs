@@ -23,7 +23,11 @@ public class Metadata : IDownloadContentInput
     
     public string State { get; set; } = string.Empty;
 
+    [Display("URL")]
     public string Url { get; set; } = string.Empty;
+
+    [Display("Edit URL")]
+    public string AdminUrl { get; set; } = string.Empty;
 
     public string Slug { get; set; } = string.Empty;
 

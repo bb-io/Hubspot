@@ -4,6 +4,7 @@ using Apps.Hubspot.Models.Dtos.Forms;
 using Apps.Hubspot.Models.Entities;
 using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Models.Requests.Content;
+using Apps.Hubspot.Models.Responses;
 using Apps.Hubspot.Models.Responses.Pages;
 using Apps.Hubspot.Providers;
 using Apps.Hubspot.Services.ContentServices;
@@ -41,11 +42,11 @@ public static class HtmlConverter
     private const string BlackbirdContentTypeAttribute = "blackbird-content-type";
     private const string BusinessUnitId = "business-unit-id";
 
-    public static byte[] ToHtml(List<FieldGroupDto> fieldGroups, string title, string language, string pageId,
-        string contentType)
+    public static byte[] ToHtml(List<FieldGroupDto> fieldGroups, string title, string language, string pageId, string? translatedFromPageId,
+        string contentType, string? editUrl)
     {
         var allFields = fieldGroups.SelectMany(group => group.Fields).ToList();
-        var (doc, bodyNode) = PrepareEmptyHtmlDocument(new JObject(), title, language, pageId, contentType, null, null, null );
+        var (doc, bodyNode) = PrepareEmptyHtmlDocument(new JObject(), title, language, pageId, translatedFromPageId, contentType, null, null, editUrl, null, null );
 
         foreach (var field in allFields)
         {
@@ -103,7 +104,7 @@ public static class HtmlConverter
         return Encoding.UTF8.GetBytes(doc.DocumentNode.OuterHtml);
     }
 
-    public static byte[] ToHtml(JObject emailContent, string title,string language, string pageId, string contentType, LocalizablePropertiesRequest? properties, string slug, string metaDescription, string subject, string? businessUnitId = null)
+    public static byte[] ToHtml(JObject emailContent, string title,string language, string pageId, string? translatedFromPageId, string contentType, LocalizablePropertiesRequest? properties, string slug, string? publicUrl, string? editUrl, string metaDescription, string subject, string? businessUnitId = null)
     {
         if (properties?.PropertiesToInclude != null)
         {
@@ -143,7 +144,7 @@ public static class HtmlConverter
             })
             .ToList();
 
-        var (doc, bodyNode) = PrepareEmptyHtmlDocument(emailContent, title, language, pageId, contentType, slug, metaDescription, subject, businessUnitId);
+        var (doc, bodyNode) = PrepareEmptyHtmlDocument(emailContent, title, language, pageId, translatedFromPageId, contentType, slug, publicUrl, editUrl, metaDescription, subject, businessUnitId);
         htmlNodes.ForEach(x => AddContentToHtml(x.Path, x.Html, bodyNode, doc.CreateElement("div")));
 
         return Encoding.UTF8.GetBytes(doc.DocumentNode.OuterHtml);
@@ -329,19 +330,32 @@ public static class HtmlConverter
         bodyNode.AppendChild(elementNode);
     }
 
+    private static void AddBlackbirdMeta(HtmlDocument htmlDoc, HtmlNode headNode, string name, string? value)
+    {
+        if (value is null) return;
+        var entryMetaNode = htmlDoc.CreateElement("meta");
+        entryMetaNode.SetAttributeValue("name", $"blackbird-{name}");
+        entryMetaNode.SetAttributeValue("content", value);
+        headNode.AppendChild(entryMetaNode);
+    }
+
     private static (HtmlDocument document, HtmlNode bodyNode) PrepareEmptyHtmlDocument(JObject emailContent,
-        string title, string language, string pageId, string contentType, string? slug, string? metaDescription, string? subject, string? businessUnitId = null)
+        string title, string language, string pageId, string? translatedFromPageId, string contentType, string? slug, string? publicUrl, string? editUrl, string? metaDescription, string? subject, string? businessUnitId = null)
     {
         var htmlDoc = new HtmlDocument();
         var htmlNode = htmlDoc.CreateElement("html");
+        htmlNode.SetAttributeValue("lang", language);
         htmlDoc.DocumentNode.AppendChild(htmlNode);
 
         var headNode = htmlDoc.CreateElement("head");
         htmlNode.AppendChild(headNode);
 
+        var sourcePageId = translatedFromPageId ?? pageId;
+
         if (!string.IsNullOrEmpty(title))
         {
             var titleNode = htmlDoc.CreateElement("title");
+            titleNode.SetAttributeValue("data-blackbird-key", $"{sourcePageId}-title");
             headNode.AppendChild(titleNode);
             titleNode.InnerHtml = title;
         }
@@ -365,6 +379,7 @@ public static class HtmlConverter
         {
             var metaDescriptionNode = htmlDoc.CreateElement("meta");
             metaDescriptionNode.SetAttributeValue("name", "description");
+            metaDescriptionNode.SetAttributeValue("data-blackbird-key", $"{sourcePageId}-description");
             metaDescriptionNode.SetAttributeValue("content", metaDescription);
             headNode.AppendChild(metaDescriptionNode);
         }
@@ -386,12 +401,23 @@ public static class HtmlConverter
         {
             var subjectNode = htmlDoc.CreateElement("meta");
             subjectNode.SetAttributeValue("name", "subject");
+            subjectNode.SetAttributeValue("data-blackbird-key", $"{sourcePageId}-subject");
             subjectNode.SetAttributeValue("content", subject);
             headNode.AppendChild(subjectNode);
         }
 
+        AddBlackbirdMeta(htmlDoc, headNode, "ucid", pageId);
+        AddBlackbirdMeta(htmlDoc, headNode, "content-name", title);
+        AddBlackbirdMeta(htmlDoc, headNode, "admin-url", editUrl);
+        AddBlackbirdMeta(htmlDoc, headNode, "public-url", publicUrl);
+        AddBlackbirdMeta(htmlDoc, headNode, "system-name", "Hubspot");
+        AddBlackbirdMeta(htmlDoc, headNode, "system-ref", "https://www.hubspot.com");
+
         var bodyNode = htmlDoc.CreateElement("body");
         htmlNode.AppendChild(bodyNode);
+
+        bodyNode.SetAttributeValue("its-rev-tool", "Hubspot");
+        bodyNode.SetAttributeValue("its-rev-tool-ref", "https://www.hubspot.com");
 
         bodyNode.SetAttributeValue(OriginalContentAttribute, HttpUtility.HtmlEncode(emailContent.ToString()));
         bodyNode.SetAttributeValue(LanguageAttribute, language);

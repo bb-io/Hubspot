@@ -192,7 +192,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         var updatedBlogPosts = await GetAllBlogPosts(new SearchPagesRequest { UpdatedAfter = request.Memory.LastPollingTime.Value });
         var blogPosts = createdBlogPosts.Items
             .Concat(updatedBlogPosts.Items)
-            .Where(p => p.Language == languageRequest.Language)
+            .Where(p => languageRequest.Language == null || p.Language == languageRequest.Language)
             .DistinctBy(x => x.Id)
             .ToList();
         
@@ -233,7 +233,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         var updated = await GetAllSitePages(new SearchPagesRequest { UpdatedAfter = request.Memory.LastPollingTime.Value });
         var pages = created.Items
             .Concat(updated.Items)
-            .Where(p => p.Language == languageRequest.Language)
+            .Where(p => languageRequest.Language == null || p.Language == languageRequest.Language)
             .DistinctBy(x => x.Id)
             .ToList();
         
@@ -275,7 +275,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         var updated = await GetAllLandingPages(new SearchPagesRequest { UpdatedAfter = request.Memory.LastPollingTime.Value });
         var pages = created.Items
             .Concat(updated.Items)
-            .Where(p => p.Language == languageRequest.Language)
+            .Where(p => languageRequest.Language == null || p.Language == languageRequest.Language)
             .DistinctBy(x => x.Id)
             .ToList();
         
@@ -317,7 +317,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         var updated = await GetAllMarketingForms(new () { UpdatedAfter = request.Memory.LastPollingTime.Value });
         var forms = created.Items
             .Concat(updated.Items)
-            .Where(p => p.Configuration.Language == languageRequest.Language)
+            .Where(p => languageRequest.Language == null || p.Configuration.Language == languageRequest.Language)
             .DistinctBy(x => x.Id)
             .ToList();
         
@@ -359,7 +359,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         var updated = await GetAllMarketingEmails(new () { UpdatedAfter = request.Memory.LastPollingTime.Value });
         var emails = created.Items
             .Concat(updated.Items)
-            .Where(p => p.Language == languageRequest.Language)
+            .Where(p => languageRequest.Language == null || p.Language == languageRequest.Language)
             .DistinctBy(x => x.Id)
             .ToList();
         

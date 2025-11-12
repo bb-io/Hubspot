@@ -24,4 +24,11 @@ public abstract class HubSpotInvocable(InvocationContext invocationContext) : Ba
         var response = await Client.ExecuteWithErrorHandling<UserIdInfo>(request);
         return response.UserId.ToString();
     }
+
+    public async Task<ActivityInfo> GetActivityInfo()
+    {
+        var request = new HubspotRequest(ApiEndpoints.ActivityInfo, Method.Get, Creds);
+        var response = await Client.ExecuteWithErrorHandling<ActivityInfo>(request);
+        return response;
+    }
 }
