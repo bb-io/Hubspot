@@ -48,7 +48,7 @@ public class MarketingEmailService(InvocationContext invocationContext) : BaseCo
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
         var email = await Client.ExecuteWithErrorHandling<EmailContentDto>(request);
         var activityInfo = await GetActivityInfo();
-        var html = HtmlConverter.ToHtml(email.Content, email.Name, email.Language, id, ContentTypes.Email, null, null, null, $"https://app.hubspot.com/email/{activityInfo.PortalId}/edit/{id}/content", null, email.Subject , email.BusinessUnitId);
+        var html = HtmlConverter.ToHtml(email.Content, email.Name, email.Language, id, null, ContentTypes.Email, null, null, null, $"https://app.hubspot.com/email/{activityInfo.PortalId}/edit/{id}/content", null, email.Subject , email.BusinessUnitId);
 
         return new MemoryStream(html);
     }

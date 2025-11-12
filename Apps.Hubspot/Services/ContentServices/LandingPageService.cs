@@ -63,7 +63,7 @@ public class LandingPageService(InvocationContext invocationContext) : BaseConte
         var result = await Client.ExecuteWithErrorHandling<GenericPageDto>(request);
         var activityInfo = await GetActivityInfo();
 
-        var htmlFile = HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language!, id, ContentTypes.LandingPage, null, result.Slug, result.Url, $"https://app.hubspot.com/pages/{activityInfo.PortalId}/editor/{id}/content", result.MetaDescription, string.Empty);
+        var htmlFile = HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language!, id, result.TranslatedFromId, ContentTypes.LandingPage, null, result.Slug, result.Url, $"https://app.hubspot.com/pages/{activityInfo.PortalId}/editor/{id}/content", result.MetaDescription, string.Empty);
         return new MemoryStream(htmlFile);
     }
 

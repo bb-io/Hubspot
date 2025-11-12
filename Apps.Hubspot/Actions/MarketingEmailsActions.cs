@@ -66,7 +66,7 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
         var title = ExcludeTitle.HasValue && ExcludeTitle.Value? string.Empty: email.Name;
         var activityInfo = await GetActivityInfo();
 
-        var html = HtmlConverter.ToHtml(email.Content, title, email.Language, emailRequest.MarketingEmailId, ContentTypes.Email, Properties, null, null, $"https://app.hubspot.com/email/{activityInfo.PortalId}/edit/{emailRequest.MarketingEmailId}/content", null, email.Subject ,email.BusinessUnitId);
+        var html = HtmlConverter.ToHtml(email.Content, title, email.Language, emailRequest.MarketingEmailId, null, ContentTypes.Email, Properties, null, null, $"https://app.hubspot.com/email/{activityInfo.PortalId}/edit/{emailRequest.MarketingEmailId}/content", null, email.Subject ,email.BusinessUnitId);
 
         var file = await FileManagementClient.UploadAsync(new MemoryStream(html), MediaTypeNames.Text.Html,
             $"{email.Name}.html");
