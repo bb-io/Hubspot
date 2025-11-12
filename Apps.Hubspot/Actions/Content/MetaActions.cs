@@ -2,7 +2,9 @@
 using Apps.Hubspot.Invocables;
 using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Models.Requests.Content;
+using Apps.Hubspot.Models.Requests.Emails;
 using Apps.Hubspot.Models.Responses;
+using Apps.Hubspot.Models.Responses.Content;
 using Apps.Hubspot.Models.Responses.Files;
 using Apps.Hubspot.Services;
 using Apps.Hubspot.Utils;
@@ -14,6 +16,8 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Html.Extensions;
 using Blackbird.Applications.SDK.Blueprints;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
+using Blackbird.Filters.Constants;
+using Blackbird.Filters.Extensions;
 using Blackbird.Filters.Transformations;
 using Blackbird.Filters.Xliff.Xliff1;
 using Blackbird.Filters.Xliff.Xliff2;
@@ -105,8 +109,8 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
     }
 
     [BlueprintActionDefinition(BlueprintAction.UploadContent)]
-    [Action("Upload content", Description = "Update content from an HTML file")]
-    public async Task<Metadata> UpdateContentFromHtml(
+    [Action("Upload content", Description = "Update content from a processed content file")]
+    public async Task<MetadataWithContent> UpdateContentFromHtml(
         [ActionParameter] LanguageFileRequest languageFileRequest,
         [ActionParameter] UploadContentRequest uploadContentRequest)
     {
@@ -115,12 +119,11 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
         using (var reader = new StreamReader(fileMemory, Encoding.UTF8))
             fileString = await reader.ReadToEndAsync();
 
+        Transformation? transformation = null;
         if (Xliff2Serializer.IsXliff2(fileString) || Xliff1Serializer.IsXliff1(fileString))
         {
-            fileString = Transformation.Parse(fileString, languageFileRequest.Content.Name)
-                                       .Target()
-                                       .Serialize()
-                           ?? throw new PluginMisconfigurationException("XLIFF did not contain files");
+            transformation = Transformation.Parse(fileString, languageFileRequest.Content.Name);
+            fileString = transformation.Target().Serialize() ?? throw new PluginMisconfigurationException("XLIFF did not contain files");
         }
 
         var document = fileString.AsHtmlDocument();
@@ -135,7 +138,45 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
         using var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(fileString));
 
         var contentService = _factory.GetContentService(contentType);
-        return await contentService.UpdateContentFromHtmlAsync(languageFileRequest.Locale, memoryStream, uploadContentRequest);
+        var metadata = await contentService.UpdateContentFromHtmlAsync(languageFileRequest.Locale, memoryStream, uploadContentRequest);
+
+        var result = new MetadataWithContent
+        {
+            Slug = metadata.Slug,
+            State = metadata.State,
+            Subject = metadata.Subject,
+            CreatedAt = metadata.CreatedAt,
+            UpdatedAt = metadata.UpdatedAt,
+            ContentId = metadata.ContentId,
+            Domain = metadata.Domain,
+            Language = metadata.Language,
+            Published = metadata.Published,
+            AdminUrl = metadata.AdminUrl,
+            Title = metadata.Title,
+            TranslatedFromId = metadata.TranslatedFromId,
+            Type = metadata.Type,
+            UpdatedByUserId = metadata.UpdatedByUserId,
+            Url = metadata.Url,
+        };
+
+        if (transformation is not null)
+        {
+            transformation.TargetSystemReference.ContentId = metadata.ContentId;
+            transformation.TargetSystemReference.ContentName = metadata.Title;
+            transformation.TargetSystemReference.AdminUrl = metadata.AdminUrl;
+            transformation.TargetSystemReference.PublicUrl = metadata.Url;
+            transformation.TargetSystemReference.SystemName = "Hubspot";
+            transformation.TargetSystemReference.SystemRef = "https://www.hubspot.com/";
+            transformation.TargetLanguage = metadata.Language;
+
+            result.Content = await fileManagementClient.UploadAsync(transformation.Serialize().ToStream(), MediaTypes.Xliff, transformation.XliffFileName);
+        }
+        else
+        {
+            result.Content = languageFileRequest.Content;
+        }
+
+        return result;
     }
 
     [Action("Update content", Description = "Update content based on specified criteria using its ID")]

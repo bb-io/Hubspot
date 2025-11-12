@@ -107,6 +107,9 @@ public class BlogPostDto : IEntity
     [Display("URL")] 
     public string Url { get; set; } = string.Empty;
 
+    [Display("Published URL")]
+    public string PublishedUrl { get; set; } = string.Empty;
+
     [Display("Use featured image")] 
     public bool UseFeaturedImage { get; set; }
 }

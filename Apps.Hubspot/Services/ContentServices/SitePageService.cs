@@ -32,8 +32,8 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
         {
             response = response.Where(page => page.Url?.Contains(searchContentRequest.UrlContains, StringComparison.OrdinalIgnoreCase) ?? false).ToList();
         }
-
-        return response.Select(ConvertPageToMetadata).ToList();
+        var activityInfo = await GetActivityInfo();
+        return response.Select(x => ConvertPageToMetadata(x, activityInfo)).ToList();
     }
     
     public override async Task<TranslatedLocalesResponse> GetTranslationLanguageCodesAsync(string id)
@@ -49,7 +49,8 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
         var url = ApiEndpoints.ASitePage(id);
         var request = new HubspotRequest(url, Method.Get, Creds);
         var page = await Client.ExecuteWithErrorHandling<PageDto>(request);
-        return ConvertPageToMetadata(page);
+        var activityInfo = await GetActivityInfo();
+        return ConvertPageToMetadata(page, activityInfo);
     }
 
     public async Task<PageWithTranslationsDto> GetPageAsync(string id)
@@ -64,9 +65,10 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
         var url = ApiEndpoints.ASitePage(id);
         var request = new HubspotRequest(url, Method.Get, Creds);
         var page = await Client.ExecuteWithErrorHandling<GenericPageDto>(request);
-        
+        var activityInfo = await GetActivityInfo();
+
         var htmlBytes =
-            HtmlConverter.ToHtml(page.LayoutSections, page.HtmlTitle, page.Language, id, ContentTypes.SitePage, null, page.Slug, page.MetaDescription, string.Empty);
+            HtmlConverter.ToHtml(page.LayoutSections, page.HtmlTitle, page.Language, id, ContentTypes.SitePage, null, page.Slug, page.Url, $"https://app.hubspot.com/pages/{activityInfo.PortalId}/editor/{id}/content", page.MetaDescription, string.Empty);
         return new MemoryStream(htmlBytes);
     }
 
@@ -111,7 +113,8 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
         }
 
         var pageDto = await UpdateTranslatedPage<PageDto>(ApiEndpoints.UpdatePage(translationId), updatedPage);
-        return ConvertPageToMetadata(pageDto);
+        var activityInfo = await GetActivityInfo();
+        return ConvertPageToMetadata(pageDto, activityInfo);
     }
 
     public override async Task<Metadata> UpdateContentAsync(string id, UpdateContentRequest updateContentRequest)
@@ -124,7 +127,8 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
             });
         
         var page = await Client.ExecuteWithErrorHandling<PageDto>(request);
-        return ConvertPageToMetadata(page);
+        var activityInfo = await GetActivityInfo();
+        return ConvertPageToMetadata(page, activityInfo);
     }
 
     public override Task DeleteContentAsync(string id)
@@ -134,7 +138,7 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
         return Client.ExecuteWithErrorHandling(request);
     }
 
-    private Metadata ConvertPageToMetadata(PageDto page)
+    private Metadata ConvertPageToMetadata(PageDto page, ActivityInfo activityInfo)
     {
         return new Metadata
         {
@@ -146,6 +150,7 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
             Published = page.Published,
             Type = ContentTypes.SitePage,
             Url = page.Url,
+            AdminUrl = $"https://app.hubspot.com/pages/{activityInfo.PortalId}/editor/{page.Id}/content",
             Slug = page.Slug,
             CreatedAt = StringToDateTimeConverter.ToDateTime(page.Created),
             UpdatedAt = StringToDateTimeConverter.ToDateTime(page.Updated),

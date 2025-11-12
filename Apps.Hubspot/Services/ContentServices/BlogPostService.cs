@@ -33,14 +33,16 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
         {
             blogPosts = blogPosts.Where(x => x.Url.Contains(searchContentRequest.UrlContains, StringComparison.OrdinalIgnoreCase)).ToList();
         }
-        
-        return blogPosts.Select(ConvertBlogPostToMetadata).ToList();
+        var activityInfo = await GetActivityInfo();
+
+        return blogPosts.Select(x => ConvertBlogPostToMetadata(x, activityInfo)).ToList();
     }
 
     public override async Task<Metadata> GetContentAsync(string id)
     {
         var blogPost = await GetBlogPostAsync(id);
-        return ConvertBlogPostToMetadata(blogPost);
+        var activityInfo = await GetActivityInfo();
+        return ConvertBlogPostToMetadata(blogPost, activityInfo);
     }
 
     public async Task<BlogPostDto> GetBlogPostAsync(string id)
@@ -63,7 +65,8 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
         var endpoint = $"{ApiEndpoints.BlogPostsSegment}/{id}";
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
         var blogPost = await Client.ExecuteWithErrorHandling<BlogPostDto>(request);
-        var htmlFile = blogPost.ToHtml();
+        var activityInfo = await GetActivityInfo();
+        var htmlFile = blogPost.AsHtml(activityInfo);
 
         var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(htmlFile));
         memoryStream.Position = 0;
@@ -105,7 +108,8 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
             BlogPostId = translationId
         }, postRequest);
 
-        return ConvertBlogPostToMetadata(blogPost);
+        var activityInfo = await GetActivityInfo();
+        return ConvertBlogPostToMetadata(blogPost, activityInfo);
     }
 
     public override async Task<Metadata> UpdateContentAsync(string id, UpdateContentRequest updateContentRequest)
@@ -118,7 +122,8 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
             }, JsonConfig.Settings);
 
         var blogPost = await Client.ExecuteWithErrorHandling<BlogPostDto>(request);
-        return ConvertBlogPostToMetadata(blogPost);
+        var activityInfo = await GetActivityInfo();
+        return ConvertBlogPostToMetadata(blogPost, activityInfo);
     }
 
     public override Task DeleteContentAsync(string id)
@@ -137,7 +142,7 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
         return Client.ExecuteWithErrorHandling<BlogPostDto>(request);
     }
     
-    private Metadata ConvertBlogPostToMetadata(BlogPostDto blogPost)
+    private Metadata ConvertBlogPostToMetadata(BlogPostDto blogPost, ActivityInfo info)
     {
         return new Metadata
         {
@@ -150,6 +155,7 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
             Type = ContentTypes.Blog,
             Slug = blogPost.Slug,
             Url = blogPost.Url,
+            AdminUrl = $"https://app.hubspot.com/blog/{info.PortalId}/editor/{blogPost.Id}/content",
             CreatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Created),
             UpdatedAt = StringToDateTimeConverter.ToDateTime(blogPost.Updated),
             TranslatedFromId = blogPost.TranslatedFromId,

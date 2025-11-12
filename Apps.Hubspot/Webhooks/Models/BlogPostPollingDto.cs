@@ -44,6 +44,7 @@ public class BlogPostPollingDto : BlogPostDto
         Translations = original.Translations;
         UpdatedById = original.UpdatedById;
         Url = original.Url;
+        PublishedUrl = original.PublishedUrl;
         UseFeaturedImage = original.UseFeaturedImage;
         EventType = eventType;
     }
