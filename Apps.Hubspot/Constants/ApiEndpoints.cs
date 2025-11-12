@@ -22,6 +22,8 @@ public static class ApiEndpoints
     public const string CreateLandingPageTranslation = $"{LandingPages}/multi-language/create-language-variation";
     public const string BusinessUnitsEndpoint = "https://api.hubapi.com/crm/v3/business-units";
 
+    public const string ActivityInfo = "https://api.hubapi.com/integrations/v1/me";
+
     public static string ALandingPage(string landingPageId) => $"{LandingPages}/{landingPageId}";
     public static string UpdateLandingPage(string landingPageId) => $"{LandingPages}/{landingPageId}";
     public static string ASitePage(string sitePageId, string? languageCode = default) => $"{SitePages}/{sitePageId}";

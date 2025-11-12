@@ -66,8 +66,9 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
         [ActionParameter][Display("Exclude title from file")] bool? ExcludeTitle)
     {
         var form = await GetMarketingForm(formRequest);
+        var activityInfo = await GetActivityInfo();
         var name = ExcludeTitle.HasValue && ExcludeTitle.Value ? "" : form.Name;
-        var html = HtmlConverter.ToHtml(form.FieldGroups, name, form.Configuration.Language, form.Id, ContentTypes.Form);
+        var html = HtmlConverter.ToHtml(form.FieldGroups, name, form.Configuration.Language, form.Id, ContentTypes.Form, $"https://app.hubspot.com/submissions/{activityInfo.PortalId}/form/{form.Id}/performance");
 
         var file = await FileManagementClient.UploadAsync(new MemoryStream(html), MediaTypeNames.Text.Html,
             $"{formRequest.FormId}.html");

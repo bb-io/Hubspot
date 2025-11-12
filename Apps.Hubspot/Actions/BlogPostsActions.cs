@@ -92,7 +92,8 @@ public class BlogPostsActions(InvocationContext invocationContext, IFileManageme
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
 
         var blogPost = await Client.ExecuteWithErrorHandling<BlogPostDto>(request);
-        var htmlFile = blogPost.ToHtml();
+        var activityInfo = await GetActivityInfo();
+        var htmlFile = blogPost.AsHtml(activityInfo);
 
         await using var stream = new MemoryStream(Encoding.UTF8.GetBytes(htmlFile));
         stream.Position = 0;
