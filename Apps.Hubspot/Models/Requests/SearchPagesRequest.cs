@@ -42,6 +42,10 @@ public class SearchPagesRequest : PagesTimeFilterRequest
     [JsonProperty("domain__contains")]
     public string? PageDomainContains { get; set; }
 
+    [Display("A/B status"), StaticDataSource(typeof(ABStatusDataHandler))]
+    [JsonProperty("abStatus__eq")]
+    public string? AbStatus { get; set; }
+
     [Display("Url contains")]
     [JsonIgnore]
     public string? UrlContains { get; set; }
