@@ -47,7 +47,7 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
         var form = await Client.ExecuteWithErrorHandling<MarketingFormDto>(request);
         var activityInfo = await GetActivityInfo();
 
-        var htmlBytes = HtmlConverter.ToHtml(form.FieldGroups, form.Name, form.Configuration.Language, form.Id, ContentTypes.Form, $"https://app.hubspot.com/submissions/{activityInfo.PortalId}/form/{form.Id}/performance");
+        var htmlBytes = HtmlConverter.ToHtml(form.FieldGroups, form.Name, form.Configuration.Language, form.Id, null, ContentTypes.Form, $"https://app.hubspot.com/submissions/{activityInfo.PortalId}/form/{form.Id}/performance");
         return new MemoryStream(htmlBytes);
     }
 

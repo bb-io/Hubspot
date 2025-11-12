@@ -106,7 +106,7 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
         var activityInfo = await GetActivityInfo();
 
         var htmlFile =
-            HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language, input.PageId, ContentTypes.SitePage, Properties,
+            HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language, input.PageId, result.TranslatedFromId, ContentTypes.SitePage, Properties,
             result.Slug, result.Url, $"https://app.hubspot.com/pages/{activityInfo.PortalId}/editor/{input.PageId}/content", result.MetaDescription, string.Empty);
 
         FileReference file;

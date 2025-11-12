@@ -40,6 +40,28 @@ public class BlacklakeTests : TestBase
     }
 
     [TestMethod]
+    public async Task Download_Blog_Target_Has_Source_In_Key()
+    {
+        var contentId = "199570722424";
+        var sourceContentId = "116907495204";
+        var actions = new MetaActions(InvocationContext, FileManager);
+        var result = await actions.DownloadContent(new()
+        {
+            ContentType = ContentTypes.Blog,
+            ContentId = contentId
+        });
+
+        var contentString = FileManager.ReadOutputAsString(result.Content);
+        var codedContent = (new HtmlContentCoder()).Deserialize(contentString, result.Content.Name);
+
+        Console.WriteLine(contentString);
+        Assert.AreEqual("nl", codedContent.Language);
+        Assert.AreEqual(contentId, codedContent.SystemReference.ContentId);
+        Assert.IsTrue(codedContent.TextUnits.Any(x => x.Key is not null));
+        Assert.IsTrue(codedContent.TextUnits.Where(x => x.Key is not null).All(x => x.Key!.Contains(sourceContentId)));
+    }
+
+    [TestMethod]
     public async Task Download_SitePage_Has_Blacklake_required_Fields()
     {
         var contentId = "116079994124";

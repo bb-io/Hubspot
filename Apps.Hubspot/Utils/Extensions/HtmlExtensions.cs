@@ -26,10 +26,11 @@ public static class HtmlExtensions
 
     public static string AsHtml(this BlogPostDto post, ActivityInfo info)
     {
+        var sourceId = post.TranslatedFromId ?? post.Id;
         return
             $"<html lang=\"{post.Language}\">" +
                 $"<head>" +
-                    $"<title data-blackbird-key=\"{post.Id}-title\">{post.Name}</title>" +
+                    $"<title data-blackbird-key=\"{sourceId}-title\">{post.Name}</title>" +
                     $"<meta name=\"{BlackbirdReferenceIdAttribute}\" content=\"{post.Id}\">" +
                     $"<meta name=\"{BlackbirdContentTypeAttribute}\" content=\"{ContentTypes.Blog}\">" +
                     $"<meta name=\"{BlackbirdSlugAttribute}\" content=\"{post.Slug}\">" +
@@ -39,7 +40,7 @@ public static class HtmlExtensions
                     $"<meta name=\"{BlacklakePublicUrl}\" content=\"{post.Url}\">" +
                     $"<meta name=\"{BlacklakeSystemName}\" content=\"Hubspot\">" +
                     $"<meta name=\"{BlacklakeSystemRef}\" content=\"https://www.hubspot.com\">" +
-                    $"<description data-blackbird-key=\"{post.Id}-description\">{post.MetaDescription}</description>" +
+                    $"<description data-blackbird-key=\"{sourceId}-description\">{post.MetaDescription}</description>" +
                 $"</head>" +
                 $"<body its-rev-tool=\"Hubspot\" its-rev-tool-ref=\"https://www.hubspot.com\" >" +
                     $"{post.PostBody}" +
