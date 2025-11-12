@@ -95,6 +95,12 @@ public class PageDto
     [Display("Query")]
     public string? Query { get; set; }
 
+    [Display("A/B status")]
+    public string? abStatus { get; set; }
+
+    [Display("A/B test ID")]
+    public string? abTestId { get; set; }
+
     public PageDto DeepClone()
     {
         return new PageDto
@@ -127,7 +133,10 @@ public class PageDto
             HeadHtml = string.Copy(HeadHtml),
             FooterHtml = string.Copy(FooterHtml),
             Name = string.Copy(Name),
-            TranslatedFromId = string.Copy(TranslatedFromId)
+            TranslatedFromId = string.Copy(TranslatedFromId),
+            abStatus = string.Copy(abStatus),
+            abTestId = string.Copy(abTestId)
+
         };
     }
 }
