@@ -134,8 +134,8 @@ public class PageDto
             FooterHtml = string.Copy(FooterHtml),
             Name = string.Copy(Name),
             TranslatedFromId = string.Copy(TranslatedFromId),
-            abStatus = string.Copy(abStatus),
-            abTestId = string.Copy(abTestId)
+            abStatus = String.IsNullOrEmpty(abStatus)? "" :string.Copy(abStatus),
+            abTestId = String.IsNullOrEmpty(abTestId) ? "" : string.Copy(abTestId)
 
         };
     }
