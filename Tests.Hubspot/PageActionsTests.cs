@@ -14,7 +14,7 @@ public class PageActionsTests : TestBase
 
         var result = await actions.GetAllSitePages( new()
         {
-            State = "PUBLISHED_OR_SCHEDULED"
+            State = new List<string> { "PUBLISHED_OR_SCHEDULED" }
         });
 
         Assert.AreEqual(result.Items.Any(), true);
