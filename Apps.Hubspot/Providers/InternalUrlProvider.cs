@@ -9,45 +9,65 @@ public static class InternalUrlProvider
 {
     public static HtmlVariablesEntity? GetHtmlVariables(string url)
     {
-        var restClient = new RestClient(url);
-        var request = new RestRequest(string.Empty, Method.Get);
-
-        var response = restClient.Execute(request);
-        if (response.IsSuccessful)
+        try
         {
-            var htmlDocument = new HtmlAgilityPack.HtmlDocument();
-            htmlDocument.LoadHtml(response.Content);
-
-            var scriptNodes = htmlDocument.DocumentNode.SelectNodes("//script");
-            if (scriptNodes != null)
+            // Validate URL format before making request
+            if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
             {
-                foreach (var scriptNode in scriptNodes)
+                return null;
+            }
+
+            var restClient = new RestClient(url);
+            var request = new RestRequest(string.Empty, Method.Get);
+
+            var response = restClient.Execute(request);
+            if (response.IsSuccessful)
+            {
+                var htmlDocument = new HtmlAgilityPack.HtmlDocument();
+                htmlDocument.LoadHtml(response.Content);
+
+                var scriptNodes = htmlDocument.DocumentNode.SelectNodes("//script");
+                if (scriptNodes != null)
                 {
-                    if (scriptNode.InnerText.Contains("var hsVars =") && scriptNode.InnerText.Contains("render_id") && scriptNode.InnerText.Contains("page_id"))
+                    foreach (var scriptNode in scriptNodes)
                     {
-                        var scriptContent = scriptNode.InnerText;
-                        
-                        string pageId = ExtractValue(scriptContent, "page_id");
-                        if (string.IsNullOrEmpty(pageId))
+                        if (scriptNode.InnerText.Contains("var hsVars =") && scriptNode.InnerText.Contains("render_id") && scriptNode.InnerText.Contains("page_id"))
                         {
-                            pageId = ExtractValue(scriptContent, "analytics_page_id");
+                            var scriptContent = scriptNode.InnerText;
+                            
+                            string pageId = ExtractValue(scriptContent, "page_id");
+                            if (string.IsNullOrEmpty(pageId))
+                            {
+                                pageId = ExtractValue(scriptContent, "analytics_page_id");
+                            }
+                            
+                            string pageType = ExtractValue(scriptContent, "analytics_page_type");
+                            return new HtmlVariablesEntity
+                            {
+                                PageId = pageId,
+                                PageType = pageType
+                            };
                         }
-                        
-                        string pageType = ExtractValue(scriptContent, "analytics_page_type");
-                        return new HtmlVariablesEntity
-                        {
-                            PageId = pageId,
-                            PageType = pageType
-                        };
                     }
                 }
+                
+                return null;
             }
-            
+            else
+            {
+                // Return null instead of throwing exception for non-critical operation
+                return null;
+            }
+        }
+        catch (UriFormatException)
+        {
+            // Invalid URL format, return null
             return null;
         }
-        else
+        catch (Exception)
         {
-            throw new PluginApplicationException($"Failed to fetch HTML variables. Status code: {response.StatusCode}, Error: {response.ErrorMessage}. Please make sure the URL ({url}) is correct and accessible.");
+            // Any other error during URL fetching, return null
+            return null;
         }
     }
     
