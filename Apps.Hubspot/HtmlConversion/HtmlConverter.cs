@@ -562,7 +562,7 @@ public static class HtmlConverter
         return memoryStream;
     }
     
-    private static async Task LocalizeLinksAsync(List<HtmlNode> links, UploadContentRequest uploadContentRequest, 
+    public static async Task LocalizeLinksAsync(List<HtmlNode> links, UploadContentRequest uploadContentRequest, 
         string targetLanguage, InvocationContext invocationContext)
     {
         foreach (var link in links)
