@@ -161,7 +161,7 @@ public class HubDbActions(InvocationContext invocationContext, IFileManagementCl
         return new SearchRowsResponse { Rows = rows };
     }
 
-    [Action("Download rows content", Description = "Downloads specified columns and rows from a table into an HTML file")]
+    [Action("Download rows content", Description = "Downloads specified columns and rows from a HubDb table into an HTML file")]
     public async Task<FileResponse> ExportRowsAsHtml(
     [ActionParameter] TableVersionRequest version,
     [ActionParameter] ExportRowsHtmlRequest input)
@@ -281,7 +281,7 @@ public class HubDbActions(InvocationContext invocationContext, IFileManagementCl
     }
 
     [Action("Upload rows content",
-    Description = "Processes a translated HTML file and updates or creates HubDB rows accordingly")]
+    Description = "Create or update HubDB rows accordingly from an HTML file")]
     public async Task<UploadRowsResponse> UploadRowsFromHtml(
     [ActionParameter] UploadRowsContentRequest input)
     {

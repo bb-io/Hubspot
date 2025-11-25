@@ -9,6 +9,6 @@ public class CreateOrUpdateDataSource : IStaticDataSourceItemHandler
         new List<DataSourceItem>
         {
             new("Create new rows", "create"),
-            new("Update existing rows", "update")
+            new("Update original rows", "update")
         };
 }
