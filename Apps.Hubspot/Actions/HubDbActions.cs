@@ -135,10 +135,10 @@ public class HubDbActions(InvocationContext invocationContext, IFileManagementCl
             _ => throw new PluginMisconfigurationException("Table version must be either draft or published")
         };
 
-        var request = new HubspotRequest(endpoint, Method.Get, Creds);
-
         if (!string.IsNullOrWhiteSpace(input.FilterQuery))
-            request.AddQueryParameter("filter", input.FilterQuery);
+            endpoint = endpoint + input.FilterQuery;
+
+        var request = new HubspotRequest(endpoint, Method.Get, Creds);
 
         var response = await Client.ExecuteWithErrorHandling<GetAllResponse<RowDto>>(request);
 
@@ -179,10 +179,10 @@ public class HubDbActions(InvocationContext invocationContext, IFileManagementCl
             _ => throw new PluginMisconfigurationException("Table version must be either draft or published")
         };
 
-        var request = new HubspotRequest(endpoint, Method.Get, Creds);
-
         if (!string.IsNullOrWhiteSpace(input.FilterQuery))
-            request.AddQueryParameter("filter", input.FilterQuery);
+            endpoint = endpoint + input.FilterQuery;
+
+        var request = new HubspotRequest(endpoint, Method.Get, Creds);
 
         var response = await Client.ExecuteWithErrorHandling<GetAllResponse<RowDto>>(request);
 
