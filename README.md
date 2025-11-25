@@ -123,6 +123,8 @@ Note: the Hubspot API marks these endpoints in beta stage.
 - **Search rows** Gets HubDB table rows by table ID or name
 - **Search tables** Gets HubDB tables that match the search criteria
 - **Update row column** Updates a column value in a HubDB row (draft version)
+- **Download rows content** Downloads specified columns and rows from a HubDb table into an HTML file
+- **Upload rows content** Create or update HubDB rows from an HTML file
 
 ## Events
 
