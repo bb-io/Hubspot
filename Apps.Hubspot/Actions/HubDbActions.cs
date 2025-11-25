@@ -136,7 +136,7 @@ public class HubDbActions(InvocationContext invocationContext, IFileManagementCl
         };
 
         if (!string.IsNullOrWhiteSpace(input.FilterQuery))
-            endpoint = endpoint + input.FilterQuery;
+            endpoint = endpoint + "?" + input.FilterQuery;
 
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
 
@@ -180,7 +180,7 @@ public class HubDbActions(InvocationContext invocationContext, IFileManagementCl
         };
 
         if (!string.IsNullOrWhiteSpace(input.FilterQuery))
-            endpoint = endpoint + input.FilterQuery;
+            endpoint = endpoint +"?"+ input.FilterQuery;
 
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
 
