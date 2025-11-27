@@ -433,7 +433,7 @@ public static class HtmlConverter
         var bodyNode = doc.DocumentNode.SelectSingleNode("/html/body");
         if (bodyNode == null)
         {
-            throw new PluginMisconfigurationException("Invalid HTML structure: missing body element. Please use a valid Hubspot marketing email HTML file.");
+            throw new PluginMisconfigurationException("Invalid HTML structure: missing body element. Please use a valid Hubspot HTML file.");
         }
 
         var originalAttr = bodyNode.Attributes[OriginalContentAttribute];
