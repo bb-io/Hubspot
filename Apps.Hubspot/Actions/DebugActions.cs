@@ -17,7 +17,7 @@ public class DebugActions(InvocationContext invocationContext) : HubSpotInvocabl
         return InvocationContext.AuthenticationCredentialsProviders.ToList();
     }
     
-    [Action("Get account info", Description = "Retrieves account information for the connected Hubspot account. Useful only for debugging purposes.")]
+    [Action("Get connected site info", Description = "Retrieves information about site for the connected Hubspot account. Useful only for debugging purposes.")]
     public async Task<AccountInfoResponse> GetAccountInformation()
     {
         var response = await GetAccountInfo();
