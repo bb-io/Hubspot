@@ -99,7 +99,7 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
         var contentService = _factory.GetContentService(contentRequest.ContentType);
         var stream = await contentService.DownloadContentAsync(contentRequest.ContentId);
         var fileReference =
-            await fileManagementClient.UploadAsync(stream, MediaTypeNames.Text.Html, $"{content.Title}.html");
+            await fileManagementClient.UploadAsync(stream, MediaTypeNames.Text.Html, $"{content.Title.SanitizeFileName()}.html");
 
         return new()
         {
