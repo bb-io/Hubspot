@@ -32,7 +32,7 @@ public static class ObjectExtensions
     {
         return string.Join("&", query.Select(x => $"{x.Key}={x.Value}"));
     }
-    
+
     public static string ToQueryString(this List<KeyValuePair<string, string>>? parameters)
     {
         if (parameters == null || !parameters.Any())
@@ -46,31 +46,44 @@ public static class ObjectExtensions
     {
         var query = new Dictionary<string, string>();
         var properties = obj.GetType().GetProperties();
-        
+
         foreach (var property in properties)
         {
             var jsonProperty = property.GetCustomAttributes(typeof(JsonPropertyAttribute), false)
                 .FirstOrDefault() as JsonPropertyAttribute;
-                
+
             var key = jsonProperty?.PropertyName ?? property.Name;
             var value = property.GetValue(obj);
-            
+
             if (value == null)
                 continue;
-            
-            // Special handling for DateTime values
-            if (value is DateTime dateTime)
+
+            switch (value)
             {
-                // Convert to Unix timestamp in milliseconds for Hubspot API
-                var unixTime = new DateTimeOffset(dateTime.ToUniversalTime()).ToUnixTimeMilliseconds().ToString();
-                query[key] = unixTime;
-            }
-            else
-            {
-                query[key] = value.ToString();
+                case DateTime dateTime:
+                    var unixTime = new DateTimeOffset(dateTime.ToUniversalTime())
+                        .ToUnixTimeMilliseconds()
+                        .ToString();
+                    query[key] = unixTime;
+                    break;
+
+                case IEnumerable<string> stringList: query[key] = string.Join(",", stringList);
+                    break;
+
+                default:
+                    if (value is System.Collections.IEnumerable enumerable && value is not string)
+                    {
+                        var list = enumerable.Cast<object>().Select(x => x?.ToString());
+                        query[key] = string.Join(",", list);
+                    }
+                    else
+                    {
+                        query[key] = value.ToString();
+                    }
+                    break;
             }
         }
-        
+
         return query;
     }
 }

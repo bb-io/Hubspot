@@ -31,8 +31,8 @@ public class SearchPagesRequest : PagesTimeFilterRequest
     public string? Slug { get; set; }
 
     [Display("State")]
-    [JsonProperty("state__eq"), StaticDataSource(typeof(StateHandler))]
-    public string? State { get; set; }
+    [JsonProperty("state__in"), StaticDataSource(typeof(StateHandler))]
+    public List<string>? State { get; set; }
 
     [Display("Domain equals"), DataSource(typeof(DomainDataHandler))]
     [JsonProperty("domain__eq")]
@@ -41,6 +41,10 @@ public class SearchPagesRequest : PagesTimeFilterRequest
     [Display("Domain contains"), DataSource(typeof(DomainDataHandler))]
     [JsonProperty("domain__contains")]
     public string? PageDomainContains { get; set; }
+
+    [Display("A/B status"), StaticDataSource(typeof(ABStatusDataHandler))]
+    [JsonProperty("abStatus__eq")]
+    public string? AbStatus { get; set; }
 
     [Display("Url contains")]
     [JsonIgnore]

@@ -17,6 +17,7 @@ using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Utils.Extensions.Http;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
 using Blackbird.Applications.Sdk.Utils.Html.Extensions;
+using HtmlAgilityPack;
 using RestSharp;
 
 namespace Apps.Hubspot.Services.ContentServices;
@@ -89,11 +90,18 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
         {
             blogPostId = uploadContentRequest.SitePageId;
         }
-
+        
+        var postBody = document.DocumentNode.SelectSingleNode("/html/body").InnerHtml;
+        var htmlDoc = new HtmlDocument();
+        htmlDoc.LoadHtml(postBody);
+        var links = htmlDoc.DocumentNode.SelectNodes("//a")?.ToList() ?? new List<HtmlNode>();
+        await HtmlConverter.LocalizeLinksAsync(links, uploadContentRequest, targetLanguage, invocationContext);
+        postBody = htmlDoc.DocumentNode.InnerHtml;
+        
         var postRequest = new ManageBlogPostRequest
         {
             Name = document.GetTitle(),
-            PostBody = document.DocumentNode.SelectSingleNode("/html/body").InnerHtml
+            PostBody = postBody
         };
 
         if (uploadContentRequest.UpdatePageMetdata == true)

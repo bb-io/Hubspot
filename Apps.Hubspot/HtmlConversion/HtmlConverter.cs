@@ -433,7 +433,7 @@ public static class HtmlConverter
         var bodyNode = doc.DocumentNode.SelectSingleNode("/html/body");
         if (bodyNode == null)
         {
-            throw new PluginMisconfigurationException("Invalid HTML structure: missing body element. Please use a valid Hubspot marketing email HTML file.");
+            throw new PluginMisconfigurationException("Invalid HTML structure: missing body element. Please use a valid Hubspot HTML file.");
         }
 
         var originalAttr = bodyNode.Attributes[OriginalContentAttribute];
@@ -562,7 +562,7 @@ public static class HtmlConverter
         return memoryStream;
     }
     
-    private static async Task LocalizeLinksAsync(List<HtmlNode> links, UploadContentRequest uploadContentRequest, 
+    public static async Task LocalizeLinksAsync(List<HtmlNode> links, UploadContentRequest uploadContentRequest, 
         string targetLanguage, InvocationContext invocationContext)
     {
         foreach (var link in links)
@@ -598,34 +598,49 @@ public static class HtmlConverter
             return;
         }
 
-        string? fullUrl;
-        if (href.StartsWith(uploadContentRequest.PublishedSiteBaseUrl))
+        try
         {
-            fullUrl = href;
-        }
-        else
-        {
-            fullUrl = $"{uploadContentRequest.PublishedSiteBaseUrl!.TrimEnd('/')}{href}";
-        }
+            string? fullUrl;
+            if (href.StartsWith(uploadContentRequest.PublishedSiteBaseUrl))
+            {
+                fullUrl = href;
+            }
+            else
+            {
+                fullUrl = $"{uploadContentRequest.PublishedSiteBaseUrl!.TrimEnd('/')}{href}";
+            }
 
-        var htmlVariables = InternalUrlProvider.GetHtmlVariables(fullUrl);
-        if (htmlVariables != null && htmlVariables.ChangeHref)
-        {
-            var pageId = htmlVariables.PageId;
-            var pageType = htmlVariables.PageType;
+            // Validate URL format before making request
+            if (!Uri.TryCreate(fullUrl, UriKind.Absolute, out _))
+            {
+                return;
+            }
 
-            if (pageType.Equals("blog-post"))
+            var htmlVariables = InternalUrlProvider.GetHtmlVariables(fullUrl);
+            if (htmlVariables != null && htmlVariables.ChangeHref)
             {
-                await LocalizeBlogPostLinkAsync(link, pageId, targetLanguage, invocationContext);
+                var pageId = htmlVariables.PageId;
+                var pageType = htmlVariables.PageType;
+
+                if (pageType.Equals("blog-post"))
+                {
+                    await LocalizeBlogPostLinkAsync(link, pageId, targetLanguage, invocationContext);
+                }
+                else if(pageType.Equals("standard-page")) 
+                {
+                    await LocalizeSitePageLinkAsync(link, pageId, targetLanguage, invocationContext);
+                }
+                else if (pageType.Equals("landing-page"))
+                {
+                    await LocalizeLandingPageLinkAsync(link, pageId, targetLanguage, invocationContext);
+                }
             }
-            else if(pageType.Equals("standard-page")) 
-            {
-                await LocalizeSitePageLinkAsync(link, pageId, targetLanguage, invocationContext);
-            }
-            else if (pageType.Equals("landing-page"))
-            {
-                await LocalizeLandingPageLinkAsync(link, pageId, targetLanguage, invocationContext);
-            }
+        }
+        catch (Exception)
+        {
+            // Skip link localization if URL parsing or fetching fails
+            // This is not a critical operation, so we continue processing
+            return;
         }
     }
     
@@ -699,52 +714,67 @@ public static class HtmlConverter
             return null;
         }
 
-        string? fullUrl;
-        if (url.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+        try
         {
-            fullUrl = url;
-        }
-        else
-        {
-            fullUrl = $"{uploadContentRequest.PublishedSiteBaseUrl!.TrimEnd('/')}{url}";
-        }
+            string? fullUrl;
+            if (url.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            {
+                fullUrl = url;
+            }
+            else
+            {
+                fullUrl = $"{uploadContentRequest.PublishedSiteBaseUrl!.TrimEnd('/')}{url}";
+            }
 
-        var htmlVariables = InternalUrlProvider.GetHtmlVariables(fullUrl);
-        if (htmlVariables != null && htmlVariables.ChangeHref)
-        {
-            var pageId = htmlVariables.PageId;
-            var pageType = htmlVariables.PageType;
+            // Validate URL format before making request
+            if (!Uri.TryCreate(fullUrl, UriKind.Absolute, out _))
+            {
+                return null;
+            }
 
-            if (pageType.Equals("blog-post"))
+            var htmlVariables = InternalUrlProvider.GetHtmlVariables(fullUrl);
+            if (htmlVariables != null && htmlVariables.ChangeHref)
             {
-                var blogPostService = new BlogPostService(invocationContext);
-                var blogPost = await blogPostService.GetBlogPostAsync(pageId);
-                
-                if (blogPost.Translations.TryGetValue(targetLanguage, out var translation))
+                var pageId = htmlVariables.PageId;
+                var pageType = htmlVariables.PageType;
+
+                if (pageType.Equals("blog-post"))
                 {
-                    return $"{uploadContentRequest.PublishedSiteBaseUrl!.TrimEnd('/')}/{translation.Slug}";
+                    var blogPostService = new BlogPostService(invocationContext);
+                    var blogPost = await blogPostService.GetBlogPostAsync(pageId);
+                    
+                    if (blogPost.Translations.TryGetValue(targetLanguage, out var translation))
+                    {
+                        return $"{uploadContentRequest.PublishedSiteBaseUrl!.TrimEnd('/')}/{translation.Slug}";
+                    }
+                }
+                else if(pageType.Equals("standard-page")) 
+                {
+                    var sitePageService = new SitePageService(invocationContext);
+                    var sitePage = await sitePageService.GetPageAsync(pageId);
+                    
+                    if (sitePage.Translations.TryGetValue(targetLanguage, out var translation))
+                    {
+                        return $"{uploadContentRequest.PublishedSiteBaseUrl!.TrimEnd('/')}/{translation.Slug}";
+                    }
+                }
+                else if (pageType.Equals("landing-page"))
+                {
+                    var landingPageService = new LandingPageService(invocationContext);
+                    var landingPage = await landingPageService.GetLandingPageAsync(pageId);
+                    
+                    if (landingPage.Translations.TryGetValue(targetLanguage, out var translation))
+                    {
+                        return $"{uploadContentRequest.PublishedSiteBaseUrl!.TrimEnd('/')}/{translation.Slug}";
+                    }
                 }
             }
-            else if(pageType.Equals("standard-page")) 
-            {
-                var sitePageService = new SitePageService(invocationContext);
-                var sitePage = await sitePageService.GetPageAsync(pageId);
-                
-                if (sitePage.Translations.TryGetValue(targetLanguage, out var translation))
-                {
-                    return $"{uploadContentRequest.PublishedSiteBaseUrl!.TrimEnd('/')}/{translation.Slug}";
-                }
-            }
-            else if (pageType.Equals("landing-page"))
-            {
-                var landingPageService = new LandingPageService(invocationContext);
-                var landingPage = await landingPageService.GetLandingPageAsync(pageId);
-                
-                if (landingPage.Translations.TryGetValue(targetLanguage, out var translation))
-                {
-                    return $"{uploadContentRequest.PublishedSiteBaseUrl!.TrimEnd('/')}/{translation.Slug}";
-                }
-            }
+        }
+        catch (Exception)
+        {
+            // Skip link localization if URL parsing or fetching fails
+            // This is not a critical operation, so we continue processing
+            return null;
         }
         
         return null;
