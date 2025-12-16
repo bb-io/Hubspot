@@ -60,7 +60,7 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
         return await Client.ExecuteWithErrorHandling<PageWithTranslationsDto>(request);
     }
 
-    public override async Task<Stream> DownloadContentAsync(string id)
+    public override async Task<Stream> DownloadContentAsync(string id, LocalizablePropertiesRequest properties)
     {
         var url = ApiEndpoints.ASitePage(id);
         var request = new HubspotRequest(url, Method.Get, Creds);
@@ -68,7 +68,7 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
         var activityInfo = await GetActivityInfo();
 
         var htmlBytes =
-            HtmlConverter.ToHtml(page.LayoutSections, page.HtmlTitle, page.Language, id, page.TranslatedFromId, ContentTypes.SitePage, null, page.Slug, page.Url, $"https://app.hubspot.com/pages/{activityInfo.PortalId}/editor/{id}/content", page.MetaDescription, string.Empty);
+            HtmlConverter.ToHtml(page.LayoutSections, page.HtmlTitle, page.Language, id, page.TranslatedFromId, ContentTypes.SitePage, properties, page.Slug, page.Url, $"https://app.hubspot.com/pages/{activityInfo.PortalId}/editor/{id}/content", page.MetaDescription, string.Empty);
         return new MemoryStream(htmlBytes);
     }
 

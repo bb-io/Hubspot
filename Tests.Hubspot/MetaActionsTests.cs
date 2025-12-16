@@ -1,6 +1,7 @@
 ﻿using Apps.Hubspot.Actions;
 using Apps.Hubspot.Actions.Content;
 using Apps.Hubspot.Constants;
+using Apps.Hubspot.Models.Requests;
 using Newtonsoft.Json;
 using Tests.Hubspot.Base;
 
@@ -85,7 +86,7 @@ public class MetaActionsTests : TestBase
         {
             ContentType = ContentTypes.Blog,
             ContentId = "114373256889"
-        });
+        }, new LocalizablePropertiesRequest { });
 
         Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
     }
@@ -113,7 +114,7 @@ public class MetaActionsTests : TestBase
         {
             ContentType = ContentTypes.SitePage,
             ContentId = "116079994124"
-        });
+        }, new LocalizablePropertiesRequest { });
 
         Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
     }

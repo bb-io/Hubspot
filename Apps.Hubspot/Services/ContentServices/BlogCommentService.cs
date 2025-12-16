@@ -3,6 +3,7 @@ using Apps.Hubspot.Api;
 using Apps.Hubspot.Constants;
 using Apps.Hubspot.HtmlConversion;
 using Apps.Hubspot.Models.Dtos.Blogs.Comments;
+using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Models.Requests.Content;
 using Apps.Hubspot.Models.Responses;
 using Apps.Hubspot.Models.Responses.Blogs.Comments;
@@ -48,7 +49,7 @@ public class BlogCommentService(InvocationContext invocationContext) : BaseConte
         throw new PluginMisconfigurationException("This method is not implemented for blog comments.");
     }
 
-    public override async Task<Stream> DownloadContentAsync(string id)
+    public override async Task<Stream> DownloadContentAsync(string id, LocalizablePropertiesRequest properties)
     {
         var blogComment = await GetBlogCommentByIdAsync(id);
         var html = BlogCommentsHtmlConverter.ConvertToHtml(blogComment);

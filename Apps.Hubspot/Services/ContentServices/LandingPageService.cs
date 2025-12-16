@@ -3,6 +3,7 @@ using Apps.Hubspot.Constants;
 using Apps.Hubspot.Extensions;
 using Apps.Hubspot.HtmlConversion;
 using Apps.Hubspot.Models.Dtos.Pages;
+using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Models.Requests.Content;
 using Apps.Hubspot.Models.Responses;
 using Apps.Hubspot.Models.Responses.Content;
@@ -56,14 +57,14 @@ public class LandingPageService(InvocationContext invocationContext) : BaseConte
         return ConvertLandingPageToMetadata(page, activityInfo);
     }
 
-    public override async Task<Stream> DownloadContentAsync(string id)
+    public override async Task<Stream> DownloadContentAsync(string id, LocalizablePropertiesRequest properties)
     {
         var url = ApiEndpoints.ALandingPage(id);
         var request = new HubspotRequest(url, Method.Get, Creds);
         var result = await Client.ExecuteWithErrorHandling<GenericPageDto>(request);
         var activityInfo = await GetActivityInfo();
 
-        var htmlFile = HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language!, id, result.TranslatedFromId, ContentTypes.LandingPage, null, result.Slug, result.Url, $"https://app.hubspot.com/pages/{activityInfo.PortalId}/editor/{id}/content", result.MetaDescription, string.Empty);
+        var htmlFile = HtmlConverter.ToHtml(result.LayoutSections, result.HtmlTitle, result.Language!, id, result.TranslatedFromId, ContentTypes.LandingPage, properties, result.Slug, result.Url, $"https://app.hubspot.com/pages/{activityInfo.PortalId}/editor/{id}/content", result.MetaDescription, string.Empty);
         return new MemoryStream(htmlFile);
     }
 
