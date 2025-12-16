@@ -93,11 +93,11 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
 
     [BlueprintActionDefinition(BlueprintAction.DownloadContent)]
     [Action("Download content", Description = "Download content as HTML for a specific content type based on its ID")]
-    public async Task<FileLanguageResponse> DownloadContent([ActionParameter] GetContentRequest contentRequest)
+    public async Task<FileLanguageResponse> DownloadContent([ActionParameter] GetContentRequest contentRequest, [ActionParameter] LocalizablePropertiesRequest properties)
     {
         var content = await GetContent(contentRequest);
         var contentService = _factory.GetContentService(contentRequest.ContentType);
-        var stream = await contentService.DownloadContentAsync(contentRequest.ContentId);
+        var stream = await contentService.DownloadContentAsync(contentRequest.ContentId, properties);
         var fileReference =
             await fileManagementClient.UploadAsync(stream, MediaTypeNames.Text.Html, $"{content.Title.SanitizeFileName()}.html");
 

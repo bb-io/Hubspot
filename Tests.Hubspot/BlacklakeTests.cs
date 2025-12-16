@@ -1,5 +1,6 @@
 ﻿using Apps.Hubspot.Actions.Content;
 using Apps.Hubspot.Constants;
+using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Models.Requests.Emails;
 using Blackbird.Filters.Coders;
 using Newtonsoft.Json;
@@ -19,7 +20,7 @@ public class BlacklakeTests : TestBase
         {
             ContentType = ContentTypes.Blog,
             ContentId = contentId
-        });
+        }, new LocalizablePropertiesRequest { });
 
         var contentString = FileManager.ReadOutputAsString(result.Content);
         var codedContent = (new HtmlContentCoder()).Deserialize(contentString, result.Content.Name);
@@ -49,7 +50,7 @@ public class BlacklakeTests : TestBase
         {
             ContentType = ContentTypes.Blog,
             ContentId = contentId
-        });
+        }, new LocalizablePropertiesRequest { });
 
         var contentString = FileManager.ReadOutputAsString(result.Content);
         var codedContent = (new HtmlContentCoder()).Deserialize(contentString, result.Content.Name);
@@ -70,7 +71,7 @@ public class BlacklakeTests : TestBase
         {
             ContentType = ContentTypes.SitePage,
             ContentId = contentId
-        });
+        }, new LocalizablePropertiesRequest { });
 
         var contentString = FileManager.ReadOutputAsString(result.Content);
         var codedContent = (new HtmlContentCoder()).Deserialize(contentString, result.Content.Name);

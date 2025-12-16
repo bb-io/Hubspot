@@ -20,7 +20,7 @@ public abstract class BaseContentService(InvocationContext invocationContext)
     public abstract Task<Metadata> GetContentAsync(string id);
     public abstract Task<TranslatedLocalesResponse> GetTranslationLanguageCodesAsync(string id);
 
-    public abstract Task<Stream> DownloadContentAsync(string id);
+    public abstract Task<Stream> DownloadContentAsync(string id, LocalizablePropertiesRequest properties);
 
     public abstract Task<Metadata> UpdateContentFromHtmlAsync(string targetLanguage, Stream stream, UploadContentRequest uploadContentRequest);
 

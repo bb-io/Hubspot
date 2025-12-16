@@ -3,6 +3,7 @@ using Apps.Hubspot.Api;
 using Apps.Hubspot.Constants;
 using Apps.Hubspot.HtmlConversion;
 using Apps.Hubspot.Models.Dtos.Blogs.Tags;
+using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Models.Requests.Content;
 using Apps.Hubspot.Models.Responses;
 using Apps.Hubspot.Models.Responses.Content;
@@ -45,7 +46,7 @@ public class BlogTagService(InvocationContext invocationContext) : BaseContentSe
         throw new PluginMisconfigurationException("This method is not implemented for blog tags.");
     }
 
-    public override async Task<Stream> DownloadContentAsync(string id)
+    public override async Task<Stream> DownloadContentAsync(string id, LocalizablePropertiesRequest properties)
     {
         var blogTag = await GetBlogTagByIdAsync(id);
         var html = BlogTagsHtmlConverter.ConvertToHtml(blogTag);

@@ -3,6 +3,7 @@ using Apps.Hubspot.Constants;
 using Apps.Hubspot.HtmlConversion;
 using Apps.Hubspot.Models.Dtos;
 using Apps.Hubspot.Models.Dtos.Emails;
+using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Models.Requests.Content;
 using Apps.Hubspot.Models.Requests.Emails;
 using Apps.Hubspot.Models.Responses;
@@ -42,13 +43,13 @@ public class MarketingEmailService(InvocationContext invocationContext) : BaseCo
         throw new PluginMisconfigurationException("This operation is not supported for marketing email content type. The Hubspot API does not provide translations for email content type.");
     }
 
-    public override async Task<Stream> DownloadContentAsync(string id)
+    public override async Task<Stream> DownloadContentAsync(string id, LocalizablePropertiesRequest properties)
     {
         var endpoint = $"{ApiEndpoints.MarketingEmailsEndpoint}{id}";
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
         var email = await Client.ExecuteWithErrorHandling<EmailContentDto>(request);
         var activityInfo = await GetActivityInfo();
-        var html = HtmlConverter.ToHtml(email.Content, email.Name, email.Language, id, null, ContentTypes.Email, null, null, null, $"https://app.hubspot.com/email/{activityInfo.PortalId}/edit/{id}/content", null, email.Subject , email.BusinessUnitId);
+        var html = HtmlConverter.ToHtml(email.Content, email.Name, email.Language, id, null, ContentTypes.Email, properties, null, null, $"https://app.hubspot.com/email/{activityInfo.PortalId}/edit/{id}/content", null, email.Subject , email.BusinessUnitId);
 
         return new MemoryStream(html);
     }

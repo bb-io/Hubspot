@@ -4,6 +4,7 @@ using Apps.Hubspot.Constants;
 using Apps.Hubspot.Extensions;
 using Apps.Hubspot.HtmlConversion;
 using Apps.Hubspot.Models.Dtos.Blogs.Posts;
+using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Models.Requests.BlogPosts;
 using Apps.Hubspot.Models.Requests.Content;
 using Apps.Hubspot.Models.Responses;
@@ -61,7 +62,7 @@ public class BlogPostService(InvocationContext invocationContext) : BaseContentS
         return await GetTranslatedLocalesResponse(blogPost.Language ?? string.Empty, blogPost.Translations);
     }
 
-    public override async Task<Stream> DownloadContentAsync(string id)
+    public override async Task<Stream> DownloadContentAsync(string id, LocalizablePropertiesRequest properties)
     {
         var endpoint = $"{ApiEndpoints.BlogPostsSegment}/{id}";
         var request = new HubspotRequest(endpoint, Method.Get, Creds);

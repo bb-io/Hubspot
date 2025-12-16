@@ -2,6 +2,7 @@
 using Apps.Hubspot.Constants;
 using Apps.Hubspot.HtmlConversion;
 using Apps.Hubspot.Models.Dtos.Forms;
+using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Models.Requests.Content;
 using Apps.Hubspot.Models.Requests.Forms;
 using Apps.Hubspot.Models.Responses;
@@ -40,7 +41,7 @@ public class MarketingFormService(InvocationContext invocationContext) : BaseCon
         throw new PluginMisconfigurationException("This operation is not supported for marketing form content type. The Hubspot API does not provide translations for from content type.");
     }
 
-    public override async Task<Stream> DownloadContentAsync(string id)
+    public override async Task<Stream> DownloadContentAsync(string id, LocalizablePropertiesRequest properties)
     {
         var endpoint = $"{ApiEndpoints.MarketingFormsEndpoint}/{id}";
         var request = new HubspotRequest(endpoint, Method.Get, Creds);

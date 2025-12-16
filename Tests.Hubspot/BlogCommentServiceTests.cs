@@ -1,7 +1,8 @@
+using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Services.ContentServices;
 using Newtonsoft.Json;
-using Tests.Hubspot.Base;
 using System.Text;
+using Tests.Hubspot.Base;
 
 namespace Tests.Hubspot;
 
@@ -48,7 +49,7 @@ public class BlogCommentServiceTests : TestBase
         string commentId = "412529979";
         
         // Act
-        var stream = await _service.DownloadContentAsync(commentId);
+        var stream = await _service.DownloadContentAsync(commentId, new LocalizablePropertiesRequest { });
         
         // Assert
         Assert.IsNotNull(stream);
