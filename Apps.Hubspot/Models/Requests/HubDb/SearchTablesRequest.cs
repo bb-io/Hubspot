@@ -25,8 +25,7 @@ namespace Apps.Hubspot.Models.Requests.HubDb
         public DateTime? CreatedFrom { get; set; }
 
         [Display("Created before")]
-        public DateTime? CreatedTo
-        {
-            get;
-        }
+        public DateTime? CreatedTo { get; set; }
+
+    }
 }
