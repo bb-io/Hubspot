@@ -51,9 +51,19 @@ public class HubDbActions(InvocationContext invocationContext, IFileManagementCl
         }
 
         var filtered = allTables.Where(t =>
-            (string.IsNullOrWhiteSpace(input.NameContains) || t.Name?.Contains(input.NameContains, StringComparison.OrdinalIgnoreCase) == true) &&
-            (string.IsNullOrWhiteSpace(input.LabelContains) || t.Label?.Contains(input.LabelContains, StringComparison.OrdinalIgnoreCase) == true)
-        );
+      
+      (string.IsNullOrWhiteSpace(input.NameContains) ||
+          t.Name?.Contains(input.NameContains, StringComparison.OrdinalIgnoreCase) == true) &&
+
+      (string.IsNullOrWhiteSpace(input.LabelContains) ||
+          t.Label?.Contains(input.LabelContains, StringComparison.OrdinalIgnoreCase) == true) &&
+      
+      (!input.UpdatedFrom.HasValue || t.UpdatedAt >= input.UpdatedFrom.Value) &&
+      (!input.UpdatedTo.HasValue || t.UpdatedAt <= input.UpdatedTo.Value) &&
+      
+      (!input.CreatedFrom.HasValue || t.CreatedAt >= input.CreatedFrom.Value) &&
+      (!input.CreatedTo.HasValue || t.CreatedAt <= input.CreatedTo.Value)
+  );
 
         return filtered.ToList();
     }

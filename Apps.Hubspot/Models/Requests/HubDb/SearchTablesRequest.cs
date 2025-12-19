@@ -15,10 +15,18 @@ namespace Apps.Hubspot.Models.Requests.HubDb
         [Display("Label contains")]
         public string? LabelContains { get; set; }
 
-        [Display("Updated from")]
+        [Display("Updated after")]
         public DateTime? UpdatedFrom { get; set; }
 
-        [Display("Updated to")]
+        [Display("Updated before")]
         public DateTime? UpdatedTo { get; set; }
-    }
+
+        [Display("Created after")]
+        public DateTime? CreatedFrom { get; set; }
+
+        [Display("Created before")]
+        public DateTime? CreatedTo
+        {
+            get;
+        }
 }
