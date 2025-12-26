@@ -114,8 +114,9 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
         [ActionParameter] LanguageFileRequest languageFileRequest,
         [ActionParameter] UploadContentRequest uploadContentRequest)
     {
-        if (languageFileRequest.Locale == null)
-            throw new PluginMisconfigurationException("Target language is null or empty. Please check your input and try again");
+        if (string.IsNullOrWhiteSpace(languageFileRequest?.Locale))
+            throw new PluginMisconfigurationException(
+                "Target language is null or empty. Please check your input and try again");
 
         var fileMemory = await fileManagementClient.DownloadAsync(languageFileRequest.Content);
         string fileString;
