@@ -27,5 +27,8 @@ namespace Apps.Hubspot.Models.Requests.HubDb
         [Display("Created before")]
         public DateTime? CreatedTo { get; set; }
 
+        [Display("Updated by (User IDs)")]
+        public List<string>? updatedBy { get; set; }
+
     }
 }
