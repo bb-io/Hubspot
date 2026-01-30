@@ -26,7 +26,7 @@ public static class HtmlExtensions
 
     public static string AsHtml(this BlogPostDto post, ActivityInfo info)
     {
-        var sourceId = post.TranslatedFromId ?? post.Id;
+        var sourceId = string.IsNullOrEmpty(post.TranslatedFromId) ? post.Id : post.TranslatedFromId;
         return
             $"<html lang=\"{post.Language}\">" +
                 $"<head>" +
@@ -34,7 +34,7 @@ public static class HtmlExtensions
                     $"<meta name=\"{BlackbirdReferenceIdAttribute}\" content=\"{post.Id}\">" +
                     $"<meta name=\"{BlackbirdContentTypeAttribute}\" content=\"{ContentTypes.Blog}\">" +
                     $"<meta name=\"{BlackbirdSlugAttribute}\" content=\"{post.Slug}\">" +
-                    $"<meta name=\"{BlacklakeUcid}\" content=\"{post.Id}\">" +
+                    $"<meta name=\"{BlacklakeUcid}\" content=\"{sourceId}\">" +
                     $"<meta name=\"{BlacklakeContentName}\" content=\"{post.Name}\">" +
                     $"<meta name=\"{BlacklakeAdminUrl}\" content=\"https://app.hubspot.com/blog/{info.PortalId}/editor/{post.Id}/content\">" +
                     $"<meta name=\"{BlacklakePublicUrl}\" content=\"{post.Url}\">" +

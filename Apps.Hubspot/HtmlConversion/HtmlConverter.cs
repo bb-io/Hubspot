@@ -350,7 +350,7 @@ public static class HtmlConverter
         var headNode = htmlDoc.CreateElement("head");
         htmlNode.AppendChild(headNode);
 
-        var sourcePageId = translatedFromPageId ?? pageId;
+        var sourcePageId = string.IsNullOrEmpty(translatedFromPageId) ? pageId : translatedFromPageId;
 
         if (!string.IsNullOrEmpty(title))
         {
@@ -406,7 +406,7 @@ public static class HtmlConverter
             headNode.AppendChild(subjectNode);
         }
 
-        AddBlackbirdMeta(htmlDoc, headNode, "ucid", pageId);
+        AddBlackbirdMeta(htmlDoc, headNode, "ucid", sourcePageId);
         AddBlackbirdMeta(htmlDoc, headNode, "content-name", title);
         AddBlackbirdMeta(htmlDoc, headNode, "admin-url", editUrl);
         AddBlackbirdMeta(htmlDoc, headNode, "public-url", publicUrl);
