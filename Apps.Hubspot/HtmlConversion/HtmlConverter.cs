@@ -366,15 +366,13 @@ public static class HtmlConverter
             metaNode.SetAttributeValue("name", BlackbirdReferenceIdAttribute);
             metaNode.SetAttributeValue("content", pageId);
             headNode.AppendChild(metaNode);
-        }        
-
-        if (!string.IsNullOrEmpty(slug))
-        {
-            var metaSlugNode = htmlDoc.CreateElement("meta");
-            metaSlugNode.SetAttributeValue("name", "slug");
-            metaSlugNode.SetAttributeValue("content", slug);
-            headNode.AppendChild(metaSlugNode);
         }
+
+        var metaSlugNode = htmlDoc.CreateElement("meta");
+        metaSlugNode.SetAttributeValue("name", "slug");
+        metaSlugNode.SetAttributeValue("content", slug ?? string.Empty);
+        headNode.AppendChild(metaSlugNode);
+
         if (!string.IsNullOrEmpty(metaDescription))
         {
             var metaDescriptionNode = htmlDoc.CreateElement("meta");
