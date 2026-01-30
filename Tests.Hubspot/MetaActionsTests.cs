@@ -74,6 +74,7 @@ public class MetaActionsTests : TestBase
 
         Assert.IsFalse(string.IsNullOrEmpty(result.PrimaryLanguage));
         CollectionAssert.Contains(result.TranslationLanguageCodes, "de");
+        Assert.IsTrue(result.Translations.Any(x => x.LanguageCode == "de" && !string.IsNullOrEmpty(x.Id)));
         
         Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
     }

@@ -35,7 +35,8 @@ public abstract class BaseContentService(InvocationContext invocationContext)
         return Task.FromResult(new TranslatedLocalesResponse
             {
                 PrimaryLanguage = primaryLanguage,
-                TranslationLanguageCodes = locales
+                TranslationLanguageCodes = locales,
+                Translations = translations.Select(x => new Translation { Id = x.Value.Id, Slug = x.Value.Slug, LanguageCode = x.Key }).ToList()
             }
         );
     }
