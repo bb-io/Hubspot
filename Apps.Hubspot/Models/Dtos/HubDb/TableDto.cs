@@ -39,6 +39,32 @@ namespace Apps.Hubspot.Models.Dtos.HubDb
         [JsonProperty("deleted")]
         [Display("Is deleted")]
         public bool Deleted { get; set; }
-    
+
+        [JsonProperty("updatedBy")]
+        [Display("Updated by")]
+        public HubSpotUserDto UpdatedBy { get; set; }
+
+        [JsonProperty("createdBy")]
+        [Display("Created by")]
+        public HubSpotUserDto CreatedBy { get; set; }
+
+    }
+    public class HubSpotUserDto
+    {
+        [JsonProperty("id")]
+        [Display("User ID")]
+        public string Id { get; set; }
+
+        [JsonProperty("email")]
+        [Display("Email")]
+        public string Email { get; set; }
+
+        [JsonProperty("firstName")]
+        [Display("First name")]
+        public string FirstName { get; set; }
+
+        [JsonProperty("lastName")]
+        [Display("Last name")]
+        public string LastName { get; set; }
     }
 }
