@@ -28,7 +28,7 @@ public class OAuth2TokenService(InvocationContext invocationContext)
 
         var difference = expireDate - DateTime.UtcNow;
 
-        return (int)difference.TotalMinutes - 5;
+        return Math.Max((int)difference.TotalMinutes - 5, 2);
     }
 
     public Task<Dictionary<string, string>> RefreshToken(Dictionary<string, string> values, CancellationToken cancellationToken)
