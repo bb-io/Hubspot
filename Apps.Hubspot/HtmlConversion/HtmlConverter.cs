@@ -4,7 +4,6 @@ using Apps.Hubspot.Models.Dtos.Forms;
 using Apps.Hubspot.Models.Entities;
 using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Models.Requests.Content;
-using Apps.Hubspot.Models.Responses;
 using Apps.Hubspot.Models.Responses.Pages;
 using Apps.Hubspot.Providers;
 using Apps.Hubspot.Services.ContentServices;
@@ -28,11 +27,6 @@ public static class HtmlConverter
     private static readonly HashSet<string> ExcludeCustomModulesProperties = new()
     {
         "size_type", "loading", "src"
-    };
-
-    private static readonly HashSet<string> RawHtmlProperties = new()
-    {
-        "content", "html", "content_text", "richtext_field", "description", "short_description"
     };
 
     private const string OriginalContentAttribute = "original";
@@ -428,10 +422,15 @@ public static class HtmlConverter
         var doc = new HtmlDocument();
         doc.Load(file);
 
+        var htmlNode = doc.DocumentNode.SelectSingleNode("/html") 
+            ?? throw new PluginMisconfigurationException("Invalid HTML structure: missing or corrupted <html> tag");
+
         var bodyNode = doc.DocumentNode.SelectSingleNode("/html/body");
         if (bodyNode == null)
         {
-            throw new PluginMisconfigurationException("Invalid HTML structure: missing body element. Please use a valid Hubspot HTML file.");
+            throw new PluginMisconfigurationException(
+                "Invalid HTML structure: missing body element. Please use a valid Hubspot HTML file."
+            );
         }
 
         var originalAttr = bodyNode.Attributes[OriginalContentAttribute];
