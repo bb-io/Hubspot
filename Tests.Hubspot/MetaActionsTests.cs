@@ -33,7 +33,8 @@ public class MetaActionsTests : TestBase
         {
             State = "PUBLISHED",
             Language = "en-us",
-        });
+            Slug = "remote-work"
+        }, true);
 
         Assert.AreEqual(result.Items.Any(), true);
         System.Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
