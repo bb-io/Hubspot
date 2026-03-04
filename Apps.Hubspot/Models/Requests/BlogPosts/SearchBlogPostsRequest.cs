@@ -26,8 +26,8 @@ public class SearchBlogPostsRequest : PagesTimeFilterRequest
     [JsonProperty("name__eq")]
     public string? NameEquals { get; set; }
 
-    [Display("Slug")]
-    [JsonProperty("slug__eq")]
+    [Display("Slug contains")]
+    [JsonProperty("slug__icontains")]
     public string? Slug { get; set; }
 
     [Display("State")]

@@ -30,12 +30,16 @@ public class BlogPostsActions(InvocationContext invocationContext, IFileManageme
     : BasePageActions(invocationContext, fileManagementClient)
 {
     [Action("Search blog posts", Description = "Search for a list of blog posts matching certain criteria")]
-    public async Task<ListResponse<BlogPostDto>> GetAllBlogPosts([ActionParameter] SearchBlogPostsRequest input)
+    public async Task<ListResponse<BlogPostDto>> GetAllBlogPosts([ActionParameter] SearchBlogPostsRequest input, [ActionParameter][Display("Only IDs")] bool? idsOnly = false)
     {
         var query = input.AsQuery();
         var endpoint = ApiEndpoints.BlogPostsSegment.WithQuery(query);
 
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
+        if (idsOnly.HasValue && idsOnly.Value)
+        {
+            request.AddQueryParameter("property", "id");
+        }
         var response = await Client.Paginate<BlogPostDto>(request);
 
         if (input.NotTranslatedInLanguage != null)
