@@ -36,7 +36,7 @@ public class BlogPostsActions(InvocationContext invocationContext, IFileManageme
         var endpoint = ApiEndpoints.BlogPostsSegment.WithQuery(query);
 
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
-        var response = await Client.Paginate<BlogPostWithTranslationsDto>(request);
+        var response = await Client.Paginate<BlogPostDto>(request);
 
         if (input.NotTranslatedInLanguage != null)
         {
