@@ -23,7 +23,22 @@ public class MetaActionsTests : TestBase
         Assert.AreEqual(result.Items.Any(), true);
         System.Console.WriteLine(result.Items.Count());
     }
-    
+
+    [TestMethod]
+    public async Task SearchContent_WithBlog_ShouldNotFail()
+    {
+        var actions = new BlogPostsActions(InvocationContext, FileManager);
+
+        var result = await actions.GetAllBlogPosts(new()
+        {
+            State = "PUBLISHED",
+            Language = "en-us",
+        });
+
+        Assert.AreEqual(result.Items.Any(), true);
+        System.Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
+    }
+
     [TestMethod]
     public async Task SearchContent_WithLandingPageContentType_ShouldNotFail()
     {

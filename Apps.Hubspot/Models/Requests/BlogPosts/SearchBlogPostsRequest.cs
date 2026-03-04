@@ -41,8 +41,4 @@ public class SearchBlogPostsRequest : PagesTimeFilterRequest
     [Display("Domain contains"), DataSource(typeof(DomainDataHandler))]
     [JsonProperty("domain__contains")]
     public string? PageDomainContains { get; set; }
-
-    [Display("Url contains")]
-    [JsonIgnore]
-    public string? UrlContains { get; set; }
 }

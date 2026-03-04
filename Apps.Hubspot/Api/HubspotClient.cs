@@ -59,6 +59,7 @@ public class HubspotClient(string? baseUrl = null) : BlackBirdRestClient(new()
 
     public async Task<List<T>> Paginate<T>(RestRequest request)
     {
+        request.AddQueryParameter("limit", 250);
         var baseUrl = request.Resource;
         var after = string.Empty;
 
@@ -68,7 +69,7 @@ public class HubspotClient(string? baseUrl = null) : BlackBirdRestClient(new()
         {
             if (!string.IsNullOrEmpty(after))
             {
-                request.Resource = baseUrl.SetQueryParameter("after", after);
+                request.AddOrUpdateParameter("after", after);
             }
 
             response = await ExecuteWithErrorHandling<GetAllResponse<T>>(request);
