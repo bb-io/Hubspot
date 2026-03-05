@@ -50,91 +50,149 @@ The app makes use of the `content` and `forms` OAuth scopes. You account needs t
    ![Connected](image/README/connected.png)
 
 ## Actions
-
-### Content actions
-
-> "Content" refers to all content types available in our app, including Landing & pages, blog posts, marketing emails, and marketing forms. These objects are unified under a single content class that includes the following properties: Content ID, Title, Language, Created At, Updated At, and Content Type (blog, landing_page, site_page, email, or form).
-
-- **Search content**: Search for any type of content.
-- **Get content**: Retrieve metadata for a specific content type based on its ID.
-- **Get translation language codes** returns list of translated locales for specific content based on ID (available only for `landing/site pages` and `blog posts` content types)
-- **Download content**: Download content as HTML for a specific content type based on its ID.
-- **Upload content**: Update content from an HTML file.
-  - **Enable internal link localization**: When enabled, this feature automatically updates internal links within your uploaded HTML content to point to the correct localized versions. This is particularly useful when managing multilingual content across different language variants. Instead of manually adjusting each link for different language versions, the system will intelligently transform URLs to match the target locale of the content being uploaded. This works for internal links pointing to site pages, landing pages, and blog posts.
-  - **Published site base URL**: This optional parameter allows you to specify the base URL of your published site (e.g., https://example.com). When provided alongside the internal link localization feature, it helps the system correctly identify and process internal links by establishing the root domain for your content. This ensures that only links within your domain are processed for localization.
-  - **Create new content**: This optional parameter allows you to create new content instead of updating existing content. **Important**: this is valid only for `marketing forms` and `marketing emails` content types, since they don't have a localization feature in hubspot. For all other content types, this parameter is ignored.
-- **Update content**: Update content based on specified criteria using its ID.
-- **Delete content**: Delete content based on its ID.
-
-> Please note that we strongly recommend using these actions, as in the future, we will mark all other actions as deprecated. We will not add any new features to them and will eventually delete them (you will still be able to use the non-latest version of Hubspot app and have access to those actions).
-
-### Landing & site pages
-
-> Note: the actions for landing and site pages are the same, but have separate actions for each. It is preferable that you use the content actions as outlined above as they are set to replace these individual actions below.
-
-A site page is a more general and versatile page on Hubspot CMS website that can contain various types of content and is part of your site's overall navigation and structure. A landing page in HubSpot CMS is a standalone page typically designed for a specific marketing campaign, with a clear call-to-action (CTA) to capture leads.
-
-- **Get a landing/site page** Retrieve information from a specific page on your website by selecting it from a dynamic drop-down list as an input value.
-- **Search landing/site pages** searches for landing/site pages matching certain criteria. One of those criteria is _Not translated in language_ which you can use to filter pages that are missing translations.
-- **Get landing/site page translation language codes** returns list of translated locales for landing/site page based on ID
-- **Get a landing/site page as HTML file** Get webpage details and an HTML file of its content for easy translation and integration while preserving formatting and layout.
-- **Translate a landing/site page from HTML file** Create a new translation for a landing/site page based on an HTML file input. It enables seamless integration of externally translated content back into the website while maintaining the HTML structure. Note: if you are using this action with a landing/site page that has no translations yet, you need to provide the primary language.
-- **Schedule a landing/site page for publishing** Automate webpage publishing to release translated content at the right time for a better user experience.
-
+### Content
+> "Content" includes landing pages, site pages, blog posts, marketing emails, and marketing forms.
+- **Search content** Search content that matches the specified filters.
+    Advanced settings:
+  - **Language ID**: Filter results by language.
+  - **Created at**: Include content created at a specific date.
+  - **Created after**: Include content created after a specific date.
+  - **Created before**: Include content created before a specific date.
+  - **Updated at**: Include content updated at a specific date.
+  - **Updated after**: Include content updated after a specific date.
+  - **Updated before**: Include content updated before a specific date.
+  - **Domain equals**: Filter content by an exact domain.
+  - **Domain contains**: Filter content by a partial domain value.
+  - **Current state**: Filter content by workflow state.
+  - **URL contains**: Filter content by URL text.
+  - **Slug**: Filter content by slug.
+  - **Title contains**: Filter content by partial title text.
+  - **Title equals**: Filter content by an exact title.
+  - **Updated by user IDs (whitelist)**: Include updates from specific users only.
+  - **Updated by user IDs (blacklist)**: Exclude updates from specific users.
+- **Get translation language codes** Get translation language codes for a specific content item.
+- **Get content** Get metadata for a specific content item.
+- **Download content** Download content for a specific content item.
+    Advanced settings:
+  - **Properties to include**: Include only selected properties in the downloaded file.
+  - **Properties to exclude**: Exclude selected properties from the downloaded file.
+- **Upload content** Update content from an uploaded file.
+    Advanced settings:
+  - **Content ID**: Use a specific content item ID from input instead of the file metadata.
+  - **Enable internal link localization**: Localize internal links for translated content.
+  - **Published site base URL**: Define the base URL used when localizing internal links.
+  - **Create new content**: Create a new item for emails and forms instead of updating the original item.
+  - **Original item ID**: Use a specific source item ID for blog posts, landing pages, or site pages.
+  - **Update slug and meta description from file**: Update page metadata from file meta tags.
+- **Update content** Update content by ID.
+- **Delete content** Delete content by ID.
+> Content actions are the preferred path for new automations. Other action groups remain available but are planned for deprecation over time.
+### Pages
+- **Search site pages** Search site pages that match the specified filters.
+    Advanced settings:
+  - **Not translated in language**: Return pages that do not have a translation in the selected language.
+  - **Site name contains**: Filter by partial page name.
+  - **Site name equals**: Filter by exact page name.
+  - **State**: Filter by publication state.
+  - **A/B status**: Filter by A/B test status.
+- **Get site page translation language codes** Get translation language codes for a site page.
+- **Get site page** Get details for a specific site page.
+- **Get site page as HTML file** Download a site page for translation or review.
+- **Translate site page from HTML file** Create or update a site page translation from a file.
+    Advanced settings:
+  - **Source page ID**: Set the source page explicitly when it is missing from file metadata.
+  - **Primary language**: Set the primary language when creating the first language variation.
+- **Schedule site-page for publishing** Schedule a site page for publishing.
+    Advanced settings:
+  - **Date time**: Publish at a specific date and time. If omitted, publishing is scheduled shortly after execution.
+### Landing page
+- **Search landing pages** Search landing pages that match the specified filters.
+- **Get landing page** Get details for a specific landing page.
+- **Get landing page translation language codes** Get translation language codes for a landing page.
+- **Get landing page as HTML file** Download a landing page for translation or review.
+- **Translate landing page from HTML file** Create or update a landing page translation from a file.
+- **Schedule landing page for publishing** Schedule a landing page for publishing.
 ### Blog posts
-
-- **Search blog posts** searches for blog posts matching certain criteria. One of those criteria is _Not translated in language_ which you can use to filter pages that are missing translations.
-- **Get blog post** Get blog post information.
-- **Create blog post** Create a new blog post. This action allows for the generation of fresh, localized content to engage global audiences and expand the reach of your blog or website, fostering international growth and user engagement.
-- **Delete blog post** Delete a blog post
-- **Get blog post as HTML file** Get blog post as HTML file.
-- **Translate blog post from HTML file** Translate blog post from HTML file.
-- **Update blog post** Update a blog post information.
-- **Schedule a blog post page for publishing** Automate blog post publishing to release translated content at the right time for a better user experience.
-
+- **Search blog posts** Search blog posts that match the specified filters.
+    Advanced settings:
+  - **Only IDs**: Output only blog post IDs.
+- **Get blog post** Get details for a specific blog post.
+- **Create blog post** Create a new blog post.
+- **Update blog post** Update an existing blog post.
+- **Delete blog post** Delete a blog post.
+- **Get blog post as HTML file** Download a blog post for translation or review.
+- **Translate blog post from HTML file** Create or update a blog post translation from a file.
+    Advanced settings:
+  - **Post ID**: Set the source blog post explicitly when it is missing from file metadata.
+- **Schedule blog post for publishing** Schedule a blog post for publishing.
 ### Marketing emails
-
-Note: the Hubspot API marks these endpoints in beta stage.
-
-- **Search marketing emails** searches for marketing emails based on certain criteria.
-- **Create marketing email** creates a new marketing email.
-- **Get marketing email content as HTML** returns a marketing email content from a (translated) HTML file. Field `Marketing Email ID` is required 
-- **Update marketing email content from HTML** updates a marketing email content from a (translated) HTML file. Fields `File` and `Marketing Email ID` is required.
-- **Create marketing email from HTML** creates a marketing email by extracting content from an uploaded HTML file
-- **Update marketing email** updates a marketing email.
-
+> HubSpot marks the marketing email API as beta.
+- **Search marketing emails** Search marketing emails that match the specified filters.
+    Advanced settings:
+  - **Archived**: Include archived email records in the search.
+- **Create marketing email** Create a new marketing email.
+- **Get marketing email content as HTML** Download marketing email content for translation or review.
+    Advanced settings:
+  - **Exclude title from file**: Exclude the title from the exported HTML file.
+- **Update marketing email** Update marketing email properties.
+    Advanced settings:
+  - **Subject**: Update the email subject.
+  - **Business unit ID**: Set the business unit for the email.
+- **Update marketing email content from HTML** Update marketing email content from a file.
+    Advanced settings:
+  - **Marketing email ID**: Use an explicit marketing email ID instead of relying on file metadata.
+- **Create marketing email from HTML** Create a marketing email from a file.
 ### Marketing forms
-
-Note: the Hubspot API marks these endpoints in beta stage.
-
-- **Search marketing forms** searches for marketing forms based on certain criteria.
-- **Get marketing form** retrieves a marketing form.
-- **Get marketing form as HTML** returns a marketing form as an HTML file for convenient translation.
-- **Update marketing form from HTML** updates a marketing form from a (translated) HTML file.
-- **Create marketing form** creates a new marketing form.
-- **Create marketing form from HTML** create a marketing form from a HTML file content, using metadata IDs: `name`, `type`, `language`, `archived`. If there is no specific metadata, then it search for HTML tag IDs: `name`, `type`, `language`, `archived`.
-
-> Important: when using the `Update/create .. from HTML` actions, please make sure that the HTML file was generated from the `Get .. as HTML` action. Otherwise, the HTML file may not be compatible with the Hubspot CMS and may cause errors when uploading.
-
+> HubSpot marks the marketing forms API as beta.
+- **Search marketing forms** Search marketing forms that match the specified filters.
+    Advanced settings:
+  - **Form types**: Filter by one or more form types.
+- **Get marketing form** Get a marketing form by ID.
+- **Create marketing form** Create a new marketing form.
+- **Get marketing form content as HTML** Download marketing form content for translation or review.
+- **Update marketing form from HTML** Update a marketing form from a file.
+    Advanced settings:
+  - **Form ID**: Use an explicit form ID instead of relying on file metadata.
+- **Create marketing form from HTML** Create a marketing form from a file.
 ### HubDB
-
-- **Export table** Exports a HubDB table (draft or published) in the selected format
-- **Publish table** Publishes a HubDB table by copying draft data and schema to the published version
-- **Search rows** Gets HubDB table rows by table ID or name
-- **Search tables** Gets HubDB tables that match the search criteria
-- **Update row column** Updates a column value in a HubDB row (draft version)
-- **Download rows content** Downloads specified columns and rows from a HubDb table into an HTML file
-- **Upload rows content** Create or update HubDB rows from an HTML file
-
+- **Search tables** Search HubDB tables that match the specified filters.
+    Advanced settings:
+  - **Name contains**: Filter tables by partial technical name.
+  - **Label contains**: Filter tables by partial label.
+  - **Updated by (User IDs)**: Filter tables by updater user IDs.
+- **Export table** Download a HubDB table in the selected format.
+- **Publish table** Publish a HubDB table from draft to published.
+- **Search rows** Search HubDB table rows by table ID or name.
+    Advanced settings:
+  - **Filter query**: Apply HubDB filter syntax to row search.
+- **Download rows content** Download selected columns and rows from a HubDB table.
+- **Update row column** Update a column value in a HubDB draft row.
+    Advanced settings:
+  - **Text value**: Set a text value.
+  - **Numeric value**: Set a number value.
+  - **Date value**: Set a date value.
+- **Upload rows content** Create or update HubDB rows from a file.
+### Miscellaneous
+- **Debug** Output connection credentials for debugging.
+- **Get connected site info** Get account information for the connected site for debugging.
 ## Events
-
-- **On content created or updated** (polling): Triggered at specified time intervals and returns all blog posts, landing pages, site pages, emails, and forms that were updated or created during the specified time interval.
-- **On blog posts created or updated** (polling): Triggered at specified time intervals and returns all blog posts was created or updated.
-- **On landing pages created or updated** (polling): Triggered at specified time intervals and returns all landing pages was created or updated.
-- **On site pages created or updated** (polling): Triggered at specified time intervals and returns all site pages was created or updated.
-
-> This events are working on polling mechanism, so you won't be immediately notified about the changes. You can configure the polling interval starting from 5 minutes to 7 days.
-
+### Content
+- **On content created or updated** Outputs content created or updated since the previous poll.
+    Advanced settings:
+  - **Content types**: Limit events to selected content types.
+  - **Language**: Limit events to a specific language.
+  - **Published**: Limit events to published content only.
+### Blog posts
+- **On blog posts created or updated** Outputs blog posts created or updated since the previous poll.
+### Pages
+- **On site pages created or updated** Outputs site pages created or updated since the previous poll.
+### Landing page
+- **On landing pages created or updated** Outputs landing pages created or updated since the previous poll.
+### Marketing forms
+- **On marketing forms created or updated** Outputs marketing forms created or updated since the previous poll.
+### Marketing emails
+- **On marketing emails created or updated** Outputs marketing emails created or updated since the previous poll.
+> Events use polling. Configure an interval from 5 minutes up to 7 days.
 ## Useful tips
 
 All actions that work with HTML files will add a meta tag to the HTML. This meta tag is named `blackbird-reference-id`. This tag is used to identify the content in the Hubspot CMS, eliminating the need to store IDs elsewhere
@@ -150,3 +208,4 @@ This example uses a polling event to check for new blog posts. When a new blog p
 This example demonstrates how you can work with the `Hubspot CMS` app in a generic way. This bird will pick up all updated or created content within a specified time interval and translate it into a specific language. Using this approach, you don't need to create five different birds; you can just create one for this purpose
 
 <!-- end docs -->
+

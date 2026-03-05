@@ -33,7 +33,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
     [BlueprintEventDefinition(BlueprintEvent.ContentCreatedOrUpdatedMultiple)]
     [PollingEvent("On content created or updated",
         Description =
-            "Triggered at specified time intervals and returns all blog posts, landing pages, site pages, emails, and forms that were updated or created during the specified time interval")]
+            "Triggered at specified intervals and outputs content created or updated since the previous poll")]
     public async Task<PollingEventResponse<PageMemory, SearchMetadataResponse>> OnContentCreatedOrUpdated(PollingEventRequest<PageMemory> request, 
         [PollingEventParameter] LanguageRequest languageRequest,
         [PollingEventParameter] ContentTypesOptionalFilter contentTypesFilter)
@@ -173,7 +173,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         };
     }
     
-    [PollingEvent("On blog posts created or updated", Description = "Triggered when a blog post is created or updated")]
+    [PollingEvent("On blog posts created or updated", Description = "Outputs blog posts created or updated since the previous poll")]
     public async Task<PollingEventResponse<PageMemory, BlogPostsResponse>>
         OnBlogPostsCreatedOrUpdated(PollingEventRequest<PageMemory> request,
             [PollingEventParameter] LanguageRequest languageRequest)
@@ -214,7 +214,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
         };
     }
 
-    [PollingEvent("On site pages created or updated", Description = "Triggered when a site page is created or updated")]
+    [PollingEvent("On site pages created or updated", Description = "Outputs site pages created or updated since the previous poll")]
     public async Task<PollingEventResponse<PageMemory, PagesResponse>>
         OnSitePageCreatedOrUpdated(PollingEventRequest<PageMemory> request,
             [PollingEventParameter] LanguageRequest languageRequest)
@@ -256,7 +256,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
     }
 
     [PollingEvent("On landing pages created or updated",
-        Description = "Triggered when a landing page is created or updated")]
+        Description = "Outputs landing pages created or updated since the previous poll")]
     public async Task<PollingEventResponse<PageMemory, PagesResponse>>
         OnLandingPageCreatedOrUpdated(PollingEventRequest<PageMemory> request,
             [PollingEventParameter] LanguageRequest languageRequest)
@@ -298,7 +298,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
     }
     
     [PollingEvent("On marketing forms created or updated",
-        Description = "Triggered when a marketing forms is created or updated")]
+        Description = "Outputs marketing forms created or updated since the previous poll")]
     public async Task<PollingEventResponse<PageMemory, MarketingFormsResponse>>
         OnMarketingFormsCreatedOrUpdated(PollingEventRequest<PageMemory> request,
             [PollingEventParameter] LanguageRequest languageRequest)
@@ -340,7 +340,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
     }
 
     [PollingEvent("On marketing emails created or updated",
-        Description = "Triggered when a marketing emails is created or updated")]
+        Description = "Outputs marketing emails created or updated since the previous poll")]
     public async Task<PollingEventResponse<PageMemory, MarketingEmailsResponse>>
         OnMarketingEmailsCreatedOrUpdated(PollingEventRequest<PageMemory> request,
             [PollingEventParameter] LanguageRequest languageRequest)

@@ -11,13 +11,13 @@ namespace Apps.Hubspot.Actions;
 [ActionList] 
 public class DebugActions(InvocationContext invocationContext) : HubSpotInvocable(invocationContext) 
 {
-    [Action("Debug", Description = "Debug action")]
+    [Action("Debug", Description = "Output connection credentials for debugging")]
     public List<AuthenticationCredentialsProvider> DebugAction()
     {
         return InvocationContext.AuthenticationCredentialsProviders.ToList();
     }
     
-    [Action("Get connected site info", Description = "Retrieves information about site for the connected Hubspot account. Useful only for debugging purposes.")]
+    [Action("Get connected site info", Description = "Get account information for the connected site for debugging")]
     public async Task<AccountInfoResponse> GetAccountInformation()
     {
         var response = await GetAccountInfo();

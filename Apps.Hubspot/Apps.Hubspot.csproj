@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <Product>Hubspot CMS</Product>
     <Description>Hubspot CMS features including blogs and pages</Description>
-    <Version>1.1.50</Version>
+    <Version>1.1.51</Version>
     <AssemblyName>Apps.Hubspot</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
@@ -17,6 +17,9 @@
     <PackageReference Include="HtmlAgilityPack" Version="1.12.3" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource CopyToOutputDirectory="Always" Include="..\README.md">
+      <Link>README.md</Link>
+    </EmbeddedResource>
     <EmbeddedResource CopyToOutputDirectory="Always" Include="image\icon.jpg"></EmbeddedResource>
   </ItemGroup>
 </Project>

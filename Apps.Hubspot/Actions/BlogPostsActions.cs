@@ -29,7 +29,7 @@ namespace Apps.Hubspot.Actions;
 public class BlogPostsActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : BasePageActions(invocationContext, fileManagementClient)
 {
-    [Action("Search blog posts", Description = "Search for a list of blog posts matching certain criteria")]
+    [Action("Search blog posts", Description = "Search blog posts that match the specified filters")]
     public async Task<ListResponse<BlogPostDto>> GetAllBlogPosts([ActionParameter] SearchBlogPostsRequest input, [ActionParameter][Display("Only IDs")] bool? idsOnly = false)
     {
         var query = input.AsQuery();
@@ -49,7 +49,7 @@ public class BlogPostsActions(InvocationContext invocationContext, IFileManageme
         return new(response);
     }
 
-    [Action("Get blog post", Description = "Get information of a specific blog post")]
+    [Action("Get blog post", Description = "Get details for a specific blog post")]
     public Task<BlogPostDto> GetBlogPost([ActionParameter] BlogPostRequest blogPost)
     {
         var endpoint = $"{ApiEndpoints.BlogPostsSegment}/{blogPost.BlogPostId}";
@@ -67,7 +67,7 @@ public class BlogPostsActions(InvocationContext invocationContext, IFileManageme
         return Client.ExecuteWithErrorHandling<BlogPostDto>(request);
     }
 
-    [Action("Update blog post", Description = "Update a blog post information")]
+    [Action("Update blog post", Description = "Update an existing blog post")]
     public Task<BlogPostDto> UpdateBlogPost(
         [ActionParameter] BlogPostRequest blogPost,
         [ActionParameter] ManageBlogPostRequest input)
@@ -88,7 +88,7 @@ public class BlogPostsActions(InvocationContext invocationContext, IFileManageme
         return Client.ExecuteWithErrorHandling(request);
     }
 
-    [Action("Get blog post as HTML file", Description = "Get blog post as HTML file")]
+    [Action("Get blog post as HTML file", Description = "Download a blog post for translation or review")]
     public async Task<FileLanguageResponse> GetBlogPostAsHtml(
         [ActionParameter] GetBlogPostAsHtmlRequest input)
     {
@@ -111,7 +111,7 @@ public class BlogPostsActions(InvocationContext invocationContext, IFileManageme
         };
     }
 
-    [Action("Translate blog post from HTML file", Description = "Translate blog post from HTML file")]
+    [Action("Translate blog post from HTML file", Description = "Create or update a blog post translation from a file")]
     public async Task<BlogPostDto> TranslateBlogPostFromHtml(
         [ActionParameter] TranslateBlogPostFromHtmlRequest input)
     {
@@ -147,7 +147,7 @@ public class BlogPostsActions(InvocationContext invocationContext, IFileManageme
     }
 
     [Action("Schedule blog post for publishing",
-        Description = "Schedules a blog post for publishing on the given time")]
+        Description = "Schedule a blog post to be published at a specific date and time")]
     public Task ScheduleABlogPostForPublish([ActionParameter] PublishBlogpostRequest request)
     {
         var publishData = request.DateTime ?? DateTime.Now.AddSeconds(30);
