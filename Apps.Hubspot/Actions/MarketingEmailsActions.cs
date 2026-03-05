@@ -30,7 +30,7 @@ namespace Apps.Hubspot.Actions;
 public class MarketingEmailsActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : BaseActions(invocationContext, fileManagementClient)
 {
-    [Action("Search marketing emails", Description = "Search for marketing emails based on provided filters")]
+    [Action("Search marketing emails", Description = "Search marketing emails that match the specified filters")]
     public async Task<ListResponse<MarketingEmailDto>> SearchMarketingEmails([ActionParameter] SearchEmailsRequest input)
     {
         var query = input.AsQuery();
@@ -57,7 +57,7 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
     }
 
     [Action("Get marketing email content as HTML",
-        Description = "Get content of a specific marketing email in HTML format")]
+        Description = "Download marketing email content for translation or review")]
     public async Task<FileResponse> GetMarketingEmailHtml([ActionParameter] MarketingEmailRequest emailRequest, 
         [ActionParameter] LocalizablePropertiesRequest Properties, [ActionParameter][Display("Exclude title from file")] bool? ExcludeTitle)
     {
@@ -77,7 +77,7 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
         };
     }
 
-    [Action("Update marketing email",Description = "Update marketing email")]
+    [Action("Update marketing email",Description = "Update marketing email properties")]
     public async Task<MarketingEmailDto> UpdateMarketingEmailProperties(
     [ActionParameter] UpdateMarketingEmailRequest input)
     {
@@ -103,7 +103,7 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
 
 
     [Action("Update marketing email content from HTML",
-        Description = "Update content of a specific marketing email from HTML file")]
+        Description = "Update marketing email content from a file")]
     public async Task UpdateMarketingEmail([ActionParameter] MarketingEmailOptionalRequest emailRequest,
         [ActionParameter] FileRequest fileRequest)
     {
@@ -160,7 +160,7 @@ public class MarketingEmailsActions(InvocationContext invocationContext, IFileMa
         var response = await Client.ExecuteWithErrorHandling(request);
     }
 
-    [Action("Create marketing email from HTML", Description = "Create email from a HTML file content")]
+    [Action("Create marketing email from HTML", Description = "Create a marketing email from a file")]
     public async Task<MarketingEmailDto> CreateMarketingEmailFromHtml([ActionParameter] FileRequest fileRequest, [ActionParameter] CreateMarketingEmailOptionalRequest input)
     {
         var htmlFile = await FileManagementClient.DownloadAsync(fileRequest.File);

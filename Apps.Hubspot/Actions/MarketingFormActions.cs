@@ -25,7 +25,7 @@ namespace Apps.Hubspot.Actions;
 public class MarketingFormActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : BaseActions(invocationContext, fileManagementClient)
 {
-    [Action("Search marketing forms", Description = "Search for marketing forms based on provided filters")]
+    [Action("Search marketing forms", Description = "Search marketing forms that match the specified filters")]
     public async Task<ListResponse<MarketingFormDto>> SearchMarketingForms([ActionParameter] SearchFormsRequest input)
     {
         var endpoint = $"{ApiEndpoints.MarketingFormsEndpoint}" + input.BuildQuery();
@@ -61,7 +61,7 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
     }
 
     [Action("Get marketing form content as HTML",
-        Description = "Get content of a specific marketing form in HTML format")]
+        Description = "Download marketing form content for translation or review")]
     public async Task<FileResponse> GetMarketingFormAsHtml([ActionParameter] MarketingFormRequest formRequest,
         [ActionParameter][Display("Exclude title from file")] bool? ExcludeTitle)
     {
@@ -80,7 +80,7 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
     }
 
     [Action("Update marketing form from HTML",
-        Description = "Update a marketing form from HTML content")]
+        Description = "Update a marketing form from a file")]
     public async Task<MarketingFormDto> UpdateMarketingFormFromHtml(
         [ActionParameter] UpdateMarketingFormRequest formRequest)
     {
@@ -202,7 +202,7 @@ public class MarketingFormActions(InvocationContext invocationContext, IFileMana
         return validObjectTypeIds.Contains(inputTypeId) ? inputTypeId : "0-1";
     }
 
-    [Action("Create marketing form from HTML", Description = "Create a marketing form from a HTML file content")]
+    [Action("Create marketing form from HTML", Description = "Create a marketing form from a file")]
     public async Task<MarketingFormDto> CreateMarketingFormFromHtml([ActionParameter] FileRequest fileRequest,
         [ActionParameter] CreateMarketingFormFromHtmlRequest input)
     {

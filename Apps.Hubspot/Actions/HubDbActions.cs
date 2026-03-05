@@ -25,7 +25,7 @@ public class HubDbActions(InvocationContext invocationContext, IFileManagementCl
     : BasePageActions(invocationContext, fileManagementClient)
 
 {
-    [Action("Search tables", Description = "Gets HubDB tables that match the search criteria")]
+    [Action("Search tables", Description = "Search HubDB tables that match the specified filters")]
     public async Task<List<TableDto>> SearchTables([ActionParameter] SearchTablesRequest input)
     {
         if (string.IsNullOrWhiteSpace(input.Version))
@@ -74,7 +74,7 @@ public class HubDbActions(InvocationContext invocationContext, IFileManagementCl
         return filtered.ToList();
     }
 
-    [Action("Export table", Description = "Exports a HubDB table (draft or published) in the selected format")]
+    [Action("Export table", Description = "Download a HubDB table in the selected format")]
     public async Task<FileResponse> ExportTable([ActionParameter] TableVersionRequest version,
     [ActionParameter] TableExportRequest input)
     {
@@ -120,7 +120,7 @@ public class HubDbActions(InvocationContext invocationContext, IFileManagementCl
         };
     }
 
-    [Action("Publish table", Description = "Publishes a HubDB table by copying draft data and schema to the published version")]
+    [Action("Publish table", Description = "Publish a HubDB table from draft to published")]
     public async Task<TableDto> PublishTable([ActionParameter] DraftTableRequest input)
     {
         if (string.IsNullOrWhiteSpace(input.TableIdOrName))
@@ -134,7 +134,7 @@ public class HubDbActions(InvocationContext invocationContext, IFileManagementCl
         return response;
     }
 
-    [Action("Search rows", Description = "Gets HubDB table rows by table ID or name")]
+    [Action("Search rows", Description = "Search HubDB table rows by table ID or name")]
     public async Task<SearchRowsResponse> SearchRows([ActionParameter] TableVersionRequest version,
         [ActionParameter] SearchRowsRequest input )
     {
@@ -177,7 +177,7 @@ public class HubDbActions(InvocationContext invocationContext, IFileManagementCl
         return new SearchRowsResponse { Rows = rows };
     }
 
-    [Action("Download rows content", Description = "Downloads specified columns and rows from a HubDb table into an HTML file")]
+    [Action("Download rows content", Description = "Download selected columns and rows from a HubDB table")]
     public async Task<FileResponse> ExportRowsAsHtml(
     [ActionParameter] TableVersionRequest version,
     [ActionParameter] ExportRowsHtmlRequest input)
@@ -258,7 +258,7 @@ public class HubDbActions(InvocationContext invocationContext, IFileManagementCl
         };
     }
 
-    [Action("Update row column", Description = "Updates a column value in a HubDB row (draft version)")]
+    [Action("Update row column", Description = "Update a column value in a HubDB draft row")]
     public async Task<RowDto> UpdateRowColumn([ActionParameter] DraftTableRequest table,
         [ActionParameter] UpdateRowColumnRequest input)
     {
@@ -297,7 +297,7 @@ public class HubDbActions(InvocationContext invocationContext, IFileManagementCl
     }
 
     [Action("Upload rows content",
-    Description = "Create or update HubDB rows accordingly from an HTML file")]
+    Description = "Create or update HubDB rows from a file")]
     public async Task<UploadRowsResponse> UploadRowsFromHtml(
     [ActionParameter] UploadRowsContentRequest input)
     {

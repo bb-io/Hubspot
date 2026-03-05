@@ -27,7 +27,7 @@ namespace Apps.Hubspot.Actions;
 public class LandingPageActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : BasePageActions(invocationContext, fileManagementClient)
 {
-    [Action("Search landing pages", Description = "Search for a list of site pages that match a certain criteria")]
+    [Action("Search landing pages", Description = "Search landing pages that match the specified filters")]
     public async Task<ListResponse<PageDto>> GetAllLandingPages([ActionParameter] SearchPagesRequest searchPagesRequest)
     {
         if (searchPagesRequest.UpdatedByUserIdsWhitelist?.Any() == true && 
@@ -70,14 +70,14 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
         return new(response);
     }
 
-    [Action("Get landing page", Description = "Get information of a specific landing page")]
+    [Action("Get landing page", Description = "Get details for a specific landing page")]
     public Task<PageDto> GetLandingPage([ActionParameter] LandingPageRequest input)
     {
         PluginMisconfigurationExceptionHelper.ThrowIsNullOrEmpty(input.PageId, nameof(input.PageId));
         return GetPage<PageDto>(ApiEndpoints.ALandingPage(input.PageId));
     }
     
-    [Action("Get landing page translation language codes", Description = "Returns list of translated locales for landing page based on ID")]
+    [Action("Get landing page translation language codes", Description = "Get translation language codes for a landing page")]
     public async Task<TranslatedLocalesResponse> GetListOfTranslatedLocales([ActionParameter] LandingPageRequest request)
     {
         ContentServicesFactory factory = new(invocationContext);
@@ -86,7 +86,7 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
     }
 
     [Action("Get landing page as HTML file",
-        Description = "Get information of a specific landing page and return an HTML file of its content")]
+        Description = "Download a landing page for translation or review")]
     public async Task<FileLanguageResponse> GetLandingPageAsHtml([ActionParameter] LandingPageRequest input, 
         [ActionParameter] LocalizablePropertiesRequest Properties)
     {
@@ -111,7 +111,7 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
     }
 
     [Action("Translate landing page from HTML file",
-        Description = "Create a new translation for a site page based on a file input")]
+        Description = "Create or update a landing page translation from a file")]
     public async Task<TranslationResponse> TranslateLandingPageFromFile(
         [ActionParameter] TranslateLandingPageFromFileRequest request)
     {
@@ -144,7 +144,7 @@ public class LandingPageActions(InvocationContext invocationContext, IFileManage
     }
 
     [Action("Schedule landing page for publishing",
-        Description = "Schedules a landing page for publishing on the given time")]
+        Description = "Schedule a landing page to be published at a specific date and time")]
     public Task ScheduleALandingPageForPublish([ActionParameter] PublishLandingPageRequest request)
     {
         var publishData = request.DateTime ?? DateTime.Now.AddSeconds(30);

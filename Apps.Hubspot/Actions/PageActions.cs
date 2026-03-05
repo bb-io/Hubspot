@@ -27,7 +27,7 @@ namespace Apps.Hubspot.Actions;
 public class PageActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) 
     : BasePageActions(invocationContext, fileManagementClient)
 {
-    [Action("Search site pages", Description = "Search for a list of site pages that match a certain criteria")]
+    [Action("Search site pages", Description = "Search site pages that match the specified filters")]
     public async Task<ListResponse<PageDto>> GetAllSitePages([ActionParameter] SearchPagesRequest searchPageRequest)
     {
         if (searchPageRequest.UpdatedByUserIdsWhitelist?.Any() == true && 
@@ -74,7 +74,7 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
         return new(items);
     }
 
-    [Action("Get site page translation language codes", Description = "Returns list of translated locales for site page based on ID")]
+    [Action("Get site page translation language codes", Description = "Get translation language codes for a site page")]
     public async Task<TranslatedLocalesResponse> GetListOfTranslatedLocales([ActionParameter] SitePageRequest request)
     {
         ContentServicesFactory factory = new(InvocationContext);
@@ -82,7 +82,7 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
         return await service.GetTranslationLanguageCodesAsync(request.PageId);
     }
 
-    [Action("Get site page", Description = "Get information of a specific page")]
+    [Action("Get site page", Description = "Get details for a specific site page")]
     public Task<PageDto> GetSitePage([ActionParameter] SitePageRequest input)
     {
         PluginMisconfigurationExceptionHelper.ThrowIsNullOrEmpty(input.PageId, nameof(input.PageId));
@@ -90,7 +90,7 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
     }
 
     [Action("Get site page as HTML file",
-        Description = "Get information of a specific page and return an HTML file of its content")]
+        Description = "Download a site page for translation or review")]
     public async Task<FileLanguageResponse> GetSitePageAsHtml([ActionParameter] SitePageRequest input, 
         [ActionParameter] LocalizablePropertiesRequest Properties)
     {
@@ -124,7 +124,7 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
     }
 
     [Action("Translate site page from HTML file",
-        Description = "Create a new translation for a site page based on a file searchPageRequest")]
+        Description = "Create or update a site page translation from a file")]
     public async Task<TranslationResponse> TranslateSitePageFromFile(
         [ActionParameter] TranslateSitePageFromFileRequest request)
     {
@@ -166,7 +166,7 @@ public class PageActions(InvocationContext invocationContext, IFileManagementCli
     }
 
     [Action("Schedule site-page for publishing",
-        Description = "Schedules a site page for publishing on the given time")]
+        Description = "Schedule a site page to be published at a specific date and time")]
     public Task ScheduleASitePageForPublish([ActionParameter] PublishSitePageRequest request)
     {
         var dateTime = request.DateTime ?? DateTime.Now.AddSeconds(30);

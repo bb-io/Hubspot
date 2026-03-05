@@ -33,7 +33,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
     [BlueprintEventDefinition(BlueprintEvent.ContentCreatedOrUpdatedMultiple)]
     [PollingEvent("On content created or updated",
         Description =
-            "Triggered at specified time intervals and returns all blog posts, landing pages, site pages, emails, and forms that were updated or created during the specified time interval")]
+            "Triggered at specified intervals and outputs content created or updated since the previous poll")]
     public async Task<PollingEventResponse<PageMemory, SearchMetadataResponse>> OnContentCreatedOrUpdated(PollingEventRequest<PageMemory> request, 
         [PollingEventParameter] LanguageRequest languageRequest,
         [PollingEventParameter] ContentTypesOptionalFilter contentTypesFilter)
@@ -298,7 +298,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
     }
     
     [PollingEvent("On marketing forms created or updated",
-        Description = "Triggered when a marketing forms is created or updated")]
+        Description = "Triggered when a marketing form is created or updated")]
     public async Task<PollingEventResponse<PageMemory, MarketingFormsResponse>>
         OnMarketingFormsCreatedOrUpdated(PollingEventRequest<PageMemory> request,
             [PollingEventParameter] LanguageRequest languageRequest)
@@ -340,7 +340,7 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
     }
 
     [PollingEvent("On marketing emails created or updated",
-        Description = "Triggered when a marketing emails is created or updated")]
+        Description = "Triggered when a marketing email is created or updated")]
     public async Task<PollingEventResponse<PageMemory, MarketingEmailsResponse>>
         OnMarketingEmailsCreatedOrUpdated(PollingEventRequest<PageMemory> request,
             [PollingEventParameter] LanguageRequest languageRequest)
