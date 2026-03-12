@@ -79,11 +79,11 @@ public class ContentPollingListTests : TestBase
         if (response.FlyBird)
         {
             Assert.IsNotNull(response.Result);
-            Assert.IsNotNull(response.Result.Metadata);
-            Assert.IsTrue(response.Result.Metadata.Any());
+            Assert.IsNotNull(response.Result.Items);
+            Assert.IsTrue(response.Result.Items.Any());
             
-            Console.WriteLine($"Found content items: {response.Result.Metadata.Count}");
-            foreach (var item in response.Result.Metadata.Take(5)) // Log first 5 items
+            Console.WriteLine($"Found content items: {response.Result.Items.Count}");
+            foreach (var item in response.Result.Items.Take(5)) // Log first 5 items
             {
                 Console.WriteLine($"Item: {item.ContentId}, Type: {item.Type}, Title: {item.Title}, Updated: {item.UpdatedAt}");
             }
@@ -123,12 +123,12 @@ public class ContentPollingListTests : TestBase
         if (response.FlyBird)
         {
             Assert.IsNotNull(response.Result);
-            Assert.IsNotNull(response.Result.Metadata);
-            Assert.IsTrue(response.Result.Metadata.All(m => m.Type == ContentTypes.Blog), 
+            Assert.IsNotNull(response.Result.Items);
+            Assert.IsTrue(response.Result.Items.All(m => m.Type == ContentTypes.Blog), 
                 "All returned content should be blogs");
             
-            Console.WriteLine($"Found blog items: {response.Result.Metadata.Count}");
-            foreach (var item in response.Result.Metadata.Take(5))
+            Console.WriteLine($"Found blog items: {response.Result.Items.Count}");
+            foreach (var item in response.Result.Items.Take(5))
             {
                 Console.WriteLine($"Blog: {item.ContentId}, Title: {item.Title}, Updated: {item.UpdatedAt}");
             }
@@ -168,12 +168,12 @@ public class ContentPollingListTests : TestBase
         if (response.FlyBird)
         {
             Assert.IsNotNull(response.Result);
-            Assert.IsNotNull(response.Result.Metadata);
-            Assert.IsTrue(response.Result.Metadata.All(m => m.Published), 
+            Assert.IsNotNull(response.Result.Items);
+            Assert.IsTrue(response.Result.Items.All(m => m.Published), 
                 "All returned content should be published");
             
-            Console.WriteLine($"Found published items: {response.Result.Metadata.Count}");
-            foreach (var item in response.Result.Metadata.Take(5))
+            Console.WriteLine($"Found published items: {response.Result.Items.Count}");
+            foreach (var item in response.Result.Items.Take(5))
             {
                 Console.WriteLine($"Published Item: {item.ContentId}, Type: {item.Type}, Title: {item.Title}");
             }
@@ -213,13 +213,13 @@ public class ContentPollingListTests : TestBase
         if (response.FlyBird)
         {
             Assert.IsNotNull(response.Result);
-            Assert.IsNotNull(response.Result.Metadata);
-            Assert.IsTrue(response.Result.Metadata.All(m => 
+            Assert.IsNotNull(response.Result.Items);
+            Assert.IsTrue(response.Result.Items.All(m => 
                 m.Type == ContentTypes.Blog || m.Type == ContentTypes.Email), 
                 "All returned content should be blogs or emails");
             
-            Console.WriteLine($"Found filtered items: {response.Result.Metadata.Count}");
-            foreach (var item in response.Result.Metadata.Take(5))
+            Console.WriteLine($"Found filtered items: {response.Result.Items.Count}");
+            foreach (var item in response.Result.Items.Take(5))
             {
                 Console.WriteLine($"Filtered Item: {item.ContentId}, Type: {item.Type}, Title: {item.Title}");
             }
