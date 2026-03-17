@@ -59,8 +59,7 @@ public class HubspotClient(string? baseUrl = null) : BlackBirdRestClient(new()
 
     public async Task<List<T>> Paginate<T>(RestRequest request)
     {
-        request.AddQueryParameter("limit", 250);
-        var baseUrl = request.Resource;
+        request.AddQueryParameter("limit", 100);
         var after = string.Empty;
 
         var result = new List<T>();
