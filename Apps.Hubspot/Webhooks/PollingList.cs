@@ -34,7 +34,8 @@ public class PollingList(InvocationContext invocationContext) : HubSpotInvocable
     [PollingEvent("On content created or updated",
         Description =
             "Triggered at specified intervals and outputs content created or updated since the previous poll")]
-    public async Task<PollingEventResponse<PageMemory, SearchMetadataResponse>> OnContentCreatedOrUpdated(PollingEventRequest<PageMemory> request, 
+    public async Task<PollingEventResponse<PageMemory, SearchMetadataResponse>> OnContentCreatedOrUpdated(
+        PollingEventRequest<PageMemory> request, 
         [PollingEventParameter] LanguageRequest languageRequest,
         [PollingEventParameter] ContentTypesOptionalFilter contentTypesFilter)
     {
