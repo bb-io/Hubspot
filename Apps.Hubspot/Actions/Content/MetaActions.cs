@@ -1,5 +1,9 @@
-﻿using Apps.Hubspot.Extensions;
+﻿using Apps.Hubspot.Api;
+using Apps.Hubspot.Constants;
+using Apps.Hubspot.Extensions;
 using Apps.Hubspot.Invocables;
+using Apps.Hubspot.Models.Dtos.Blogs.Posts;
+using Apps.Hubspot.Models.Dtos.Pages;
 using Apps.Hubspot.Models.Requests;
 using Apps.Hubspot.Models.Requests.Content;
 using Apps.Hubspot.Models.Requests.Emails;
@@ -21,6 +25,7 @@ using Blackbird.Filters.Extensions;
 using Blackbird.Filters.Transformations;
 using Blackbird.Filters.Xliff.Xliff1;
 using Blackbird.Filters.Xliff.Xliff2;
+using RestSharp;
 using System.Net.Mime;
 using System.Text;
 using Metadata = Apps.Hubspot.Models.Responses.Content.Metadata;
@@ -70,6 +75,72 @@ public class MetaActions(InvocationContext invocationContext, IFileManagementCli
         }
 
         return new(metadata);
+    }
+
+    public enum HubSpotContentType
+    {
+        site_page,
+        landing_page,
+        blog
+    }
+
+    [Action("Find content type from ID", Description = "Checks different HubSpot content endpoints to determine the content type of a given ID.")]
+    public async Task<FindContentTypeResponse> FindContentTypeFromId([ActionParameter] FindContentTypeRequest input)
+    {
+        PluginMisconfigurationExceptionHelper.ThrowIsNullOrEmpty(input.ContentId, nameof(input.ContentId));
+
+        var typesToCheck = input.ContentTypes != null && input.ContentTypes.Any()
+            ? input.ContentTypes
+            : Enum.GetValues(typeof(HubSpotContentType)).Cast<HubSpotContentType>().ToList();
+
+        foreach (var contentType in typesToCheck)
+        {
+            bool exists = await CheckContentTypeExistsAsync(input.ContentId, contentType);
+            if (exists)
+            {
+                return new FindContentTypeResponse
+                {
+                    ContentType = contentType
+                };
+            }
+        }
+
+        return new FindContentTypeResponse
+        {
+            ContentType = null
+        };
+    }
+
+    private async Task<bool> CheckContentTypeExistsAsync(string contentId, HubSpotContentType contentType)
+    {
+        try
+        {
+            switch (contentType)
+            {
+                case HubSpotContentType.site_page:
+                    var request = new HubspotRequest(ApiEndpoints.ASitePage(contentId), Method.Get, Creds);
+                    await Client.ExecuteWithErrorHandling<PageDto>(request);
+                    return true;
+
+                case HubSpotContentType.landing_page:
+                    var request2 = new HubspotRequest(ApiEndpoints.ALandingPage(contentId), Method.Get, Creds);
+                    var page = await Client.ExecuteWithErrorHandling<PageDto>(request2);
+                    return true;
+
+                case HubSpotContentType.blog:
+                    var endpoint = $"{ApiEndpoints.BlogPostsSegment}/{contentId}";
+                    var request3 = new HubspotRequest(endpoint, Method.Get, Creds);
+                    await Client.ExecuteWithErrorHandling<BlogPostDto>(request3);
+                    return true;
+
+                default:
+                    return false;
+            }
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     [Action("Get translation language codes",
