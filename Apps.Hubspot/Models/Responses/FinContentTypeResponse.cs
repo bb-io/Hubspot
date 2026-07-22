@@ -5,8 +5,8 @@ namespace Apps.Hubspot.Models.Responses;
 public class FindContentTypeResponse
 {
     [Display("Content type")]
-    public HubSpotContentType? ContentType { get; set; }
+    public string? ContentType { get; set; }
 
     [Display("Found")]
-    public bool Found => ContentType.HasValue;
+    public bool Found => !String.IsNullOrEmpty(ContentType);
 }

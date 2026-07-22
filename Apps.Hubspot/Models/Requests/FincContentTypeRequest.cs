@@ -12,5 +12,5 @@ public class FindContentTypeRequest
 
     [Display("Content types to check")]
     [StaticDataSource(typeof(ReducedContentTypeHandler))]
-    public List<HubSpotContentType>? ContentTypes { get; set; }
+    public List<string>? ContentTypes { get; set; }
 }
