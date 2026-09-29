@@ -14,8 +14,8 @@ public class RowDto
     [Display("Updated at")]
     public DateTime? UpdatedAt { get; set; }
 
-    [DefinitionIgnore]
-    public Dictionary<string, object> Values { get; set; }
+    [JsonProperty("values")]
+    private Dictionary<string, object>? Values { get; set; }
     public string? Path { get; set; }
     public string? Name { get; set; }
 
@@ -27,8 +27,19 @@ public class RowDto
     {
         get
         {
-            if (Values == null) return Enumerable.Empty<string>();
-            return Values.Values.Select(v => v?.ToString() ?? string.Empty);
+            return Values?.Values.Select(v => v?.ToString() ?? string.Empty)
+                ?? Enumerable.Empty<string>();
         }
+    }
+
+    public bool TryGetColumnValue(string columnName, out object? value)
+    {
+        if (Values == null)
+        {
+            value = null;
+            return false;
+        }
+
+        return Values.TryGetValue(columnName, out value);
     }
 }
