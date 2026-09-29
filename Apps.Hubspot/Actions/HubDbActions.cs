@@ -224,7 +224,7 @@ public class HubDbActions(InvocationContext invocationContext, IFileManagementCl
 
             foreach (var col in colNames)
             {
-                row.Values.TryGetValue(col, out var cell);
+                row.TryGetColumnValue(col, out var cell);
                 string cellValue = cell?.ToString() ?? string.Empty;
 
                 sb.AppendLine(
