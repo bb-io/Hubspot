@@ -25,6 +25,12 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
 {
     public override async Task<List<Metadata>> SearchContentAsync(Dictionary<string, string> query, SearchContentRequest searchContentRequest)
     {
+
+        if (searchContentRequest.CurrentState is "PUBLISHED" or "SCHEDULED")
+        {
+            query["state__eq"] = "PUBLISHED_OR_SCHEDULED";
+        }
+
         var endpoint = ApiEndpoints.SitePages.WithQuery(query);
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
         var response = await Client.Paginate<GenericPageDto>(request);
