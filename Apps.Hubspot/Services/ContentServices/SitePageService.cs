@@ -25,6 +25,14 @@ public class SitePageService(InvocationContext invocationContext) : BaseContentS
 {
     public override async Task<List<Metadata>> SearchContentAsync(Dictionary<string, string> query, SearchContentRequest searchContentRequest)
     {
+        // check docs at https://developers.hubspot.com/docs/api-reference/latest/cms/pages/guide#state-values
+        // current state is a generated field which cannot be used as a filter. 
+        if (searchContentRequest.CurrentState is "PUBLISHED" or "SCHEDULED")
+        {
+            query["state__eq"] = "PUBLISHED_OR_SCHEDULED";
+        }
+        // using actual state filterable value instead 
+
         var endpoint = ApiEndpoints.SitePages.WithQuery(query);
         var request = new HubspotRequest(endpoint, Method.Get, Creds);
         var response = await Client.Paginate<GenericPageDto>(request);
